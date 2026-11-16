@@ -1,26 +1,26 @@
 import type { LeadFormData } from "@/lib/validation";
 import { DISPOSTO_INVESTIR_VALUE, rotear01lp, type Tracking01lp } from "@/lib/lead-01lp";
 
-// Lead da /01-lp vai para o n8n no MESMO formato que o form do Elementor
-// (Formulario_Qualificacao, form_id e1b938c, página 3445) envia hoje pela ação
-// Webhook com "advanced data": x-www-form-urlencoded com chaves PHP
+// Lead da /01-lp vai para o n8n no MESMO formato que o form nativo do Elementor
+// manda pela ação Webhook. Referência: script da página WP
+// "obrigado-seja-um-franqueado-c" (montarPayloadElementor), cujos metadados
+// foram "copiados byte a byte de um payload real (lead B) que o N8N recebeu":
+//   POST, Content-Type: application/x-www-form-urlencoded
 //   form[id], form[name]
-//   fields[<id>][id|type|title|value|raw_value|required]
-//   meta[<chave>][title|value]
-// mais "origem". Documentado no README.
+//   fields[<id>][id|type|title|value|raw_value|required]   (todos os campos,
+//     na ordem do form, inclusive os do tipo "html", com value vazio)
+// Sem meta[...] e sem post_id: a referência não manda. Documentado no README.
 //
-// PROVISÓRIO: títulos dos campos ocultos, chaves/títulos de meta e o
-// content-type ainda precisam ser conferidos com uma execução real do n8n.
-// Tudo que pode mudar está nas tabelas FIELDS/META abaixo.
+// Daqui só muda o que é do form da 00-lp (Formulario_Qualificacao, e1b938c,
+// página 3445): ids, tipos, títulos e obrigatoriedade lidos do HTML do form.
+// Títulos dos ocultos = o próprio id, como na referência. Títulos dos campos
+// "html" não aparecem no HTML público (só no editor do Elementor): ficam vazios.
 
 export const ORIGEM_01LP = "alpha-home-01-lp";
 export const FORM_01LP = { id: "e1b938c", name: "Formulario_Qualificacao" } as const;
 
 export type WebhookContext = {
   siteUrl: string;
-  pageUrl: string;
-  userAgent: string | null;
-  ip: string | null;
   now: Date;
 };
 
@@ -34,17 +34,21 @@ type FieldSpec = {
 
 type Extra = { tracking: Tracking01lp; redirectUrl: string; tipo: string; creationTime: string };
 
+const html = (id: string): FieldSpec => ({ id, type: "html", title: "", required: false, value: () => "" });
 const t = (key: keyof Tracking01lp) => (_: LeadFormData, x: Extra) => x.tracking[key] ?? "";
 
-// Ordem e ids iguais aos do form do WP (campos "html" do Elementor não entram no envio).
+// Ordem, ids, tipos, títulos e obrigatoriedade iguais aos do form do WP.
 const FIELDS: FieldSpec[] = [
   { id: "name", type: "text", title: "Nome", required: true, value: (l) => l.nome },
   { id: "email", type: "email", title: "Email", required: true, value: (l) => l.email },
   { id: "field_bb2d15f", type: "tel", title: "Telefone", required: true, value: (l) => l.telefone },
   { id: "field_4169f50", type: "text", title: "Nome da Empresa", required: true, value: (l) => l.empresa },
+  html("field_b47b91e"),
   { id: "field_13a1e79", type: "select", title: "Qual o seu segmento?", required: true, value: (l) => l.segmento },
+  html("field_5cf7e87"),
   { id: "faturamento", type: "select", title: "Faturamento", required: true, value: (l) => l.faturamento },
   { id: "cnpj", type: "text", title: "Seu CNPJ", required: false, value: (l) => l.cnpj ?? "" },
+  html("field_4e810df"),
   {
     id: "disposto_investir",
     type: "select",
@@ -66,11 +70,8 @@ const FIELDS: FieldSpec[] = [
   { id: "debug_full_url", type: "hidden", title: "debug_full_url", required: false, value: t("debug_full_url") },
   { id: "redirect_url", type: "hidden", title: "redirect_url", required: false, value: (_, x) => x.redirectUrl },
   { id: "tipo_lead", type: "hidden", title: "tipo_lead", required: false, value: (_, x) => x.tipo },
+  html("field_a8828d3"),
 ];
-
-function formatDate(now: Date, opts: Intl.DateTimeFormatOptions) {
-  return new Intl.DateTimeFormat("pt-BR", { timeZone: "America/Sao_Paulo", ...opts }).format(now);
-}
 
 export type WebhookField = {
   id: string;
@@ -84,7 +85,6 @@ export type WebhookField = {
 export type Webhook01lpPayload = {
   form: { id: string; name: string };
   fields: Record<string, WebhookField>;
-  meta: Record<string, { title: string; value: string }>;
   origem: string;
 };
 
@@ -110,18 +110,12 @@ export function buildWebhook01lpPayload(
   return {
     form: { ...FORM_01LP },
     fields,
-    meta: {
-      date: { title: "Data", value: formatDate(ctx.now, { day: "numeric", month: "long", year: "numeric" }) },
-      time: { title: "Hora", value: formatDate(ctx.now, { hour: "2-digit", minute: "2-digit" }) },
-      page_url: { title: "URL da página", value: ctx.pageUrl },
-      user_agent: { title: "Agente de usuário", value: ctx.userAgent ?? "" },
-      remote_ip: { title: "IP remoto", value: ctx.ip ?? "" },
-    },
     origem: ORIGEM_01LP,
   };
 }
 
-// Mesma serialização do wp_remote_post/http_build_query: chaves aninhadas com [].
+// Mesma serialização do montarPayloadElementor: form[id], form[name] e, por
+// campo, fields[x][id|type|title|value|raw_value|required]; "origem" no fim.
 export function encodeWebhookBody(payload: Webhook01lpPayload): URLSearchParams {
   const body = new URLSearchParams();
   const walk = (prefix: string, value: unknown) => {
@@ -151,7 +145,7 @@ export async function sendLeadToWebhook01lp(
   try {
     const res = await fetchImpl(url, {
       method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8" },
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: encodeWebhookBody(payload).toString(),
       signal: AbortSignal.timeout(10_000),
       cache: "no-store",

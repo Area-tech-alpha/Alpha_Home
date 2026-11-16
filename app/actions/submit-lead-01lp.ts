@@ -36,9 +36,6 @@ export async function submitLead01lp(data: unknown, rawTracking?: unknown): Prom
 
   const payload = buildWebhook01lpPayload(lead, tracking, {
     siteUrl: SITE_URL,
-    pageUrl: `${SITE_URL}/01-lp`,
-    userAgent: h.get("user-agent"),
-    ip,
     now: new Date(),
   });
   const result = await sendLeadToWebhook01lp(payload);

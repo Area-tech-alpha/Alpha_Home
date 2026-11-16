@@ -54,21 +54,22 @@ Regra literal do script da 00-lp (ramo `pageId` 3445):
 
 ### Payload do webhook
 
-Mesmo formato da ação Webhook do Elementor com "advanced data" (form `Formulario_Qualificacao`, id `e1b938c`): `application/x-www-form-urlencoded`, com chaves aninhadas no padrão PHP.
+Mesmo formato que o form nativo do Elementor manda pela ação Webhook. A referência é a função `montarPayloadElementor` da página WP `obrigado-seja-um-franqueado-c`. Os metadados dela foram copiados byte a byte de um payload real que o n8n recebeu.
 
-> **Provisório:** os títulos dos campos ocultos, as chaves e títulos de `meta` e o content-type ainda precisam ser conferidos com uma execução real do nó Webhook do n8n. Tudo isso fica nas tabelas `FIELDS` e `meta` de `lib/webhook-01lp.ts`.
+- `POST`, `Content-Type: application/x-www-form-urlencoded`
+- Chaves na ordem: `form[id]`, `form[name]` e, para cada campo do form (inclusive os do tipo `html`, com valor vazio), `fields[<id>][id|type|title|value|raw_value|required]`
+- Sem `meta[...]` e sem `post_id`, como na referência
+- `origem=alpha-home-01-lp` no fim (chave extra pedida para a /01-lp)
 
 ```
 form[id]=e1b938c
 form[name]=Formulario_Qualificacao
 fields[<id>][id]=<id>
-fields[<id>][type]=text|email|tel|select|hidden
+fields[<id>][type]=text|email|tel|select|hidden|html
 fields[<id>][title]=<rótulo do campo no WP>
 fields[<id>][value]=<valor>
 fields[<id>][raw_value]=<valor>
 fields[<id>][required]=1|0
-meta[date|time|page_url|user_agent|remote_ip][title]=…
-meta[date|time|page_url|user_agent|remote_ip][value]=…
 origem=alpha-home-01-lp
 ```
 
@@ -80,19 +81,26 @@ Campos (ids reais do form do WP, na mesma ordem):
 | `email` | email | Email | e-mail |
 | `field_bb2d15f` | tel | Telefone | telefone em E.164 (`+5511…`) |
 | `field_4169f50` | text | Nome da Empresa | empresa |
+| `field_b47b91e` | html | (vazio) | vazio |
 | `field_13a1e79` | select | Qual o seu segmento? | segmento |
+| `field_5cf7e87` | html | (vazio) | vazio |
 | `faturamento` | select | Faturamento | faixa (ex.: `50 mil até 80 mil`) |
 | `cnpj` | text | Seu CNPJ | CNPJ com máscara (só em "Até 30 mil") |
+| `field_4e810df` | html | (vazio) | vazio |
 | `disposto_investir` | select | Você investiria R$4.000,00 por mês para vender mais? | `obrigado` (Sim) / `agradecimento` (Não), como no WP |
 | `utm_source`, `utm_campaign`, `utm_medium`, `utm_id`, `utm_content`, `utm_term`, `fbclid`, `gclid`, `fbc`, `gcl_aw` | hidden | (o próprio id) | first-touch lido no navegador (30 dias em `localStorage`). `fbc`/`gcl_aw` vêm dos cookies `_fbc`/`_gcl_aw`; sem cookie, o `fbc` é montado do `fbclid` (`fb.1.<ms>.<fbclid>`) |
 | `creation_time` | hidden | creation_time | Unix (segundos) no envio |
 | `debug_full_url` | hidden | debug_full_url | URL completa da página no envio |
 | `redirect_url` | hidden | redirect_url | URL de destino (ex.: `https://assessorialpha.com/obrigado-a`) |
 | `tipo_lead` | hidden | tipo_lead | `a`, `b`, `c`, `desqualificado` ou `qualificado-geral` |
+| `field_a8828d3` | html | (vazio) | vazio |
+
+Obrigatórios (`required=1`): `name`, `email`, `field_bb2d15f`, `field_4169f50`, `field_13a1e79` e `faturamento`, como no HTML do form. Os títulos dos ocultos são o próprio id, como na referência. Os rótulos dos 4 campos `html` só existem no editor do Elementor e não aparecem no HTML público, então vão vazios.
 
 Diferença intencional em relação ao WP: as UTMs vêm do navegador do próprio visitante. No WP, o cache do LiteSpeed servia o HTML com UTMs de outro visitante já preenchidas nos campos ocultos.
 
 ## Pendências (Max)
 
 - Faixa "80 mil até 100 mil" não está em nenhuma faixa do script do WP e cai em `/obrigado` (`qualificado-geral`).
+- Rótulos dos 4 campos `html` do form da 00-lp no editor do Elementor (`field_b47b91e`, `field_5cf7e87`, `field_4e810df`, `field_a8828d3`), se o n8n precisar de `title` idêntico. Hoje vão vazios.
 - `/agradecimento`: texto provisório ("Cadastro Concluído!" + botão). A página do WP está quebrada.

@@ -22,9 +22,6 @@ const lead: LeadFormData = {
 
 const ctx: WebhookContext = {
   siteUrl: "https://assessorialpha.com",
-  pageUrl: "https://assessorialpha.com/01-lp",
-  userAgent: "Mozilla/5.0 teste",
-  ip: "200.1.1.1",
   now: new Date("2026-11-16T15:30:00Z"),
 };
 
@@ -77,9 +74,12 @@ test("payload: form/fields/meta no formato do Elementor, ids reais e origem", ()
     "email",
     "field_bb2d15f",
     "field_4169f50",
+    "field_b47b91e",
     "field_13a1e79",
+    "field_5cf7e87",
     "faturamento",
     "cnpj",
+    "field_4e810df",
     "disposto_investir",
     "utm_source",
     "utm_campaign",
@@ -95,7 +95,9 @@ test("payload: form/fields/meta no formato do Elementor, ids reais e origem", ()
     "debug_full_url",
     "redirect_url",
     "tipo_lead",
+    "field_a8828d3",
   ]);
+  assert.equal("meta" in p, false);
   assert.deepEqual(p.fields.name, {
     id: "name",
     type: "text",
@@ -114,7 +116,7 @@ test("payload: form/fields/meta no formato do Elementor, ids reais e origem", ()
   assert.equal(p.fields.redirect_url.value, "https://assessorialpha.com/obrigado-a");
   assert.equal(p.fields.tipo_lead.value, "a");
   assert.equal(p.fields.creation_time.value, String(Date.parse("2026-11-16T15:30:00Z") / 1000));
-  assert.equal(p.meta.page_url.value, "https://assessorialpha.com/01-lp");
+  assert.deepEqual(p.fields.field_a8828d3, { id: "field_a8828d3", type: "html", title: "", value: "", raw_value: "", required: "0" });
 });
 
 test("payload: Até 30 mil leva CNPJ e o valor do WP para 'investiria' (Sim=obrigado, Não=agradecimento)", () => {
@@ -129,12 +131,22 @@ test("payload: Até 30 mil leva CNPJ e o valor do WP para 'investiria' (Sim=obri
   assert.equal(nao.fields.tipo_lead.value, "desqualificado");
 });
 
-test("corpo urlencoded com chaves aninhadas no padrão PHP", () => {
-  const body = encodeWebhookBody(buildWebhook01lpPayload(lead, {}, ctx));
+test("corpo urlencoded na mesma ordem do montarPayloadElementor do WP", () => {
+  const p = buildWebhook01lpPayload(lead, {}, ctx);
+  const keys = [...encodeWebhookBody(p).keys()];
+  const esperado = ["form[id]", "form[name]"];
+  for (const id of Object.keys(p.fields)) {
+    for (const k of ["id", "type", "title", "value", "raw_value", "required"]) esperado.push(`fields[${id}][${k}]`);
+  }
+  esperado.push("origem");
+  assert.deepEqual(keys, esperado);
+  assert.equal(keys.some((k) => k.startsWith("meta[")), false);
+  const body = encodeWebhookBody(p);
   assert.equal(body.get("form[id]"), "e1b938c");
+  assert.equal(body.get("form[name]"), "Formulario_Qualificacao");
   assert.equal(body.get("fields[email][value]"), "ana@ex.com");
+  assert.equal(body.get("fields[email][raw_value]"), "ana@ex.com");
   assert.equal(body.get("fields[email][required]"), "1");
-  assert.equal(body.get("meta[remote_ip][value]"), "200.1.1.1");
   assert.equal(body.get("origem"), "alpha-home-01-lp");
 });
 
@@ -178,7 +190,7 @@ test("envio: POST urlencoded para a URL da env, com timeout", async () => {
   const s = seen as { url: string; init: RequestInit };
   assert.equal(s.url, SECRET_URL);
   assert.equal(s.init.method, "POST");
-  assert.match(String((s.init.headers as Record<string, string>)["Content-Type"]), /x-www-form-urlencoded/);
+  assert.equal((s.init.headers as Record<string, string>)["Content-Type"], "application/x-www-form-urlencoded");
   assert.ok(s.init.signal instanceof AbortSignal);
   assert.equal(new URLSearchParams(String(s.init.body)).get("fields[name][value]"), "Ana Souza");
 });
