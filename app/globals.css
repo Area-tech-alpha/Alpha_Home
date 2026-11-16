@@ -397,3 +397,24 @@ body {
     transition: none;
   }
 }
+
+/* ===== /01-lp: cada seção é uma dobra (uma tela) ===== */
+.fold {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-block: clamp(20px, 4svh, 48px);
+}
+
+/* Telefone do form da /01-lp na mesma altura compacta dos outros campos. */
+.lp01-phone .PhoneInputInput {
+  padding-top: 11px;
+  padding-bottom: 11px;
+}
+
+.lp01-phone .phone-input-wrapper > span,
+.lp01-phone .phone-input-wrapper button {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
