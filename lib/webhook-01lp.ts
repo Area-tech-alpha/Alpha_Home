@@ -96,7 +96,7 @@ export function buildWebhook01lpPayload(
   const rota = rotear01lp(lead.faturamento, lead.investiria);
   const extra: Extra = {
     tracking,
-    redirectUrl: `${ctx.siteUrl}/${rota.slug}`,
+    redirectUrl: `${ctx.siteUrl}/${rota.slug}/`, // com barra no fim, como no WP
     tipo: rota.tipo,
     creationTime: String(Math.floor(ctx.now.getTime() / 1000)),
   };

@@ -91,7 +91,7 @@ Campos (ids reais do form do WP, na mesma ordem):
 | `utm_source`, `utm_campaign`, `utm_medium`, `utm_id`, `utm_content`, `utm_term`, `fbclid`, `gclid`, `fbc`, `gcl_aw` | hidden | (o próprio id) | first-touch lido no navegador (30 dias em `localStorage`). `fbc`/`gcl_aw` vêm dos cookies `_fbc`/`_gcl_aw`; sem cookie, o `fbc` é montado do `fbclid` (`fb.1.<ms>.<fbclid>`) |
 | `creation_time` | hidden | creation_time | Unix (segundos) no envio |
 | `debug_full_url` | hidden | debug_full_url | URL completa da página no envio |
-| `redirect_url` | hidden | redirect_url | URL de destino (ex.: `https://assessorialpha.com/obrigado-a`) |
+| `redirect_url` | hidden | redirect_url | URL de destino com barra no fim, como no WP (ex.: `https://assessorialpha.com/obrigado-a/`) |
 | `tipo_lead` | hidden | tipo_lead | `a`, `b`, `c`, `desqualificado` ou `qualificado-geral` |
 | `field_a8828d3` | html | (vazio) | vazio |
 

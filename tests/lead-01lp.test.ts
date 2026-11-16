@@ -113,7 +113,7 @@ test("payload: form/fields/meta no formato do Elementor, ids reais e origem", ()
   assert.equal(p.fields.utm_source.value, "metaads");
   assert.equal(p.fields.fbclid.value, "abc");
   assert.equal(p.fields.gclid.value, "");
-  assert.equal(p.fields.redirect_url.value, "https://assessorialpha.com/obrigado-a");
+  assert.equal(p.fields.redirect_url.value, "https://assessorialpha.com/obrigado-a/");
   assert.equal(p.fields.tipo_lead.value, "a");
   assert.equal(p.fields.creation_time.value, String(Date.parse("2026-11-16T15:30:00Z") / 1000));
   assert.deepEqual(p.fields.field_a8828d3, { id: "field_a8828d3", type: "html", title: "", value: "", raw_value: "", required: "0" });
@@ -127,7 +127,7 @@ test("payload: Até 30 mil leva CNPJ e o valor do WP para 'investiria' (Sim=obri
   assert.equal(sim.fields.tipo_lead.value, "c");
   const nao = buildWebhook01lpPayload({ ...base, investiria: "Não" }, {}, ctx);
   assert.equal(nao.fields.disposto_investir.value, "agradecimento");
-  assert.equal(nao.fields.redirect_url.value, "https://assessorialpha.com/agradecimento");
+  assert.equal(nao.fields.redirect_url.value, "https://assessorialpha.com/agradecimento/");
   assert.equal(nao.fields.tipo_lead.value, "desqualificado");
 });
 
