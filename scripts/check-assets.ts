@@ -3,6 +3,7 @@
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { content } from "@/lib/content";
+import { content01lp } from "@/lib/content-01-lp";
 import { availableShorts, availableVideos } from "@/lib/depoimentos";
 
 const srcs = [
@@ -14,6 +15,16 @@ const srcs = [
   ...content.midia.items.map((m) => m.image.src),
   ...availableVideos().flatMap((v) => [v.src, v.poster]),
   ...availableShorts().map((s) => s.poster),
+  // /01-lp e páginas de obrigado
+  content01lp.logo.src,
+  content01lp.meta.ogImage.src,
+  content01lp.quemSomos.image.src,
+  content01lp.metodo.video.src,
+  content01lp.metodo.video.poster,
+  ...content01lp.servicos.cards.map((card) => card.src),
+  content01lp.planos.image.src,
+  content01lp.obrigado.video.poster,
+  ...content01lp.depoimentos.shorts.map((id) => `/images/depoimentos/short-${id}.jpg`),
 ];
 
 const missing = srcs.filter((src) => !existsSync(path.join(process.cwd(), "public", src)));
