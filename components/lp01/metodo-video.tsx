@@ -39,7 +39,7 @@ export default function MetodoVideo({
 
   return (
     <>
-      <Image src={poster} alt="" fill sizes="(max-width: 900px) 92vw, 860px" className="object-cover" />
+      <Image src={poster} alt="" fill sizes="(max-width: 767px) 92vw, 1100px" className="object-contain" />
       <video
         ref={ref}
         src={src}
@@ -51,7 +51,7 @@ export default function MetodoVideo({
         preload="none"
         aria-hidden="true"
         tabIndex={-1}
-        className="absolute inset-0 h-full w-full object-cover"
+        className="absolute inset-0 h-full w-full object-contain"
       />
     </>
   );

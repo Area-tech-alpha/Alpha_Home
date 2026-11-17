@@ -17,6 +17,12 @@ const srcs = [
   ...availableShorts().map((s) => s.poster),
   // /01-lp e páginas de obrigado
   content01lp.logo.src,
+  content01lp.heroLogo.src,
+  content01lp.footerLogo.src,
+  content01lp.hero.background,
+  content01lp.hero.backgroundMobile,
+  content01lp.metodo.rotulos.src,
+  content01lp.faq.icon,
   content01lp.meta.ogImage.src,
   content01lp.quemSomos.image.src,
   content01lp.metodo.video.src,

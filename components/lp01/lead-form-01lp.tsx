@@ -104,7 +104,7 @@ const initial: FormValues = {
   investiria: "",
 };
 
-const inputClass = "field-input py-[11px]";
+const inputClass = "field-input";
 
 function FieldError({ name, message }: { name: FieldName; message?: string }) {
   if (!message) return null;
@@ -154,10 +154,12 @@ function Select({
         ))}
       </select>
       <span
-        className="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-xs text-text-muted"
+        className="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-white"
         aria-hidden="true"
       >
-        ▾
+        <svg viewBox="0 0 320 512" width="10" height="16" fill="currentColor">
+          <path d="M31.3 192h257.3c17.8 0 26.7 21.5 14.1 34.1L174.1 354.8c-7.8 7.8-20.5 7.8-28.3 0L17.2 226.1C4.6 213.5 13.5 192 31.3 192z" />
+        </svg>
       </span>
     </div>
   );
@@ -261,7 +263,7 @@ export default function LeadForm01lp() {
       onPointerDownCapture={warmUp}
       noValidate
       aria-label="Formulário de contato"
-      className="flex flex-col gap-2.5"
+      className="flex flex-col gap-3"
     >
       <input type="text" name="website" tabIndex={-1} aria-hidden="true" autoComplete="off" className="hidden" />
 
@@ -370,7 +372,7 @@ export default function LeadForm01lp() {
       </div>
 
       <div>
-        <label htmlFor="segmento" className="sr-only">
+        <label htmlFor="segmento" className="field-label mb-3">
           {fields.segmento.label}
         </label>
         <Select
@@ -385,7 +387,7 @@ export default function LeadForm01lp() {
       </div>
 
       <div>
-        <label htmlFor="faturamento" className="sr-only">
+        <label htmlFor="faturamento" className="field-label mb-3">
           {fields.faturamento.label}
         </label>
         <Select
@@ -443,7 +445,7 @@ export default function LeadForm01lp() {
         </p>
       )}
 
-      <button type="submit" disabled={sending} className="btn btn-primary mt-1 w-full whitespace-normal">
+      <button type="submit" disabled={sending} className="lp01-btn lp01-submit">
         {sending ? form.sending : form.submitLabel}
       </button>
     </form>

@@ -2,13 +2,14 @@
 
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
 
 type Card = { src: string; alt: string };
 
-// Carrossel dos serviços: 1 card por vez, infinito, autoplay (5 s no WP) que
-// pausa no hover/foco, fora da tela e no botão de pausa; sem autoplay com
-// prefers-reduced-motion. Setas, dots e swipe no celular.
+// Carrossel "O que fazemos" como o image-carousel da 00-lp: card de 938px no
+// desktop com os vizinhos aparecendo nas laterais (3 visíveis), 2 no tablet e
+// 1 no celular. Troca instantânea (speed 0 no WP), loop infinito, autoplay de
+// 5 s que pausa no hover/foco, fora da tela e no botão de pausa (visível só no
+// foco do teclado); sem autoplay com prefers-reduced-motion. Setas e swipe.
 export default function ServicosCarousel({
   cards,
   autoplayMs,
@@ -63,13 +64,21 @@ export default function ServicosCarousel({
     return () => window.clearTimeout(id);
   }, [playing, index, tick, autoplayMs, count]);
 
+  // Três cópias da lista: a do meio é a "real"; as das pontas só preenchem as
+  // laterais para o loop não ter buraco.
+  const slides = [...cards, ...cards, ...cards];
+  const pos = count + index;
+
+  const arrow =
+    "absolute z-10 flex items-center justify-center rounded-[27px] border border-white/10 bg-[#151515] p-[10px] text-white transition-transform hover:scale-105 md:top-1/2 md:-translate-y-1/2 md:px-[15px] md:py-[16px]";
+
   return (
     <div
       ref={rootRef}
       role="region"
       aria-roledescription="carrossel"
       aria-label="Serviços da Alpha"
-      className="relative mx-auto w-full max-w-[820px]"
+      className="relative mx-auto mt-[21px] w-full md:mt-0 lg:max-w-[938px]"
       onPointerEnter={(e) => e.pointerType === "mouse" && setHovered(true)}
       onPointerLeave={(e) => e.pointerType === "mouse" && setHovered(false)}
       onFocus={() => setFocused(true)}
@@ -82,7 +91,6 @@ export default function ServicosCarousel({
       }}
     >
       <div
-        className="overflow-hidden rounded-[22px] border border-border"
         style={{ touchAction: "pan-y" }}
         onPointerDown={(e) => {
           startX.current = e.clientX;
@@ -98,89 +106,68 @@ export default function ServicosCarousel({
         }}
       >
         <div
-          className="flex transition-transform duration-500 ease-[var(--ease)] motion-reduce:transition-none"
-          style={{ transform: `translateX(-${index * 100}%)` }}
+          className="flex [--step:100%] md:[--step:50%] lg:[--step:100%]"
+          style={{ transform: `translateX(calc(-1 * ${pos} * var(--step)))` }}
           aria-live={playing ? "off" : "polite"}
         >
-          {cards.map((card, i) => (
-            <div
-              key={card.src}
-              role="group"
-              aria-roledescription="slide"
-              aria-label={`${i + 1} de ${count}: ${card.alt}`}
-              aria-hidden={i !== index}
-              inert={i !== index}
-              className="w-full shrink-0"
-            >
-              <Image
-                src={card.src}
-                alt={card.alt}
-                width={width}
-                height={height}
-                sizes="(max-width: 900px) 92vw, 820px"
-                draggable={false}
-                className="h-auto w-full select-none"
-              />
-            </div>
-          ))}
+          {slides.map((card, i) => {
+            // Só o slide atual fica na árvore de acessibilidade; os vizinhos são visuais.
+            const current = i === pos;
+            return (
+              <div
+                key={`${i}-${card.src}`}
+                role={current ? "group" : undefined}
+                aria-roledescription={current ? "slide" : undefined}
+                aria-label={current ? `${index + 1} de ${count}: ${card.alt}` : undefined}
+                aria-hidden={!current}
+                inert={!current}
+                className="w-full shrink-0 md:w-1/2 lg:w-full"
+              >
+                <Image
+                  src={card.src}
+                  alt={current ? card.alt : ""}
+                  width={width}
+                  height={height}
+                  sizes="(max-width: 767px) 92vw, (max-width: 1023px) 46vw, 938px"
+                  draggable={false}
+                  className="h-auto w-full select-none"
+                />
+              </div>
+            );
+          })}
         </div>
       </div>
 
-      <div className="mt-4 flex items-center justify-center gap-3">
+      <button
+        type="button"
+        onClick={() => go(index - 1)}
+        aria-label="Serviço anterior"
+        className={`${arrow} top-[-15%] left-[38%] md:left-[-30px]`}
+      >
+        <svg viewBox="0 0 448 512" width="17" height="17" fill="currentColor" aria-hidden="true">
+          <path d="m257.5 445.1-22.2 22.2c-9.4 9.4-24.6 9.4-33.9 0L7 273c-9.4-9.4-9.4-24.6 0-33.9L201.4 44.7c9.4-9.4 24.6-9.4 33.9 0l22.2 22.2c9.5 9.5 9.3 25-.4 34.3L136.6 216H424c13.3 0 24 10.7 24 24v32c0 13.3-10.7 24-24 24H136.6l120.5 114.8c9.8 9.3 10 24.8.4 34.3z" />
+        </svg>
+      </button>
+      <button
+        type="button"
+        onClick={() => go(index + 1)}
+        aria-label="Próximo serviço"
+        className={`${arrow} top-[-15%] right-[38%] md:right-[-30px]`}
+      >
+        <svg viewBox="0 0 448 512" width="17" height="17" fill="currentColor" aria-hidden="true">
+          <path d="m190.5 66.9 22.2-22.2c9.4-9.4 24.6-9.4 33.9 0L441 239c9.4 9.4 9.4 24.6 0 33.9L246.6 467.3c-9.4 9.4-24.6 9.4-33.9 0l-22.2-22.2c-9.5-9.5-9.3-25 .4-34.3L311.4 296H24c-13.3 0-24-10.7-24-24v-32c0-13.3 10.7-24 24-24h287.4L190.9 101.2c-9.8-9.3-10-24.8-.4-34.3z" />
+        </svg>
+      </button>
+
+      {!reduced && (
         <button
           type="button"
-          onClick={() => go(index - 1)}
-          aria-label="Serviço anterior"
-          className="flex h-11 w-11 items-center justify-center rounded-full border border-border-strong text-white transition-colors hover:border-gold-1 hover:text-gold-1"
+          onClick={() => setStopped((s) => !s)}
+          className="sr-only focus:not-sr-only focus:absolute focus:bottom-2 focus:left-1/2 focus:z-10 focus:-translate-x-1/2 focus:rounded-full focus:bg-[#151515] focus:px-4 focus:py-2 focus:text-[13px] focus:text-white"
         >
-          <ChevronLeft className="h-5 w-5" aria-hidden="true" />
+          {stopped ? "Retomar rotação automática" : "Pausar rotação automática"}
         </button>
-
-        <ul className="flex items-center" aria-label="Escolher serviço">
-          {cards.map((card, i) => (
-            <li key={card.src}>
-              <button
-                type="button"
-                onClick={() => go(i)}
-                aria-label={card.alt}
-                aria-current={i === index}
-                className="flex h-11 w-6 items-center justify-center"
-              >
-                <span
-                  className={`block h-2 rounded-full transition-all duration-300 ${
-                    i === index ? "w-5 bg-gold-1" : "w-2 bg-white/30"
-                  }`}
-                  aria-hidden="true"
-                />
-              </button>
-            </li>
-          ))}
-        </ul>
-
-        <button
-          type="button"
-          onClick={() => go(index + 1)}
-          aria-label="Próximo serviço"
-          className="flex h-11 w-11 items-center justify-center rounded-full border border-border-strong text-white transition-colors hover:border-gold-1 hover:text-gold-1"
-        >
-          <ChevronRight className="h-5 w-5" aria-hidden="true" />
-        </button>
-
-        {!reduced && (
-          <button
-            type="button"
-            onClick={() => setStopped((s) => !s)}
-            aria-label={stopped ? "Retomar rotação automática" : "Pausar rotação automática"}
-            className="flex h-11 w-11 items-center justify-center rounded-full text-text-muted transition-colors hover:text-white"
-          >
-            {stopped ? (
-              <Play className="h-4 w-4" aria-hidden="true" />
-            ) : (
-              <Pause className="h-4 w-4" aria-hidden="true" />
-            )}
-          </button>
-        )}
-      </div>
+      )}
     </div>
   );
 }
