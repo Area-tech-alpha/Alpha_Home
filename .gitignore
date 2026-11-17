@@ -43,3 +43,6 @@ next-env.d.ts
 
 # assets brutos do WordPress (não versionar)
 /_assets-wordpress/
+
+# prints de verificação (não versionar)
+/_screenshots/
