@@ -5,11 +5,15 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 type Card = { src: string; alt: string };
 
-// Carrossel "O que fazemos" como o image-carousel da 00-lp: card de 938px no
-// desktop com os vizinhos aparecendo nas laterais (3 visíveis), 2 no tablet e
-// 1 no celular. Troca instantânea (speed 0 no WP), loop infinito, autoplay de
-// 5 s que pausa no hover/foco, fora da tela e no botão de pausa (visível só no
-// foco do teclado); sem autoplay com prefers-reduced-motion. Setas e swipe.
+// Carrossel "O que fazemos": 3 cards inteiros no desktop (>=1024px, gap 20px),
+// 2 no tablet e 1 no celular com os vizinhos aparecendo nas bordas. Avança 1
+// card por vez, com troca instantânea (speed 0 no WP), loop infinito, autoplay
+// de 5 s que pausa no hover/foco, fora da tela e no botão de pausa (visível só
+// no foco do teclado); sem autoplay com prefers-reduced-motion. Setas e swipe.
+const PER_VIEW_QUERIES: [string, number][] = [
+  ["(min-width: 1024px)", 3],
+  ["(min-width: 768px)", 2],
+];
 export default function ServicosCarousel({
   cards,
   autoplayMs,
@@ -28,6 +32,7 @@ export default function ServicosCarousel({
   const [stopped, setStopped] = useState(false);
   const [reduced, setReduced] = useState(false);
   const [tick, setTick] = useState(0); // reinicia o timer depois de navegação manual
+  const [perView, setPerView] = useState(1);
   const rootRef = useRef<HTMLDivElement>(null);
   const startX = useRef<number | null>(null);
   const count = cards.length;
@@ -46,6 +51,16 @@ export default function ServicosCarousel({
     update();
     mq.addEventListener("change", update);
     return () => mq.removeEventListener("change", update);
+  }, []);
+
+  useEffect(() => {
+    const lists = PER_VIEW_QUERIES.map(([q, n]) => [window.matchMedia(q), n] as const);
+    const update = () => setPerView(lists.find(([mq]) => mq.matches)?.[1] ?? 1);
+    update();
+    for (const [mq] of lists) mq.addEventListener("change", update);
+    return () => {
+      for (const [mq] of lists) mq.removeEventListener("change", update);
+    };
   }, []);
 
   useEffect(() => {
@@ -78,7 +93,7 @@ export default function ServicosCarousel({
       role="region"
       aria-roledescription="carrossel"
       aria-label="Serviços da Alpha"
-      className="relative mx-auto mt-[21px] w-full md:mt-0 lg:max-w-[938px]"
+      className="relative mx-auto mt-[21px] w-full md:mt-0"
       onPointerEnter={(e) => e.pointerType === "mouse" && setHovered(true)}
       onPointerLeave={(e) => e.pointerType === "mouse" && setHovered(false)}
       onFocus={() => setFocused(true)}
@@ -91,6 +106,7 @@ export default function ServicosCarousel({
       }}
     >
       <div
+        className="md:overflow-hidden"
         style={{ touchAction: "pan-y" }}
         onPointerDown={(e) => {
           startX.current = e.clientX;
@@ -106,29 +122,32 @@ export default function ServicosCarousel({
         }}
       >
         <div
-          className="flex [--step:100%] md:[--step:50%] lg:[--step:100%]"
-          style={{ transform: `translateX(calc(-1 * ${pos} * var(--step)))` }}
+          className="flex gap-[var(--gap)] [--gap:0px] [--per:1] md:[--gap:20px] md:[--per:2] lg:[--per:3]"
+          style={{
+            transform: `translateX(calc(-1 * ${pos} * ((100% - (var(--per) - 1) * var(--gap)) / var(--per) + var(--gap))))`,
+          }}
           aria-live={playing ? "off" : "polite"}
         >
           {slides.map((card, i) => {
-            // Só o slide atual fica na árvore de acessibilidade; os vizinhos são visuais.
-            const current = i === pos;
+            // Só os cards inteiros na tela ficam na árvore de acessibilidade.
+            const current = i >= pos && i < pos + perView;
             return (
               <div
                 key={`${i}-${card.src}`}
                 role={current ? "group" : undefined}
                 aria-roledescription={current ? "slide" : undefined}
-                aria-label={current ? `${index + 1} de ${count}: ${card.alt}` : undefined}
+                aria-label={current ? `${(i % count) + 1} de ${count}: ${card.alt}` : undefined}
                 aria-hidden={!current}
                 inert={!current}
-                className="w-full shrink-0 md:w-1/2 lg:w-full"
+                className="shrink-0"
+                style={{ width: "calc((100% - (var(--per) - 1) * var(--gap)) / var(--per))" }}
               >
                 <Image
                   src={card.src}
                   alt={current ? card.alt : ""}
                   width={width}
                   height={height}
-                  sizes="(max-width: 767px) 92vw, (max-width: 1023px) 46vw, 938px"
+                  sizes="(max-width: 767px) 92vw, (max-width: 1023px) 46vw, 360px"
                   draggable={false}
                   className="h-auto w-full select-none"
                 />
@@ -142,7 +161,7 @@ export default function ServicosCarousel({
         type="button"
         onClick={() => go(index - 1)}
         aria-label="Serviço anterior"
-        className={`${arrow} top-[-15%] left-[38%] md:left-[-30px]`}
+        className={`${arrow} top-[-15%] left-[38%] md:left-[-14px] lg:left-[-30px]`}
       >
         <svg viewBox="0 0 448 512" width="17" height="17" fill="currentColor" aria-hidden="true">
           <path d="m257.5 445.1-22.2 22.2c-9.4 9.4-24.6 9.4-33.9 0L7 273c-9.4-9.4-9.4-24.6 0-33.9L201.4 44.7c9.4-9.4 24.6-9.4 33.9 0l22.2 22.2c9.5 9.5 9.3 25-.4 34.3L136.6 216H424c13.3 0 24 10.7 24 24v32c0 13.3-10.7 24-24 24H136.6l120.5 114.8c9.8 9.3 10 24.8.4 34.3z" />
@@ -152,7 +171,7 @@ export default function ServicosCarousel({
         type="button"
         onClick={() => go(index + 1)}
         aria-label="Próximo serviço"
-        className={`${arrow} top-[-15%] right-[38%] md:right-[-30px]`}
+        className={`${arrow} top-[-15%] right-[38%] md:right-[-14px] lg:right-[-30px]`}
       >
         <svg viewBox="0 0 448 512" width="17" height="17" fill="currentColor" aria-hidden="true">
           <path d="m190.5 66.9 22.2-22.2c9.4-9.4 24.6-9.4 33.9 0L441 239c9.4 9.4 9.4 24.6 0 33.9L246.6 467.3c-9.4 9.4-24.6 9.4-33.9 0l-22.2-22.2c-9.5-9.5-9.3-25 .4-34.3L311.4 296H24c-13.3 0-24-10.7-24-24v-32c0-13.3 10.7-24 24-24h287.4L190.9 101.2c-9.8-9.3-10-24.8-.4-34.3z" />

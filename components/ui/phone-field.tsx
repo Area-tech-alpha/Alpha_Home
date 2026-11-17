@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import PhoneInput, { getCountryCallingCode } from "react-phone-number-input";
 import type { Country, Value as PhoneValue } from "react-phone-number-input";
 import ptBR from "react-phone-number-input/locale/pt-BR.json";
+import Flag from "@/components/ui/flags";
 
 // Carregado sob demanda pelo lead-form (primeira interação com o form): a base
 // de DDIs do libphonenumber não entra no JS inicial da página.
@@ -11,12 +12,10 @@ import ptBR from "react-phone-number-input/locale/pt-BR.json";
 // Mesmos DDIs do form atual do WP.
 const COUNTRIES: Country[] = ["BR", "PT", "US", "AR", "PY", "UY", "CL", "MX", "CO", "ES"];
 
-// Emoji em vez do ícone padrão do react-phone-number-input, que busca SVGs de
-// bandeira em um CDN externo e concorria com o LCP.
-export function flagEmoji(country?: Country) {
-  if (!country) return "🌐";
-  return country.toUpperCase().replace(/./g, (c) => String.fromCodePoint(127397 + c.charCodeAt(0)));
-}
+// Bandeiras em SVG inline (components/ui/flags.tsx) em vez do ícone padrão do
+// react-phone-number-input, que busca SVGs num CDN externo e concorria com o
+// LCP, e em vez de emoji, que no Windows aparece como as letras do país.
+const FLAG_CLASS = "h-[14px] w-[21px] shrink-0 rounded-[2px]";
 
 type CountryOption = { value?: Country; label: string; divider?: boolean };
 
@@ -58,7 +57,7 @@ function CountrySelect({
         aria-label={`DDI: ${value ? `+${getCountryCallingCode(value)}` : "selecionar"}`}
         className="flex h-full items-center gap-1.5 rounded-[10px] border border-border bg-white/[0.04] px-3 py-3 text-sm text-white transition-colors focus:border-gold-1 focus:outline-none"
       >
-        <span aria-hidden="true">{flagEmoji(value)}</span>
+        <Flag country={value} className={FLAG_CLASS} />
         <span>{value ? `+${getCountryCallingCode(value)}` : ""}</span>
         <span className="text-[10px] text-text-dim" aria-hidden="true">
           ▾
@@ -85,7 +84,7 @@ function CountrySelect({
                     opt.value === value ? "text-gold-1" : "text-white"
                   }`}
                 >
-                  <span aria-hidden="true">{flagEmoji(opt.value)}</span>
+                  <Flag country={opt.value} className={FLAG_CLASS} />
                   <span className="flex-1 truncate">{opt.label}</span>
                   <span className="shrink-0 text-xs text-text-dim">+{getCountryCallingCode(opt.value!)}</span>
                 </button>
