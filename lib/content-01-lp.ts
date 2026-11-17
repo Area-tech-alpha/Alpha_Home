@@ -1,5 +1,6 @@
 // Conteúdo da /01-lp: textos literais da página WP /00-lp/ (ID 3445) e das
-// páginas de obrigado. Trechos entre ** ** aparecem em destaque (dourado).
+// páginas de obrigado. Nos títulos, **trecho** = peso 800 (como os <span> do
+// WP) e ==trecho== = amarelo #FFA902; nos parágrafos, **trecho** = branco.
 
 export const content01lp = {
   meta: {
@@ -10,6 +11,9 @@ export const content01lp = {
   },
 
   logo: { src: "/images/logo-alpha.png", alt: "Alpha Assessoria", width: 764, height: 247 },
+  // Logos da 00-lp: Logo-Alpha.png no hero e ALPHAA.svg no rodapé.
+  heroLogo: { src: "/images/01-lp/logo-hero.webp", alt: "Alpha Assessoria", width: 513, height: 147 },
+  footerLogo: { src: "/images/01-lp/logo-rodape.svg", alt: "Alpha Assessoria", width: 195, height: 53 },
 
   // Âncora do formulário: todos os CTAs da página rolam até aqui.
   formAnchor: "#formulario",
@@ -20,6 +24,10 @@ export const content01lp = {
     subtitle:
       "Agende uma chamada gratuita e descubra como podemos transformar seu marketing em uma máquina de vendas e novos pedidos.",
     checks: ["Marketing focado em VENDAS", "Especialistas no ramo de food"],
+    cta: "Quero resultados como esse",
+    // Fundos do hero do WP (hero-nova-00-lp.webp e background-mobile.png).
+    background: "/images/01-lp/hero-fundo.webp",
+    backgroundMobile: "/images/01-lp/hero-fundo-mobile.webp",
   },
 
   form: {
@@ -29,8 +37,8 @@ export const content01lp = {
       telefone: { label: "Telefone", placeholder: "Telefone" },
       empresa: { label: "Nome da Empresa", placeholder: "Nome da empresa" },
       segmento: {
-        label: "Qual o seu segmento?",
-        placeholder: "Selecionar segmento",
+        label: "Selecionar segmento",
+        placeholder: "Selecionar",
         options: [
           "Pizzarias",
           "Hamburguerias",
@@ -47,8 +55,8 @@ export const content01lp = {
         ],
       },
       faturamento: {
-        label: "Faturamento",
-        placeholder: "Coloque seu faturamento atual",
+        label: "Coloque seu faturamento atual",
+        placeholder: "Selecionar",
         options: [
           "Até 30 mil",
           "30 mil até 50 mil",
@@ -81,17 +89,16 @@ export const content01lp = {
   numeros: ["+600 CLIENTES ATIVOS", "+500M EM VENDAS PARA OS NOSSOS CLIENTES", "+5 ANOS DE EXPERIÊNCIA"],
 
   depoimentos: {
-    eyebrow: "Depoimentos",
-    title: "Mais de **2.000** restaurantes com resultados. Isso é **Alpha**.",
-    // Mesmos Shorts da 00-lp; posters locais já usados na home.
+    eyebrow: "👤 Depoimentos",
+    title: "**Mais de ==2.000== restaurantes** com **resultados**. Isso é **==Alpha==**.",
+    // Mesmos Shorts da 00-lp; posters locais em public/images/depoimentos.
     shorts: ["5A264VtPKEs", "aoDx_HTLaWA", "oSDQUXjzd7Y"],
     shortLabel: "Depoimento de cliente Alpha",
-    cta: "Quero resultados como esse",
   },
 
   quemSomos: {
     eyebrow: "Quem somos",
-    title: "Líder em **marketing gastronômico** e parceira do **seu sucesso**.",
+    title: "**Líder** em **marketing gastronômico** e parceira do **seu sucesso**.",
     paragraphs: [
       "Na **Alpha Assessoria**, não somos apenas uma agência; somos a **maior assessoria de marketing especializada em restaurantes da América Latina**. Nascemos da paixão por transformar negócios gastronômicos, elevando-os a um novo patamar de sucesso e reconhecimento.",
       "Com uma **estrutura 100% presencial** e uma **equipe de mais de 80 profissionais** altamente qualificados, a Alpha Assessoria é a parceira estratégica que seu restaurante precisa.",
@@ -110,15 +117,10 @@ export const content01lp = {
     eyebrow: "O Método Alpha",
     title: "Existe um **método comprovado** para que seu restaurante **nunca pare** de **vender**",
     subtitle: "Se você seguir, irá manter seu negócio **faturando todos os dias.**",
-    // Rótulos do diagrama (2-1.png do WP), na mesma posição relativa (% da largura/altura).
-    labels: [
-      { label: "Engajamento", x: 25, y: 27.5, side: "left" },
-      { label: "Retenção", x: 77, y: 27.5, side: "right" },
-      { label: "Ativação", x: 21, y: 60, side: "left" },
-      { label: "Aquisição", x: 79, y: 62, side: "right" },
-      { label: "Indicação", x: 71, y: 74, side: "right" },
-      { label: "Monetização", x: 50, y: 92, side: "center" },
-    ] as const,
+    // Etapas escritas no diagrama (2-1.png do WP); "Monetização" é o selo flutuante.
+    labels: ["Engajamento", "Retenção", "Ativação", "Aquisição", "Indicação"],
+    badge: "Monetização",
+    rotulos: { src: "/images/01-lp/metodo-rotulos.webp", width: 1187, height: 733 },
     video: { src: "/videos/01-lp-metodo.mp4", poster: "/images/01-lp/metodo-poster.webp", width: 1166, height: 720 },
   },
 
@@ -143,7 +145,7 @@ export const content01lp = {
   planos: {
     eyebrow: "Planos personalizados",
     title: "Você **escolhe** a **solução certa** para a fase que seu restaurante **vive hoje**.",
-    text: "Oferecemos nossos serviços por **planos flexíveis.** Você escolhe **conforme sua condição atual.** O mais importante é continuar apostando em estratégias que trazem resultado.",
+    text: "Oferecemos nossos serviços por **planos flexíveis.** Você escolhe **conforme sua condição atual.**\nO mais importante é continuar apostando em estratégias que trazem resultado.",
     image: { src: "/images/01-lp/planos.webp", alt: "", width: 556, height: 499 },
   },
 
@@ -157,6 +159,7 @@ export const content01lp = {
 
   faq: {
     title: "Perguntas frequentes",
+    icon: "/images/01-lp/faq-icone.webp",
     subtitle: "Ficou com alguma dúvida sobre a Alpha? Talvez ela esteja aqui.",
     items: [
       {

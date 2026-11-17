@@ -1,0 +1,156 @@
+/* Escopo da /01-lp e das páginas de obrigado dela (/obrigado-a, -b, -c,
+   /agradecimento). Tokens e classes globais que essas páginas usam, fixados
+   dentro de .lp01-scope: assim a /01-lp não depende do globals.css da home, e
+   mudanças na home não vazam para cá (nem o contrário). Mesmo arquivo do
+   Alpha_Franchise_Home, onde os valores da home diferem dos da franquia.
+
+   Especificidade: os resets usam :where(.lp01-scope) + tag (0,1,1) para passar
+   as classes globais (0,1,0) sem empatar com as regras de .lp01-form em
+   lp01.css, que não têm camada e ganham de qualquer regra em @layer. */
+
+/* Tokens do Alpha_Home (as utilitárias do Tailwind leem estas variáveis). */
+.lp01-scope {
+  --bg-1: #0b0b0d;
+  --bg-2: #111113;
+  --gold-1: #ffb703;
+  --gold-2: #f5a623;
+  --amber: #f59e0b;
+  --ink: #141005;
+  --text-muted: #a3a2a9;
+  --text-dim: #8a8992;
+  --border-gold: rgba(255, 183, 3, 0.4);
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 22px;
+  --radius-xl: 32px;
+}
+
+/* Fundo do body do Alpha_Home. */
+body:has(.lp01-scope) {
+  background:
+    radial-gradient(50vw 50vw at 0% 0%, rgba(12, 43, 44, 0.55), transparent 70%),
+    radial-gradient(42vw 42vw at 100% 10%, rgba(255, 183, 3, 0.12), transparent 70%),
+    #050505;
+  background-repeat: no-repeat;
+}
+
+@layer base {
+  /* Títulos: General Sans como no Alpha_Home. Dentro de .lp01, h1-h3 já são
+     Montserrat (lp01.css); zera o word-spacing (no repo da franquia os títulos têm word-spacing extra). */
+  .lp01-scope:not(.lp01) :is(h1, h2, h3, h4),
+  .lp01 h4 {
+    font-family: var(--font-general-sans), sans-serif;
+    letter-spacing: -0.02em;
+    word-spacing: normal;
+  }
+
+  .lp01 :is(h1, h2, h3) {
+    word-spacing: normal;
+  }
+}
+
+@layer components {
+  :where(.lp01-scope) .gold-text {
+    background: linear-gradient(90deg, var(--gold-1), var(--gold-2) 60%, var(--amber));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* ===== Botões ===== */
+  :where(.lp01-scope) a.btn,
+  :where(.lp01-scope) button.btn {
+    gap: 10px;
+    padding: 17px 32px;
+    min-height: 52px;
+    border-radius: 999px;
+    font-size: 14.5px;
+    font-weight: 600;
+    letter-spacing: normal;
+    text-transform: none;
+  }
+
+  :where(.lp01-scope) .btn::before {
+    background: linear-gradient(120deg, transparent 30%, rgba(255, 255, 255, 0.35) 50%, transparent 70%);
+  }
+
+  :where(.lp01-scope) .btn:hover svg {
+    transform: none;
+  }
+
+  :where(.lp01-scope) a.btn-primary,
+  :where(.lp01-scope) button.btn-primary {
+    background: linear-gradient(90deg, var(--gold-1), var(--gold-2));
+    color: var(--ink);
+    box-shadow: 0 8px 30px rgba(255, 183, 3, 0.25);
+  }
+
+  :where(.lp01-scope) a.btn-primary:hover,
+  :where(.lp01-scope) a.btn-primary:focus-visible,
+  :where(.lp01-scope) button.btn-primary:hover,
+  :where(.lp01-scope) button.btn-primary:focus-visible {
+    box-shadow: 0 16px 42px rgba(255, 183, 3, 0.4);
+  }
+
+  /* ===== Formulário ===== */
+  :where(.lp01-scope) label.field-label {
+    font-size: 12px;
+    letter-spacing: normal;
+    margin-bottom: 7px;
+  }
+
+  :where(.lp01-scope) input.field-input,
+  :where(.lp01-scope) select.field-input {
+    min-width: auto;
+    height: auto;
+    padding: 14px 16px;
+    border-radius: 10px;
+    font-size: 14px;
+  }
+
+  :where(.lp01-scope) input.field-input:focus,
+  :where(.lp01-scope) select.field-input:focus {
+    background-color: rgba(255, 183, 3, 0.06);
+    box-shadow: 0 0 0 4px rgba(255, 183, 3, 0.1);
+  }
+
+  :where(.lp01-scope) select.field-input {
+    cursor: pointer;
+    padding-right: 36px;
+  }
+
+  :where(.lp01-scope) select.field-input option {
+    background: #141416;
+    color: #fff;
+  }
+
+  :where(.lp01-scope) div.phone-input-wrapper {
+    gap: 8px;
+    height: auto;
+  }
+
+  :where(.lp01-scope) .phone-input-wrapper input.PhoneInputInput {
+    width: auto;
+    height: auto;
+    padding: 14px 16px;
+    border-radius: 10px;
+    font-size: 14px;
+  }
+
+  :where(.lp01-scope) .phone-input-wrapper input.PhoneInputInput:focus {
+    background-color: rgba(255, 183, 3, 0.06);
+    box-shadow: 0 0 0 4px rgba(255, 183, 3, 0.1);
+  }
+}
+
+/* Do globals.css do Alpha_Home: telefone do form da /01-lp na altura compacta. */
+.lp01-phone .PhoneInputInput {
+  padding-top: 11px;
+  padding-bottom: 11px;
+}
+
+.lp01-phone .phone-input-wrapper > span,
+.lp01-phone .phone-input-wrapper button {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}

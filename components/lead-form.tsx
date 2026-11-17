@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type ComponentType } from "react";
 import { submitLead } from "@/app/actions/submit-lead";
+import FlagBR from "@/components/ui/flag-br";
 import type PhoneFieldType from "@/components/ui/phone-field";
 import { content } from "@/lib/content";
 import { FATURAMENTO_EXIGE_EXTRAS, TRACKING_KEYS, type LeadTracking } from "@/lib/lead-constants";
@@ -301,7 +302,7 @@ export default function LeadForm() {
               className="flex shrink-0 items-center gap-1.5 rounded-[10px] border border-border bg-white/[0.04] px-3 py-3 text-sm text-white"
               aria-hidden="true"
             >
-              <span>🇧🇷</span>
+              <FlagBR className="h-[14px] w-[21px] shrink-0 rounded-[2px]" />
               <span>+55</span>
               <span className="text-[10px] text-text-dim">▾</span>
             </span>

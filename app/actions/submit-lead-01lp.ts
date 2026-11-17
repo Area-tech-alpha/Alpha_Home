@@ -5,7 +5,7 @@ import { content01lp } from "@/lib/content-01-lp";
 import { parseTracking01lp, rotear01lp } from "@/lib/lead-01lp";
 import { checkLeadRateLimit, clientIp, releaseLeadRateLimit } from "@/lib/rate-limit";
 import { SITE_URL } from "@/lib/site";
-import { leadSchema } from "@/lib/validation";
+import { leadSchema01lp } from "@/lib/validation-01lp";
 import { buildWebhook01lpPayload, sendLeadToWebhook01lp } from "@/lib/webhook-01lp";
 
 export type SubmitLead01lpResult =
@@ -15,7 +15,7 @@ export type SubmitLead01lpResult =
 const { errors } = content01lp.form;
 
 export async function submitLead01lp(data: unknown, rawTracking?: unknown): Promise<SubmitLead01lpResult> {
-  const parsed = leadSchema.safeParse(data);
+  const parsed = leadSchema01lp.safeParse(data);
   if (!parsed.success) {
     return { success: false, error: errors.validation, reason: "validation" };
   }

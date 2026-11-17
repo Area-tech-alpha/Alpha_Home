@@ -6,7 +6,12 @@ export default function robots(): MetadataRoute.Robots {
     return { rules: { userAgent: "*", disallow: "/" } };
   }
   return {
-    rules: { userAgent: "*", allow: "/", disallow: ["/obrigado", "/agradecimento"] },
+    rules: {
+      userAgent: "*",
+      allow: "/",
+      // Pós-envio: /obrigado (home), /obrigado-a, -b, -c e /agradecimento (/01-lp).
+      disallow: ["/obrigado", "/obrigado-a", "/obrigado-b", "/obrigado-c", "/agradecimento"],
+    },
     sitemap: `${SITE_URL}/sitemap.xml`,
   };
 }

@@ -1,4 +1,4 @@
-import type { LeadFormData } from "@/lib/validation";
+import type { LeadFormData01lp as LeadFormData } from "@/lib/validation-01lp";
 import { DISPOSTO_INVESTIR_VALUE, rotear01lp, type Tracking01lp } from "@/lib/lead-01lp";
 
 // Lead da /01-lp vai para o n8n no MESMO formato que o form nativo do Elementor
@@ -96,7 +96,7 @@ export function buildWebhook01lpPayload(
   const rota = rotear01lp(lead.faturamento, lead.investiria);
   const extra: Extra = {
     tracking,
-    redirectUrl: `${ctx.siteUrl}/${rota.slug}/`, // com barra no fim, como no WP
+    redirectUrl: `${ctx.siteUrl}/${rota.redirectSlug}/`, // com barra no fim, como no WP
     tipo: rota.tipo,
     creationTime: String(Math.floor(ctx.now.getTime() / 1000)),
   };
