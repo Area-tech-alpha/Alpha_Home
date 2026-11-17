@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { FaqJsonLd } from "@/components/json-ld";
+import { FaqJsonLd } from "@/components/lp01/faq-json-ld";
 import LeadForm01lp from "@/components/lp01/lead-form-01lp";
 import MetodoVideo from "@/components/lp01/metodo-video";
 import Rich from "@/components/lp01/rich";
@@ -226,8 +226,15 @@ export function Servicos() {
         <h2 id="servicos-titulo" className="lp01-title mb-[40px] max-w-[340px] md:max-w-[760px]">
           <Rich text={s.title} />
         </h2>
-        <ServicosCarousel cards={s.cards} autoplayMs={s.autoplayMs} width={s.cardWidth} height={s.cardHeight} />
       </div>
+      {/* Fora do lp01-container (1140px): o carrossel vai até 1440px. mt-5 = gap-5 de antes. */}
+      <ServicosCarousel
+        cards={s.cards}
+        autoplayMs={s.autoplayMs}
+        width={s.cardWidth}
+        height={s.cardHeight}
+        className="mt-5"
+      />
     </section>
   );
 }

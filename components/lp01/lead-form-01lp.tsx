@@ -3,15 +3,15 @@
 import { useEffect, useRef, useState, type ComponentType } from "react";
 import { submitLead01lp } from "@/app/actions/submit-lead-01lp";
 import FlagBR from "@/components/ui/flag-br";
-import type PhoneFieldType from "@/components/ui/phone-field";
+import type PhoneFieldType from "@/components/lp01/phone-field-01lp";
 import { content01lp } from "@/lib/content-01-lp";
 import {
+  FATURAMENTO_EXIGE_EXTRAS_01LP,
   TRACKING_KEYS_01LP,
   TRACKING_STORAGE_KEY_01LP,
   TRACKING_TTL_MS_01LP,
   type LeadTracking01lp,
 } from "@/lib/lead-01lp-constants";
-import { FATURAMENTO_EXIGE_EXTRAS } from "@/lib/lead-constants";
 
 const { form } = content01lp;
 const { fields } = form;
@@ -20,7 +20,7 @@ const { fields } = form;
 type PhoneFieldComponent = typeof PhoneFieldType;
 let phoneFieldPromise: Promise<PhoneFieldComponent> | null = null;
 function loadPhoneField() {
-  phoneFieldPromise ??= import("@/components/ui/phone-field").then((m) => m.default);
+  phoneFieldPromise ??= import("@/components/lp01/phone-field-01lp").then((m) => m.default);
   return phoneFieldPromise;
 }
 
@@ -189,7 +189,7 @@ export default function LeadForm01lp() {
     trackingRef.current = readFirstTouch();
   }, []);
 
-  const needsExtras = values.faturamento === FATURAMENTO_EXIGE_EXTRAS;
+  const needsExtras = values.faturamento === FATURAMENTO_EXIGE_EXTRAS_01LP;
 
   function set(field: FieldName, value: string | undefined) {
     setValues((prev) => ({ ...prev, [field]: value }));
@@ -198,7 +198,7 @@ export default function LeadForm01lp() {
 
   // Como no WP: em "Até 30 mil" aparecem CNPJ e "investiria", com "Sim" já marcado.
   function setFaturamento(value: string) {
-    const extras = value === FATURAMENTO_EXIGE_EXTRAS;
+    const extras = value === FATURAMENTO_EXIGE_EXTRAS_01LP;
     setValues((prev) => ({
       ...prev,
       faturamento: value,
@@ -225,8 +225,8 @@ export default function LeadForm01lp() {
       ...(needsExtras && { cnpj: values.cnpj, investiria: values.investiria || undefined }),
     };
 
-    const { leadSchema } = await import("@/lib/validation");
-    const parsed = leadSchema.safeParse(payload);
+    const { leadSchema01lp } = await import("@/lib/validation-01lp");
+    const parsed = leadSchema01lp.safeParse(payload);
     if (!parsed.success) {
       const fieldErrors: Partial<Record<FieldName, string>> = {};
       for (const issue of parsed.error.issues) {

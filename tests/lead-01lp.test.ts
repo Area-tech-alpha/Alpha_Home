@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { content01lp } from "@/lib/content-01-lp";
 import { parseTracking01lp, rotear01lp } from "@/lib/lead-01lp";
 import { checkLeadRateLimit, type Limiter, type Limiters } from "@/lib/rate-limit";
-import type { LeadFormData } from "@/lib/validation";
+import type { LeadFormData01lp as LeadFormData } from "@/lib/validation-01lp";
 import {
   buildWebhook01lpPayload,
   encodeWebhookBody,
@@ -29,12 +29,12 @@ const SECRET_URL = "https://n8n.exemplo.com/webhook/token-secreto-123";
 
 // ===== Roteamento (regra literal do WP, pageId 3445) =====
 
-test("roteamento: cada faixa de faturamento vai para o destino do WP", () => {
+test("roteamento: cada faixa de faturamento vai para o destino do WP (80-100 mil navega para obrigado-a)", () => {
   const esperado: Record<string, string> = {
     "Até 30 mil": "obrigado-c",
     "30 mil até 50 mil": "obrigado-c",
     "50 mil até 80 mil": "obrigado-b",
-    "80 mil até 100 mil": "obrigado",
+    "80 mil até 100 mil": "obrigado-a",
     "100 mil até 150 mil": "obrigado-a",
     "150 mil até 250 mil": "obrigado-a",
     "250 mil até 400 mil": "obrigado-a",
@@ -50,17 +50,40 @@ test("roteamento: cada faixa de faturamento vai para o destino do WP", () => {
 });
 
 test("roteamento: Até 30 mil + Não = agradecimento (desqualificado); + Sim = obrigado-c", () => {
-  assert.deepEqual(rotear01lp("Até 30 mil", "Não"), { slug: "agradecimento", tipo: "desqualificado" });
-  assert.deepEqual(rotear01lp("Até 30 mil", "Sim"), { slug: "obrigado-c", tipo: "c" });
+  assert.deepEqual(rotear01lp("Até 30 mil", "Não"), {
+    slug: "agradecimento",
+    tipo: "desqualificado",
+    redirectSlug: "agradecimento",
+  });
+  assert.deepEqual(rotear01lp("Até 30 mil", "Sim"), { slug: "obrigado-c", tipo: "c", redirectSlug: "obrigado-c" });
   // "Não" só desqualifica em Até 30 mil.
-  assert.deepEqual(rotear01lp("50 mil até 80 mil", "Não"), { slug: "obrigado-b", tipo: "b" });
+  assert.deepEqual(rotear01lp("50 mil até 80 mil", "Não"), { slug: "obrigado-b", tipo: "b", redirectSlug: "obrigado-b" });
 });
 
 test("roteamento: tipos a/b/c e qualificado-geral (80 a 100 mil, pendência do WP)", () => {
   assert.equal(rotear01lp("Mais de 1 milhão").tipo, "a");
   assert.equal(rotear01lp("50 mil até 80 mil").tipo, "b");
   assert.equal(rotear01lp("30 mil até 50 mil").tipo, "c");
-  assert.deepEqual(rotear01lp("80 mil até 100 mil"), { slug: "obrigado", tipo: "qualificado-geral" });
+  // /obrigado é da home: navega para /obrigado-a, mas o payload segue o WP.
+  assert.deepEqual(rotear01lp("80 mil até 100 mil"), {
+    slug: "obrigado-a",
+    tipo: "qualificado-geral",
+    redirectSlug: "obrigado",
+  });
+});
+
+test("payload: 80 mil até 100 mil mantém tipo_lead qualificado-geral e redirect_url .../obrigado/ (igual ao WP)", () => {
+  const p = buildWebhook01lpPayload({ ...lead, faturamento: "80 mil até 100 mil" }, {}, ctx);
+  assert.equal(p.fields.tipo_lead.value, "qualificado-geral");
+  assert.equal(p.fields.redirect_url.value, "https://assessorialpha.com/obrigado/");
+});
+
+test("roteamento: nenhuma faixa navega para /obrigado (página da home)", () => {
+  for (const faturamento of content01lp.form.fields.faturamento.options) {
+    for (const investiria of [undefined, "Sim", "Não"] as const) {
+      assert.notEqual(rotear01lp(faturamento, investiria).slug, "obrigado", `${faturamento} / ${investiria}`);
+    }
+  }
 });
 
 // ===== Payload =====
@@ -258,7 +281,9 @@ test("rate limit da 01-lp usa o prefixo 01lp: e não divide cota com a home", as
   const limiters: Limiters = { email: make(1), telefone: make(1), ip: make(3) };
   const input = { email: "ana@ex.com", telefone: "+5511911110001", ip: "200.1.1.1" };
 
-  assert.deepEqual(await checkLeadRateLimit({ ...input, scope: "home" }, limiters, 0), { ok: true });
+  // Sem escopo = home (prefixo "home:").
+  assert.deepEqual(await checkLeadRateLimit(input, limiters, 0), { ok: true });
+  assert.match(seen[0], /^home:email:[0-9a-f]{64}$/);
   assert.deepEqual(await checkLeadRateLimit({ ...input, scope: "01lp" }, limiters, 0), { ok: true });
   assert.match(seen[3], /^01lp:email:[0-9a-f]{64}$/);
   assert.match(seen[4], /^01lp:telefone:[0-9a-f]{64}$/);

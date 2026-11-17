@@ -21,3 +21,6 @@ export type LeadTracking01lp = Partial<Record<TrackingKey01lp, string>>;
 export const TRACKING_STORAGE_KEY_01LP = "alpha-01lp:first-touch";
 // First-touch vale por 30 dias; depois disso uma nova visita com UTM substitui.
 export const TRACKING_TTL_MS_01LP = 30 * 24 * 60 * 60 * 1000;
+
+// Única faixa de faturamento que mostra (e exige) CNPJ e "investiria", como no WP.
+export const FATURAMENTO_EXIGE_EXTRAS_01LP = "Até 30 mil";

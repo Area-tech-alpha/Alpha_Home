@@ -5,6 +5,7 @@ import Reveal01lp from "@/components/lp01/reveal";
 import { Depoimentos, Faixas, Faq, Hero, Metodo, Planos, QuemSomos, Servicos, Time } from "@/components/lp01/sections";
 import { content01lp } from "@/lib/content-01-lp";
 import { IS_PRODUCTION_SITE } from "@/lib/site";
+import "@/components/lp01/lp01-scope.css";
 import "./lp01.css";
 
 const { meta } = content01lp;
@@ -27,7 +28,7 @@ export const metadata: Metadata = {
 
 export default function Lp01() {
   return (
-    <div className={`lp01 ${montserrat.variable} ${roboto.variable} ${publicSans.variable}`}>
+    <div className={`lp01 lp01-scope ${montserrat.variable} ${roboto.variable} ${publicSans.variable}`}>
       <main>
         <Hero />
         <Faixas />

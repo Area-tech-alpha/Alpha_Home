@@ -4,6 +4,7 @@ import Link from "next/link";
 import { currentYearText } from "@/components/lp01/footer-01lp";
 import YoutubeVideo from "@/components/ui/youtube-video";
 import { content01lp as c } from "@/lib/content-01-lp";
+import "@/components/lp01/lp01-scope.css";
 
 // Páginas pós-envio da /01-lp (/obrigado-a, -b, -c e /agradecimento): fora do Google.
 export const obrigadoMetadata: Metadata = {
@@ -17,8 +18,9 @@ export default function Obrigado01lp({ variant }: { variant: "qualificado" | "de
   const { logo, obrigado, agradecimento } = c;
   const head = variant === "qualificado" ? obrigado : agradecimento;
 
+  // .lp01-scope: tokens e classes com os valores do Alpha_Home (lp01-scope.css).
   return (
-    <>
+    <div className="lp01-scope">
       <main className="flex min-h-svh flex-col items-center justify-center px-[6%] py-10 text-center">
         <div className="w-full max-w-[720px]">
           <Image
@@ -53,6 +55,6 @@ export default function Obrigado01lp({ variant }: { variant: "qualificado" | "de
       <footer className="border-t border-border py-6 text-center">
         <p className="text-[12.5px] font-light text-text-dim">{currentYearText(obrigado.copyright)}</p>
       </footer>
-    </>
+    </div>
   );
 }

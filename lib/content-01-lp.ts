@@ -91,7 +91,7 @@ export const content01lp = {
   depoimentos: {
     eyebrow: "👤 Depoimentos",
     title: "**Mais de ==2.000== restaurantes** com **resultados**. Isso é **==Alpha==**.",
-    // Mesmos Shorts da 00-lp; posters locais já usados na home.
+    // Mesmos Shorts da 00-lp; posters locais em public/images/depoimentos.
     shorts: ["5A264VtPKEs", "aoDx_HTLaWA", "oSDQUXjzd7Y"],
     shortLabel: "Depoimento de cliente Alpha",
   },

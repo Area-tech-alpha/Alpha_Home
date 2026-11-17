@@ -17,8 +17,8 @@ npm run build      # confere as mídias (scripts/check-assets.ts) e gera o build
 | `/` | Home; lead vai para o CRM (`lib/crm.ts`) | só no domínio final |
 | `/depoimentos` | Vídeos de clientes | só no domínio final |
 | `/01-lp` | LP de restaurantes (migração da `/00-lp/` do WP, ID 3445); lead vai para o webhook do n8n | só no domínio final (e só então no sitemap) |
-| `/obrigado` | Obrigado da home; também recebe a faixa "80 mil até 100 mil" da /01-lp | noindex |
-| `/obrigado-a`, `/obrigado-b`, `/obrigado-c` | Pós-envio da /01-lp (leads A, B, C) | noindex |
+| `/obrigado` | Obrigado da home | noindex |
+| `/obrigado-a`, `/obrigado-b`, `/obrigado-c` | Pós-envio da /01-lp (leads A, B, C; a faixa "80 mil até 100 mil" também cai na `/obrigado-a`) | noindex |
 | `/agradecimento` | Pós-envio da /01-lp (desqualificado) | noindex |
 
 ## Variáveis de ambiente
@@ -49,7 +49,7 @@ Regra literal do script da 00-lp (ramo `pageId` 3445):
 | Até 30 mil | Sim | `/obrigado-c` | `c` |
 | 30 mil até 50 mil | – | `/obrigado-c` | `c` |
 | 50 mil até 80 mil | – | `/obrigado-b` | `b` |
-| 80 mil até 100 mil | – | `/obrigado` | `qualificado-geral` (pendência: faixa esquecida no WP) |
+| 80 mil até 100 mil | – | `/obrigado-a` | `qualificado-geral` (pendência: faixa esquecida no WP; o `redirect_url` do payload segue o WP: `.../obrigado/`) |
 | 100 mil até 150 mil … Mais de 1 milhão | – | `/obrigado-a` | `a` |
 
 ### Payload do webhook
