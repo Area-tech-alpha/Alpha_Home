@@ -21,7 +21,8 @@ npm run build      # confere as mídias (scripts/check-assets.ts) e gera o build
 | `/obrigado-a`, `/obrigado-b`, `/obrigado-c` | Pós-envio da /01-lp (leads A, B, C; a faixa "80 mil até 100 mil" também cai na `/obrigado-a`) | noindex |
 | `/agradecimento` | Pós-envio da /01-lp (desqualificado) | noindex |
 | `/alphas-pizzaria` | LP VSL da Alpha's Pizzaria (migração da `/alphas-pizzaria-vsl/` do WP, ID 13930) | só no domínio final (e só então no sitemap) |
-| `/alphas-pizzaria/obrigado` | Vídeo que libera o PDF na metade; o lead vai para o webhook do n8n no clique (migração da `/obrigado-vsl-alphas-pizzaria/`, ID 13950) | noindex + disallow |
+| `/alphas-pizzaria/obrigado` | Vídeo que libera o PDF na metade; o lead vai para o webhook do n8n no clique, a não ser que já tenha sido enviado pela `/resultado-alphas-pizzaria` (migração da `/obrigado-vsl-alphas-pizzaria/`, ID 13950) | noindex + disallow |
+| `/resultado-alphas-pizzaria` | LP de resultado da Alpha's Pizzaria (migração da `/resultado-alphas-pizzaria/` do WP, ID 13526); lead enviado no submit e depois vai para `/alphas-pizzaria/obrigado` | só no domínio final (e só então no sitemap) |
 
 ## Variáveis de ambiente
 
@@ -31,7 +32,7 @@ npm run build      # confere as mídias (scripts/check-assets.ts) e gera o build
 | `CRM_API_URL`, `CRM_EXTERNAL_LEADS_API_KEY`, `CRM_SDR_EMAIL` | Lead da home | servidor |
 | `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | Rate limit dos forms (sem elas, passa direto) | servidor |
 | `LEAD_WEBHOOK_URL_01LP` | Webhook do n8n que recebe o lead da /01-lp (**Sensitive** na Vercel) | servidor |
-| `LEAD_WEBHOOK_URL_PIZZARIA` | Webhook do n8n que recebe o lead da /alphas-pizzaria, o mesmo da página do WP (**Sensitive** na Vercel) | servidor |
+| `LEAD_WEBHOOK_URL_PIZZARIA` | Webhook do n8n que recebe o lead da /alphas-pizzaria e da /resultado-alphas-pizzaria, o mesmo das páginas do WP (**Sensitive** na Vercel) | servidor |
 
 ## /01-lp: envio do lead
 
@@ -119,6 +120,33 @@ Diferenças intencionais:
 - A VSL é local (`public/videos/alphas-pizzaria-vsl.mp4`, 720p, 15 MB; a original no WP tem 1080p e 119 MB).
 - O PDF é local (`public/files/alphas-pizzaria/playbook-cardapio-digital.pdf`, cópia do `wp-content/uploads/2026/09/Playbook-Cardapio-Digital-Alpha.pdf`).
 - A contagem "Libera em" usa a duração real do vídeo (no WP, a constante de 4:52; aqui ela só vale antes de o metadata carregar).
+
+## /resultado-alphas-pizzaria: envio do lead
+
+O form é o mesmo da /alphas-pizzaria (`LeadFormPizzaria variant="resultado"`: zod, DDI com bandeiras SVG, honeypot, first-touch), mas o envio acontece **no submit**, como no WP:
+
+1. A server action `app/actions/submit-lead-resultado-pizzaria.ts` valida o lead, aplica o rate limit (escopo `pizzaria-resultado:`) e faz `POST` JSON para `LEAD_WEBHOOK_URL_PIZZARIA` (`lib/webhook-resultado-pizzaria.ts`).
+2. **Só redireciona se o envio deu certo.** Se o webhook falhar, o form mostra "Não conseguimos enviar agora. Tente de novo em instantes." e a cota de e-mail e telefone do rate limit é devolvida (no WP o envio é "fire and forget"; aqui falha de envio não perde lead sem aviso).
+3. Depois do envio, **todas as faixas** vão para `/alphas-pizzaria/obrigado` (no WP cada faixa ia para `/obrigado-a`, `-b`, `-c`, `/agradecimento` ou `/obrigado`). O `tipo_lead` e o `redirect_url` do payload continuam calculados pela regra de faturamento do WP.
+
+Payload (mesmas chaves e ordem do WP): `nome, email, telefone, empresa, segmento, faturamento, disposto_investir, cnpj, tipo_lead, redirect_url`, as 10 UTMs, `page_url, referrer, submitted_at`. Não tem `origem_form` (só a VSL tem).
+
+### Sem lead duplicado no n8n
+
+Antes de redirecionar, o navegador grava a marca **"lead já enviado pela resultado"** (`alpha_resultado_enviado`: o lead e a data, em `sessionStorage` + `localStorage`, validade de 2h). O `components/pizzaria/vsl-gate.tsx` lê a marca (regra em `lib/obrigado-pizzaria.ts`):
+
+- **Com marca válida:** o botão liberado aos 50% só abre o PDF. Não chama o webhook e não manda "sem-form". A marca é apagada no clique.
+- **Sem marca:** tudo como antes. Quem vem da VSL é enviado uma vez no botão, e quem abre o obrigado direto é enviado como `sem-form`.
+
+Marca vencida (mais de 2h), de data futura ou malformada é ignorada.
+
+### Carrossel de episódios
+
+15 episódios na ordem do WP (`lib/content-resultado-pizzaria.ts`); cada card é um link para o reel (`target="_blank"`, `rel="noopener"`). Mesma mecânica do carrossel de depoimentos da /alphas-pizzaria (`components/pizzaria/use-loop-carousel.ts`): autoplay de 5 s deslizando, loop infinito, arraste, setas e pausa no hover. Um arraste nunca abre o reel; só o clique sem arrastar. O reveal fica num wrapper de className fixo e o estado do arraste vai em `data-dragging`, para o React não apagar a classe `visible` que o reveal põe via DOM (bug já corrigido na /alphas-pizzaria).
+
+**Capas:** o card usa `public/images/alphas-pizzaria/episodios/ep-NN.webp` (9/16) quando o arquivo está listado em `episodios.covers`; sem capa, mostra o fundo fosco com degradê para o preto, o ícone do Instagram e "Ver no Instagram". A lista está vazia até as capas serem enviadas (o Instagram não entrega o `og:image` por `curl`). Ao adicionar capas, listar os nomes (`"ep-01.webp"`…) em `covers`: o `check-assets` passa a conferi-las.
+
+Diferenças em relação ao WP: carrossel com autoplay, deslize, loop e arraste (no WP é só rolagem pelas setas); fundo do card fosco em vez de transparente; logo do rodapé com a proporção correta (no WP ele sai esticado).
 
 ## Pendências (Max)
 

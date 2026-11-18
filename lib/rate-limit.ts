@@ -21,8 +21,8 @@ const LIMITS: Record<LimiterName, number> = {
   ip: 3,
 };
 // Cada página com form tem o seu escopo nas chaves ("home:", "01lp:",
-// "pizzaria:"): a cota de uma não bloqueia a outra.
-export type RateLimitScope = "home" | "01lp" | "pizzaria";
+// "pizzaria:", "pizzaria-resultado:"): a cota de uma não bloqueia a outra.
+export type RateLimitScope = "home" | "01lp" | "pizzaria" | "pizzaria-resultado";
 
 let cached: Limiters | null | undefined;
 

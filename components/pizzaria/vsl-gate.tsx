@@ -3,9 +3,15 @@
 import { useEffect, useRef, useState } from "react";
 import { Download, Volume1, Volume2, VolumeX } from "lucide-react";
 import { confirmLeadPizzaria } from "@/app/actions/submit-lead-pizzaria";
-import { clearLeadPizzaria, readFirstTouchPizzaria, readLeadPizzaria } from "@/components/pizzaria/lead-storage";
+import {
+  clearLeadPizzaria,
+  readFirstTouchPizzaria,
+  readLeadPizzaria,
+  readSentMarkPizzaria,
+} from "@/components/pizzaria/lead-storage";
 import { contentPizzaria } from "@/lib/content-pizzaria";
 import { FRACAO_GATE_PIZZARIA } from "@/lib/lead-pizzaria-constants";
+import { decidirConfirmacaoPizzaria } from "@/lib/obrigado-pizzaria";
 
 const { obrigado } = contentPizzaria;
 const { gate, sound, video: vsl } = obrigado;
@@ -137,20 +143,24 @@ export default function VslGate() {
     if (enviado.current) return;
     enviado.current = true;
     setSending(true);
-    try {
-      // O WP não espera o webhook (fetch com keepalive). Aqui a confirmação é
-      // uma server action: espera até 10s e segue para o PDF de qualquer jeito.
-      await Promise.race([
-        confirmLeadPizzaria({
-          stored: readLeadPizzaria(),
-          tracking: readFirstTouchPizzaria(),
-          pageUrl: window.location.href,
-          referrer: document.referrer || "",
-        }),
-        new Promise((resolve) => setTimeout(resolve, 10_000)),
-      ]);
-    } catch {
-      // Falha de rede: o lead ainda vai para o PDF, como no WP.
+    // Quem veio da /resultado-alphas-pizzaria já teve o lead enviado no submit
+    // (marca no navegador): aqui só abre o PDF, sem webhook e sem "sem-form".
+    if (decidirConfirmacaoPizzaria(readSentMarkPizzaria()) === "enviar") {
+      try {
+        // O WP não espera o webhook (fetch com keepalive). Aqui a confirmação é
+        // uma server action: espera até 10s e segue para o PDF de qualquer jeito.
+        await Promise.race([
+          confirmLeadPizzaria({
+            stored: readLeadPizzaria(),
+            tracking: readFirstTouchPizzaria(),
+            pageUrl: window.location.href,
+            referrer: document.referrer || "",
+          }),
+          new Promise((resolve) => setTimeout(resolve, 10_000)),
+        ]);
+      } catch {
+        // Falha de rede: o lead ainda vai para o PDF, como no WP.
+      }
     }
     clearLeadPizzaria();
     window.location.assign(obrigado.pdfUrl);

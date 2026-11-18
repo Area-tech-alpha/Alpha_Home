@@ -5,8 +5,10 @@ import { useRouter } from "next/navigation";
 import { Lock } from "lucide-react";
 import FlagBR from "@/components/ui/flag-br";
 import type PhoneFieldType from "@/components/lp01/phone-field-01lp";
-import { readFirstTouchPizzaria, saveLeadPizzaria } from "@/components/pizzaria/lead-storage";
+import { submitLeadResultadoPizzaria } from "@/app/actions/submit-lead-resultado-pizzaria";
+import { readFirstTouchPizzaria, saveLeadPizzaria, saveSentMarkPizzaria } from "@/components/pizzaria/lead-storage";
 import { contentPizzaria } from "@/lib/content-pizzaria";
+import { contentResultado } from "@/lib/content-resultado-pizzaria";
 import { FATURAMENTO_EXIGE_EXTRAS_PIZZARIA, type LeadTrackingPizzaria } from "@/lib/lead-pizzaria-constants";
 
 const { form } = contentPizzaria;
@@ -68,8 +70,14 @@ function FieldError({ name, message }: { name: FieldName; message?: string }) {
   );
 }
 
-export default function LeadFormPizzaria() {
+// variant "vsl" (/alphas-pizzaria): valida, guarda o lead e vai para o vídeo; o
+// envio é na página 2. variant "resultado" (/resultado-alphas-pizzaria): envia o
+// lead no submit (server action) e só então vai para o mesmo obrigado da VSL,
+// deixando no navegador a marca de "lead já enviado" para o obrigado não repetir.
+export default function LeadFormPizzaria({ variant = "vsl" }: { variant?: "vsl" | "resultado" }) {
   const router = useRouter();
+  const resultado = variant === "resultado";
+  const [globalError, setGlobalError] = useState("");
   const [values, setValues] = useState<FormValues>(initial);
   const [errors, setErrors] = useState<Partial<Record<FieldName, string>>>({});
   const [sending, setSending] = useState(false);
@@ -114,6 +122,8 @@ export default function LeadFormPizzaria() {
     e.preventDefault();
     if (sending) return;
     const website = (e.currentTarget.elements.namedItem("website") as HTMLInputElement | null)?.value ?? "";
+    // Resultado: honeypot preenchido = bot, não envia nada.
+    if (resultado && website) return;
 
     const lead = {
       nome: values.nome.trim(),
@@ -145,6 +155,28 @@ export default function LeadFormPizzaria() {
     if (!tracking.utm_source && !tracking.utm_medium) {
       const { classificarOrigemOrganica } = await import("@/lib/lead-pizzaria");
       Object.assign(tracking, classificarOrigemOrganica(document.referrer, window.location.hostname));
+    }
+
+    if (resultado) {
+      setGlobalError("");
+      try {
+        const res = await submitLeadResultadoPizzaria(parsed.data, tracking, {
+          pageUrl: window.location.href,
+          referrer: document.referrer || "",
+        });
+        if (res.success) {
+          // Só redireciona se o envio deu certo; a marca vai antes, para o obrigado
+          // da VSL não mandar o mesmo lead de novo.
+          saveSentMarkPizzaria(res.lead);
+          router.push(OBRIGADO_PATH_PIZZARIA);
+          return;
+        }
+        setGlobalError(res.error);
+      } catch {
+        setGlobalError(contentResultado.form.errors.webhook);
+      }
+      setSending(false);
+      return;
     }
 
     // Como no WP, a página 1 não envia: guarda o lead e vai para o vídeo. O
@@ -355,13 +387,22 @@ export default function LeadFormPizzaria() {
         </div>
       </div>
 
+      {globalError && (
+        <p className="field-error form-error" role="alert">
+          {globalError}
+        </p>
+      )}
+
       <button type="submit" disabled={sending} className="pz-btn pz-btn-primary pz-btn-block">
-        {sending ? form.sending : form.submitLabel}
+        {sending ? form.sending : resultado ? contentResultado.form.submitLabel : form.submitLabel}
       </button>
-      <p className="form-note">
-        <Lock aria-hidden="true" />
-        <span>{form.note}</span>
-      </p>
+      {/* O form do WP da resultado não tem a nota de privacidade. */}
+      {!resultado && (
+        <p className="form-note">
+          <Lock aria-hidden="true" />
+          <span>{form.note}</span>
+        </p>
+      )}
     </form>
   );
 }
