@@ -100,14 +100,14 @@ export default function VslGate() {
     const onTime = () => {
       clamp();
       maxSeg.current = Math.max(maxSeg.current, v.currentTime);
-      if (!v.duration) return;
-      const fracao = Math.max(0, Math.min(1, maxSeg.current / v.duration));
+      // Duração real do vídeo; antes do metadata, a constante do WP (4:52).
+      const duracao = Number.isFinite(v.duration) && v.duration > 0 ? v.duration : vsl.durationSeconds;
+      const fracao = Math.max(0, Math.min(1, maxSeg.current / duracao));
       fracaoMax.current = Math.max(fracaoMax.current, fracao);
       if (liberadoRef.current) return;
       setFill(Math.min(100, (fracaoMax.current / FRACAO_GATE_PIZZARIA) * 100));
       if (fracaoMax.current >= FRACAO_GATE_PIZZARIA) liberar();
-      // Como no WP: o progresso vem do <video>; o texto usa a duração fixa (4:52).
-      else setLabel({ kind: "countdown", seconds: Math.round((FRACAO_GATE_PIZZARIA - fracaoMax.current) * vsl.durationSeconds) });
+      else setLabel({ kind: "countdown", seconds: Math.round((FRACAO_GATE_PIZZARIA - fracaoMax.current) * duracao) });
     };
     // Mudança vinda de fora dos nossos controles (ex.: atalho do sistema).
     const onVolume = () => {
@@ -118,6 +118,7 @@ export default function VslGate() {
     v.addEventListener("pause", onPause);
     v.addEventListener("seeking", clamp);
     v.addEventListener("timeupdate", onTime);
+    v.addEventListener("loadedmetadata", onTime);
     v.addEventListener("volumechange", onVolume);
 
     if (new URLSearchParams(window.location.search).get("preview") === "liberado") liberar(true);
@@ -127,6 +128,7 @@ export default function VslGate() {
       v.removeEventListener("pause", onPause);
       v.removeEventListener("seeking", clamp);
       v.removeEventListener("timeupdate", onTime);
+      v.removeEventListener("loadedmetadata", onTime);
       v.removeEventListener("volumechange", onVolume);
     };
   }, []);

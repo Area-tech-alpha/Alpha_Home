@@ -117,7 +117,8 @@ Diferenças intencionais:
 - Novo no obrigado: aviso "Clique para ativar o som" e controle de volume (mudo/som + slider).
 - O carrossel de depoimentos tem autoplay de 5 s com deslize, loop, arraste e pausa no hover (no WP é só rolagem pelas setas). Os vídeos são locais (`public/videos/depoimento-*.mp4`, com poster) e só carregam no clique.
 - A VSL é local (`public/videos/alphas-pizzaria-vsl.mp4`, 720p, 15 MB; a original no WP tem 1080p e 119 MB).
-- O PDF continua no WordPress (`wp-content/uploads/2026/09/Playbook-Cardapio-Digital-Alpha.pdf`).
+- O PDF é local (`public/files/alphas-pizzaria/playbook-cardapio-digital.pdf`, cópia do `wp-content/uploads/2026/09/Playbook-Cardapio-Digital-Alpha.pdf`).
+- A contagem "Libera em" usa a duração real do vídeo (no WP, a constante de 4:52; aqui ela só vale antes de o metadata carregar).
 
 ## Pendências (Max)
 

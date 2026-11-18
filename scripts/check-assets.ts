@@ -37,6 +37,7 @@ const srcs = [
   contentPizzaria.hero.background.src,
   contentPizzaria.obrigado.video.src,
   contentPizzaria.obrigado.video.poster,
+  contentPizzaria.obrigado.pdfUrl,
   ...contentPizzaria.depoimentos.items.flatMap((item) => {
     const v = depoimentoVideo(item.slug);
     return [v.src, v.poster];

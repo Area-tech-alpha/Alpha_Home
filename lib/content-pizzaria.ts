@@ -175,8 +175,8 @@ export const contentPizzaria = {
     video: {
       src: "/videos/alphas-pizzaria-vsl.mp4",
       poster: "/videos/alphas-pizzaria-vsl-poster.jpg",
-      // DURACAO_VIDEO_SEGUNDOS do WP (4:52): só para o texto "Libera em m:ss";
-      // o progresso real vem do próprio <video>.
+      // DURACAO_VIDEO_SEGUNDOS do WP (4:52): só fallback antes de o metadata
+      // carregar; depois a contagem usa a duração real do <video>.
       durationSeconds: 292,
     },
     gate: {
@@ -195,8 +195,9 @@ export const contentPizzaria = {
     button: "Baixar a estrutura em PDF",
     sending: "Enviando...",
     buttonSub: "Ao clicar, o time da Alpha recebe seus dados e você é direcionado pro PDF.",
-    // PDF_URL do WP: para onde o lead vai depois do clique (link, não embed).
-    pdfUrl: "https://assessorialpha.com/wp-content/uploads/2026/09/Playbook-Cardapio-Digital-Alpha.pdf",
+    // Para onde o lead vai depois do clique: cópia local do PDF_URL do WP
+    // (wp-content/uploads/2026/09/Playbook-Cardapio-Digital-Alpha.pdf).
+    pdfUrl: "/files/alphas-pizzaria/playbook-cardapio-digital.pdf",
   },
 } as const;
 
