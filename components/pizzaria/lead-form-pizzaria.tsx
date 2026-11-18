@@ -8,16 +8,22 @@ import type PhoneFieldType from "@/components/lp01/phone-field-01lp";
 import { submitLeadBastidoresPizzaria } from "@/app/actions/submit-lead-bastidores-pizzaria";
 import { submitLeadPizzaria } from "@/app/actions/submit-lead-pizzaria";
 import { submitLeadResultadoPizzaria } from "@/app/actions/submit-lead-resultado-pizzaria";
+import { submitLeadMagneticVsl } from "@/app/actions/submit-lead-magnetic-vsl";
 import { readFirstTouchPizzaria } from "@/components/pizzaria/lead-storage";
 import { BASTIDORES_STORAGE_KEY, contentBastidores } from "@/lib/content-bastidores-pizzaria";
 import { contentPizzaria } from "@/lib/content-pizzaria";
 import { contentResultado } from "@/lib/content-resultado-pizzaria";
 import { FATURAMENTO_EXIGE_EXTRAS_PIZZARIA, type LeadTrackingPizzaria } from "@/lib/lead-pizzaria-constants";
+import {
+  FATURAMENTOS_LMVSL,
+  SEGMENTOS_LMVSL,
+  contentLeadMagneticVsl,
+} from "@/lib/content-lead-magnetic-vsl";
 
 const { form } = contentPizzaria;
 const { fields } = form;
 
-type Variant = "vsl" | "resultado" | "bastidores";
+type Variant = "vsl" | "resultado" | "bastidores" | "lead-magnetic-vsl";
 
 // Todas as LPs enviam o lead ao CRM comercial no submit (server action, mesmo código
 // da home) e só seguem para o redirectTo se o CRM respondeu ok. O que muda por
@@ -43,6 +49,13 @@ const VARIANTS = {
     buttonClass: "bs-btn bs-btn-primary",
     note: false,
     empresaPlaceholder: contentBastidores.form.empresaPlaceholder,
+  },
+  "lead-magnetic-vsl": {
+    submit: submitLeadMagneticVsl,
+    label: contentLeadMagneticVsl.form.submitLabel,
+    buttonClass: "lmvsl-form-btn",
+    note: false,
+    empresaPlaceholder: contentLeadMagneticVsl.form.fields.empresa.placeholder,
   },
 } as const;
 
@@ -103,6 +116,7 @@ function FieldError({ name, message }: { name: FieldName; message?: string }) {
 export default function LeadFormPizzaria({ variant = "vsl" }: { variant?: Variant }) {
   const router = useRouter();
   const cfg = VARIANTS[variant];
+  const lmFields = variant === "lead-magnetic-vsl" ? contentLeadMagneticVsl.form.fields : null;
   const [globalError, setGlobalError] = useState("");
   const [redirecting, setRedirecting] = useState(false);
   const [values, setValues] = useState<FormValues>(initial);
@@ -126,7 +140,9 @@ export default function LeadFormPizzaria({ variant = "vsl" }: { variant?: Varian
     trackingRef.current = readFirstTouchPizzaria();
   }, []);
 
-  const needsExtras = values.faturamento === FATURAMENTO_EXIGE_EXTRAS_PIZZARIA;
+  const needsExtras =
+    variant !== "lead-magnetic-vsl" &&
+    values.faturamento === FATURAMENTO_EXIGE_EXTRAS_PIZZARIA;
 
   function set(field: FieldName, value: string | undefined) {
     setValues((prev) => ({ ...prev, [field]: value }));
@@ -162,8 +178,11 @@ export default function LeadFormPizzaria({ variant = "vsl" }: { variant?: Varian
       ...(needsExtras && { cnpj: values.cnpj, investiria: values.investiria || undefined }),
     };
 
-    const { leadSchemaPizzaria } = await import("@/lib/validation-pizzaria");
-    const parsed = leadSchemaPizzaria.safeParse(lead);
+    const validation = await import("@/lib/validation-pizzaria");
+    const parsed =
+      variant === "lead-magnetic-vsl"
+        ? validation.leadSchemaLeadMagneticVsl.safeParse(lead)
+        : validation.leadSchemaPizzaria.safeParse(lead);
     if (!parsed.success) {
       const fieldErrors: Partial<Record<FieldName, string>> = {};
       for (const issue of parsed.error.issues) {
@@ -210,14 +229,14 @@ export default function LeadFormPizzaria({ variant = "vsl" }: { variant?: Varian
       <input type="text" name="website" tabIndex={-1} aria-hidden="true" autoComplete="off" className="hidden" />
 
       <div className="foot-field">
-        <label htmlFor="nome">{fields.nome.label}</label>
+        <label htmlFor="nome" className={lmFields ? "sr-only" : undefined}>{lmFields?.nome.label ?? fields.nome.label}</label>
         <input
           id="nome"
           name="nome"
           type="text"
           autoComplete="name"
           required
-          placeholder={fields.nome.placeholder}
+          placeholder={lmFields?.nome.placeholder ?? fields.nome.placeholder}
           value={values.nome}
           onChange={(e) => set("nome", e.target.value)}
           aria-invalid={!!errors.nome}
@@ -227,14 +246,14 @@ export default function LeadFormPizzaria({ variant = "vsl" }: { variant?: Varian
       </div>
 
       <div className="foot-field">
-        <label htmlFor="email">{fields.email.label}</label>
+        <label htmlFor="email" className={lmFields ? "sr-only" : undefined}>{lmFields?.email.label ?? fields.email.label}</label>
         <input
           id="email"
           name="email"
           type="email"
           autoComplete="email"
           required
-          placeholder={fields.email.placeholder}
+          placeholder={lmFields?.email.placeholder ?? fields.email.placeholder}
           value={values.email}
           onChange={(e) => set("email", e.target.value)}
           aria-invalid={!!errors.email}
@@ -244,12 +263,12 @@ export default function LeadFormPizzaria({ variant = "vsl" }: { variant?: Varian
       </div>
 
       <div className="foot-field pizzaria-phone">
-        <label htmlFor="telefone">{fields.telefone.label}</label>
+        <label htmlFor="telefone" className={lmFields ? "sr-only" : undefined}>{lmFields?.telefone.label ?? fields.telefone.label}</label>
         {PhoneField ? (
           <PhoneField
             value={values.telefone}
             onChange={(v) => set("telefone", v)}
-            placeholder={fields.telefone.placeholder}
+            placeholder={lmFields?.telefone.placeholder ?? fields.telefone.placeholder}
             invalid={!!errors.telefone}
             describedBy="erro-telefone"
             autoFocus={phoneFocused}
@@ -270,7 +289,7 @@ export default function LeadFormPizzaria({ variant = "vsl" }: { variant?: Varian
               type="tel"
               inputMode="numeric"
               autoComplete="tel"
-              placeholder={fields.telefone.placeholder}
+              placeholder={lmFields?.telefone.placeholder ?? fields.telefone.placeholder}
               value={rawPhone}
               onChange={(e) => {
                 rawPhoneRef.current = e.target.value;
@@ -287,7 +306,7 @@ export default function LeadFormPizzaria({ variant = "vsl" }: { variant?: Varian
       </div>
 
       <div className="foot-field">
-        <label htmlFor="empresa">{fields.empresa.label}</label>
+        <label htmlFor="empresa" className={lmFields ? "sr-only" : undefined}>{lmFields?.empresa.label ?? fields.empresa.label}</label>
         <input
           id="empresa"
           name="empresa"
@@ -304,7 +323,7 @@ export default function LeadFormPizzaria({ variant = "vsl" }: { variant?: Varian
       </div>
 
       <div className="foot-field">
-        <label htmlFor="segmento">{fields.segmento.label}</label>
+        <label htmlFor="segmento" className={lmFields ? "sr-only" : undefined}>{lmFields?.segmento.label ?? fields.segmento.label}</label>
         <select
           id="segmento"
           name="segmento"
@@ -316,9 +335,9 @@ export default function LeadFormPizzaria({ variant = "vsl" }: { variant?: Varian
           data-empty={!values.segmento}
         >
           <option value="" disabled>
-            {fields.segmento.placeholder}
+            {lmFields?.segmento.placeholder ?? fields.segmento.placeholder}
           </option>
-          {fields.segmento.options.map((o) => (
+          {(variant === "lead-magnetic-vsl" ? SEGMENTOS_LMVSL : fields.segmento.options).map((o) => (
             <option key={o} value={o}>
               {o}
             </option>
@@ -328,7 +347,7 @@ export default function LeadFormPizzaria({ variant = "vsl" }: { variant?: Varian
       </div>
 
       <div className="foot-field">
-        <label htmlFor="faturamento">{fields.faturamento.label}</label>
+        <label htmlFor="faturamento" className={lmFields ? "sr-only" : undefined}>{lmFields?.faturamento.label ?? fields.faturamento.label}</label>
         <select
           id="faturamento"
           name="faturamento"
@@ -340,9 +359,9 @@ export default function LeadFormPizzaria({ variant = "vsl" }: { variant?: Varian
           data-empty={!values.faturamento}
         >
           <option value="" disabled>
-            {fields.faturamento.placeholder}
+            {lmFields?.faturamento.placeholder ?? fields.faturamento.placeholder}
           </option>
-          {fields.faturamento.options.map((o) => (
+          {(variant === "lead-magnetic-vsl" ? FATURAMENTOS_LMVSL : fields.faturamento.options).map((o) => (
             <option key={o} value={o}>
               {o}
             </option>
@@ -352,6 +371,7 @@ export default function LeadFormPizzaria({ variant = "vsl" }: { variant?: Varian
       </div>
 
       {/* Abre com altura animada, como o .cond-fields do WP. */}
+      {variant !== "lead-magnetic-vsl" && (
       <div className="cond-fields" data-open={needsExtras} inert={!needsExtras}>
         <div className="foot-field">
           <label htmlFor="cnpj">{fields.cnpj.label}</label>
@@ -393,6 +413,7 @@ export default function LeadFormPizzaria({ variant = "vsl" }: { variant?: Varian
           {errors.investiria && <FieldError name="investiria" message={errors.investiria} />}
         </div>
       </div>
+      )}
 
       {globalError && (
         <p className="field-error form-error" role="alert">

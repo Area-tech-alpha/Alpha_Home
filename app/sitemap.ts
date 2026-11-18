@@ -12,6 +12,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
           { url: `${SITE_URL}/01-lp`, changeFrequency: "monthly" as const, priority: 0.7 },
           { url: `${SITE_URL}/alphas-pizzaria`, changeFrequency: "monthly" as const, priority: 0.7 },
           { url: `${SITE_URL}/resultado-alphas-pizzaria`, changeFrequency: "monthly" as const, priority: 0.7 },
+          { url: `${SITE_URL}/lead-magnetic-vsl`, changeFrequency: "monthly" as const, priority: 0.7 },
         ]
       : []),
   ];

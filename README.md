@@ -25,6 +25,8 @@ npm run build      # confere as mídias (scripts/check-assets.ts) e gera o build
 | `/resultado-alphas-pizzaria` | LP de resultado da Alpha's Pizzaria (migração da `/resultado-alphas-pizzaria/` do WP, ID 13526); lead vai para o CRM e depois para `/alphas-pizzaria/obrigado` | só no domínio final (e só então no sitemap) |
 | `/lead-magnetic-bastidores-alphas-pizzaria` | LP lead magnet "Bastidores da Alpha's Pizzaria" (migração da página do WP, ID 13210); lead vai para o CRM e depois para o obrigado dela | noindex,nofollow em qualquer domínio (igual ao WP); fora do sitemap |
 | `/obrigado-lm-bastidores-alphas-pizzaria` | Obrigado da LP de bastidores (migração da página do WP, ID 13215). **Não envia lead** | noindex + disallow |
+| `/lead-magnetic-vsl` | LP lead magnetic VSL (migração da página do WP, ID 11029); lead vai para o CRM e depois para o obrigado dela | só no domínio final (e só então no sitemap) |
+| `/obrigado-lm-vsl` | Obrigado da LP lead magnetic VSL (migração da página do WP, ID 11040). **Não envia lead** | noindex + disallow |
 
 ## Variáveis de ambiente
 
@@ -57,6 +59,7 @@ O caminho de envio das LPs é `lib/lead-intake.ts` (`intakeLead`), chamado pela 
 | `/alphas-pizzaria` | `submit-lead-pizzaria.ts` | `pizzaria:` | `/alphas-pizzaria/obrigado` |
 | `/resultado-alphas-pizzaria` | `submit-lead-resultado-pizzaria.ts` | `pizzaria-resultado:` | `/alphas-pizzaria/obrigado` |
 | `/lead-magnetic-bastidores-alphas-pizzaria` | `submit-lead-bastidores-pizzaria.ts` | `pizzaria-bastidores:` | `/obrigado-lm-bastidores-alphas-pizzaria` |
+| `/lead-magnetic-vsl` | `submit-lead-magnetic-vsl.ts` | `lead-magnetic-vsl:` | `/obrigado-lm-vsl` |
 
 **Sem pixel da Meta:** nenhuma página carrega `fbq`, `fbevents.js` nem `connect.facebook.net`, e não há API de Conversões no servidor. O `fbclid` (e o `fbc` montado dele) só é lido da URL como dado de atribuição do lead. Um teste (`tests/lead-intake.test.ts`) falha se alguma dessas referências voltar ao código.
 
@@ -82,6 +85,12 @@ Regra literal do script da 00-lp (ramo `pageId` 3445). Só decide a página de o
 
 Diferenças em relação ao WP:
 - Novo no obrigado: aviso "Clique para ativar o som" e controle de volume (mudo/som + slider).
+
+### /lead-magnetic-vsl
+
+O form usa `LeadFormPizzaria variant="lead-magnetic-vsl"` com os textos, placeholders e opções literais do WP. Os segmentos são exclusivos desta LP e não há campos condicionais de CNPJ ou "investiria". O schema próprio está em `lib/validation-pizzaria.ts`; o envio usa a server action `app/actions/submit-lead-magnetic-vsl.ts`, o escopo `lead-magnetic-vsl:` e só redireciona para `/obrigado-lm-vsl` após resposta ok do CRM.
+
+O hero e os três prints do carrossel ficam em `public/images/lead-magnetic-vsl/`. A página usa um CSS próprio com escopo `.lmvsl`; reveal simples é aplicado em `data-visible`, sem fixos decorativos ou animações infinitas. No obrigado, o botão fica oculto por 150 s e, ao clicar, apenas mostra "Entraremos em contato em breve!" — não dispara requisições externas.
 - O carrossel de depoimentos tem autoplay de 5 s com deslize, loop, arraste e pausa no hover (no WP é só rolagem pelas setas). Os vídeos são locais (`public/videos/depoimento-*.mp4`, com poster) e só carregam no clique.
 - A VSL é local (`public/videos/alphas-pizzaria-vsl.mp4`, 720p, 15 MB; a original no WP tem 1080p e 119 MB).
 - O PDF é local (`public/files/alphas-pizzaria/playbook-cardapio-digital.pdf`, cópia do `wp-content/uploads/2026/09/Playbook-Cardapio-Digital-Alpha.pdf`).
