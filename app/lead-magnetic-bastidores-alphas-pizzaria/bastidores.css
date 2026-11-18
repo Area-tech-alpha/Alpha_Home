@@ -2,8 +2,12 @@
    Valores do CSS das páginas do WP (page-id 13210 e 13215). Tudo dentro de
    .bastidores (sem camada: ganha das regras em @layer do globals.css). Classes que
    existiam também no globals.css da home ganharam o prefixo bs- (bs-btn, bs-eyebrow,
-   bs-gold, bs-reveal...). Estado de reveal e de cursor vai em data-* (data-visible,
-   data-show, data-big): nunca em classe adicionada via DOM. */
+   bs-gold, bs-reveal...). O estado do reveal vai em data-visible: nunca em classe
+   adicionada via DOM.
+
+   Página leve: sem cursor personalizado, botão magnético, partículas, "noise" nem
+   animação infinita. O fundo "mesh" do WP (manchas com blur gigante animadas, em
+   position: fixed) virou um gradiente radial estático com os mesmos tons. */
 
 .bastidores {
   --bg-0: #050505;
@@ -33,7 +37,14 @@
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
 
   position: relative;
-  background: var(--bg-0);
+  /* Mesmos tons do mesh do WP (petróleo, dourado, cobre), estático e sem blur. */
+  background:
+    radial-gradient(55vw 55vw at 0% 0%, rgba(12, 43, 44, 0.5), transparent 70%),
+    radial-gradient(45vw 45vw at 100% 3%, rgba(255, 183, 3, 0.2), transparent 70%),
+    radial-gradient(50vw 50vw at 10% 48%, rgba(196, 85, 29, 0.16), transparent 70%),
+    radial-gradient(40vw 40vw at 95% 66%, rgba(12, 43, 44, 0.4), transparent 70%),
+    var(--bg-0);
+  background-repeat: no-repeat;
   color: var(--text);
   font-family: var(--bs-body);
   -webkit-font-smoothing: antialiased;
@@ -76,203 +87,6 @@ body:has(.bastidores) {
 
 .bastidores section {
   position: relative;
-}
-
-/* ============ CURSOR PERSONALIZADO (só com mouse) ============ */
-@media (pointer: fine) {
-  .bastidores[data-cursor-active] {
-    cursor: none;
-  }
-  .bastidores[data-cursor-active] :is(a, button, input, select, summary) {
-    cursor: none;
-  }
-}
-
-.bastidores .bs-cursor-dot {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: var(--gold-1);
-  pointer-events: none;
-  z-index: 9999;
-  transform: translate(-50%, -50%);
-  transition:
-    width 0.25s var(--ease),
-    height 0.25s var(--ease),
-    background-color 0.25s ease,
-    opacity 0.25s ease;
-  opacity: 0;
-}
-
-.bastidores .bs-cursor-dot[data-show="true"] {
-  opacity: 1;
-}
-
-.bastidores .bs-cursor-dot[data-big="true"] {
-  width: 64px;
-  height: 64px;
-  background: rgba(255, 183, 3, 0.12);
-  border: 1px solid var(--border-gold);
-  backdrop-filter: blur(6px);
-}
-
-.bastidores .bs-cursor-label {
-  position: fixed;
-  top: 0;
-  left: 0;
-  pointer-events: none;
-  z-index: 9999;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: #141005;
-  background: var(--gold-1);
-  padding: 7px 14px;
-  border-radius: 999px;
-  white-space: nowrap;
-  transform: translate(-50%, -50%) scale(0.7);
-  opacity: 0;
-  transition:
-    opacity 0.25s ease,
-    transform 0.25s var(--ease);
-}
-
-.bastidores .bs-cursor-label[data-show="true"] {
-  opacity: 1;
-  transform: translate(-50%, -50%) scale(1);
-}
-
-/* ============ FUNDO "MESH" ============ */
-.bastidores .bs-mesh {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  overflow: hidden;
-  pointer-events: none;
-  background: var(--bg-0);
-}
-
-.bastidores .bs-mesh .blob {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(120px);
-  opacity: 0.5;
-  will-change: transform;
-}
-
-.bastidores .bs-mesh .b1 {
-  width: 50vw;
-  height: 50vw;
-  top: -16%;
-  left: -14%;
-  background: radial-gradient(circle, var(--petrol), transparent 70%);
-  animation: bs-drift1 28s ease-in-out infinite;
-}
-
-.bastidores .bs-mesh .b2 {
-  width: 42vw;
-  height: 42vw;
-  top: 4%;
-  right: -16%;
-  background: radial-gradient(circle, rgba(255, 183, 3, 0.45), transparent 70%);
-  animation: bs-drift2 32s ease-in-out infinite;
-}
-
-.bastidores .bs-mesh .b3 {
-  width: 46vw;
-  height: 46vw;
-  bottom: -18%;
-  left: 8%;
-  background: radial-gradient(circle, rgba(196, 85, 29, 0.4), transparent 70%);
-  animation: bs-drift3 36s ease-in-out infinite;
-}
-
-.bastidores .bs-mesh .b4 {
-  width: 32vw;
-  height: 32vw;
-  bottom: 6%;
-  right: 6%;
-  background: radial-gradient(circle, rgba(12, 43, 44, 0.7), transparent 70%);
-  animation: bs-drift1 24s ease-in-out infinite reverse;
-}
-
-.bastidores .bs-mesh .noise {
-  position: absolute;
-  inset: 0;
-  opacity: 0.045;
-  mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-
-@keyframes bs-drift1 {
-  0%,
-  100% {
-    transform: translate(0, 0) scale(1);
-  }
-  50% {
-    transform: translate(4%, 6%) scale(1.08);
-  }
-}
-
-@keyframes bs-drift2 {
-  0%,
-  100% {
-    transform: translate(0, 0) scale(1);
-  }
-  50% {
-    transform: translate(-5%, 4%) scale(1.1);
-  }
-}
-
-@keyframes bs-drift3 {
-  0%,
-  100% {
-    transform: translate(0, 0) scale(1);
-  }
-  50% {
-    transform: translate(3%, -5%) scale(1.06);
-  }
-}
-
-/* ============ PARTÍCULAS ============ */
-.bastidores .particles {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  pointer-events: none;
-  z-index: 0;
-}
-
-.bastidores .particles span {
-  position: absolute;
-  bottom: -10px;
-  width: 3px;
-  height: 3px;
-  border-radius: 50%;
-  background: var(--gold-1);
-  opacity: 0.5;
-  animation: bs-particle linear infinite;
-}
-
-@keyframes bs-particle {
-  0% {
-    transform: translateY(0) translateX(0);
-    opacity: 0;
-  }
-  10% {
-    opacity: 0.6;
-  }
-  90% {
-    opacity: 0.4;
-  }
-  100% {
-    transform: translateY(-90vh) translateX(20px);
-    opacity: 0;
-  }
 }
 
 /* ============ TIPOGRAFIA ============ */
@@ -326,6 +140,15 @@ body:has(.bastidores) {
   .bastidores .bs-reveal-scale[data-visible="true"] {
     opacity: 1;
     transform: none;
+  }
+
+  /* Reveal só no scroll: o que já está na tela ao abrir (hero da LP e o obrigado
+     inteiro) aparece direto, sem esperar o JS. Era o que atrasava o LCP (o <h1>). */
+  .bastidores #hero :is(.bs-reveal, .bs-reveal-scale),
+  .bastidores.bastidores-obrigado .bs-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
   }
 }
 
@@ -780,8 +603,8 @@ body:has(.bastidores) {
   height: 70vw;
   max-width: 900px;
   max-height: 900px;
-  background: radial-gradient(circle, rgba(255, 183, 3, 0.14), transparent 68%);
-  filter: blur(60px);
+  /* Sem filter: blur; o radial já é suave (um pouco mais largo para compensar). */
+  background: radial-gradient(circle, rgba(255, 183, 3, 0.12), transparent 72%);
   pointer-events: none;
 }
 
@@ -881,10 +704,6 @@ body:has(.bastidores) {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .bastidores .bs-mesh .blob,
-  .bastidores .particles span {
-    animation: none;
-  }
   .bastidores .bs-reveal,
   .bastidores .bs-reveal-scale,
   .bastidores .cond-fields {
@@ -903,18 +722,17 @@ body:has(.bastidores) {
 .bastidores-obrigado {
   --text-muted: #a3a2a9;
   --text-dim: #6c6b73;
+  min-height: 100vh;
+  /* As duas manchas do obrigado do WP (petróleo e dourado), estáticas. */
+  background:
+    radial-gradient(55vw 55vw at 0% 0%, rgba(12, 43, 44, 0.45), transparent 70%),
+    radial-gradient(45vw 45vw at 100% 6%, rgba(255, 183, 3, 0.18), transparent 70%),
+    var(--bg-0);
+  background-repeat: no-repeat;
 }
 
 .bastidores-obrigado .bs-container {
   max-width: 900px;
-}
-
-.bastidores-obrigado .bs-mesh .blob {
-  opacity: 0.45;
-}
-
-.bastidores-obrigado .bs-mesh .b2 {
-  background: radial-gradient(circle, rgba(255, 183, 3, 0.4), transparent 70%);
 }
 
 .bastidores-obrigado .bs-btn {
@@ -931,17 +749,6 @@ body:has(.bastidores) {
 
 .bastidores-obrigado .bs-btn-primary {
   color: #141005;
-}
-
-/* O reveal do obrigado sobe 28px (na LP, 34px). */
-@media (scripting: enabled) {
-  .bastidores-obrigado .bs-reveal {
-    transform: translateY(28px);
-  }
-
-  .bastidores-obrigado .bs-reveal[data-visible="true"] {
-    transform: none;
-  }
 }
 
 .bastidores-obrigado #vsl {

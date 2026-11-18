@@ -3,7 +3,6 @@ import BastidoresFx from "@/components/bastidores/fx";
 import {
   CaseBastidores,
   HeroBastidores,
-  MeshBackground,
   ParadaBastidores,
   ProblemaBastidores,
 } from "@/components/bastidores/sections";
@@ -35,7 +34,6 @@ export const metadata: Metadata = {
 export default function LeadMagneticBastidores() {
   return (
     <div className="bastidores">
-      <MeshBackground />
       <div className="page">
         <main>
           <HeroBastidores />
