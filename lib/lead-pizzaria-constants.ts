@@ -1,8 +1,8 @@
 // Constantes da /alphas-pizzaria sem dependências (o form e o player importam
 // daqui sem puxar o zod).
 
-// Mesmas chaves e mesma ordem do UTM_KEYS do script da página no WP: a ordem
-// define a posição delas no payload do webhook.
+// Mesmas chaves do UTM_KEYS do script da página no WP, lidas da URL. O CRM recebe
+// só as que a home já manda (utm_source/medium/campaign/content/term e fbclid).
 export const TRACKING_KEYS_PIZZARIA = [
   "utm_source",
   "utm_medium",
@@ -22,17 +22,6 @@ export type LeadTrackingPizzaria = Partial<Record<TrackingKeyPizzaria, string>>;
 // First-touch da atribuição: vale 30 dias (mesmo padrão da /01-lp).
 export const TRACKING_STORAGE_KEY_PIZZARIA = "alpha-pizzaria:first-touch";
 export const TRACKING_TTL_MS_PIZZARIA = 30 * 24 * 60 * 60 * 1000;
-
-// Lead da página 1 para a página 2 (mesma chave e mesmo TTL do WP):
-// sessionStorage (mesma aba) + localStorage com validade de 2h (fallback).
-export const LEAD_STORAGE_KEY_PIZZARIA = "alpha_vsl_lead";
-export const LEAD_TTL_MS_PIZZARIA = 2 * 60 * 60 * 1000;
-
-// Marca de "lead já enviado pela /resultado-alphas-pizzaria": o obrigado da VSL
-// (/alphas-pizzaria/obrigado) lê essa marca e, se ela existir, o botão liberado
-// só abre o PDF, sem mandar o lead de novo para o n8n. Mesmo armazenamento do
-// lead da VSL (sessionStorage + localStorage) e mesma validade de 2h.
-export const SENT_MARK_STORAGE_KEY_PIZZARIA = "alpha_resultado_enviado";
 
 // Única faixa que mostra (e exige) CNPJ e "investiria", como no WP.
 export const FATURAMENTO_EXIGE_EXTRAS_PIZZARIA = "Até 30 mil";

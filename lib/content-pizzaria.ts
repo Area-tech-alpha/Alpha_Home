@@ -56,26 +56,25 @@ export const contentPizzaria = {
       segmento: {
         label: "Segmento",
         placeholder: "Selecionar segmento",
-        // value = o que o WP manda no payload; label = o que aparece.
+        // Mesmos rótulos da home: é o texto que o CRM recebe em "segmento".
         options: [
-          { value: "pizzarias", label: "Pizzarias" },
-          { value: "hamburguerias", label: "Hamburguerias" },
-          { value: "comida-brasileira", label: "Restaurante comida brasileira" },
-          { value: "churrascaria", label: "Churrascaria steakhouse" },
-          { value: "japones", label: "Restaurante japonês" },
-          { value: "massas-italiano", label: "Restaurante massas italiano" },
-          { value: "comida-arabe", label: "Restaurante comida árabe" },
-          { value: "acai-sorveteria", label: "Açaí / sorveteria" },
-          { value: "cafeteria", label: "Cafeteria" },
-          { value: "doceria", label: "Doceria" },
-          { value: "gastrobar", label: "Gastrobar" },
-          { value: "outros", label: "Outros" },
+          "Pizzarias",
+          "Hamburguerias",
+          "Restaurante comida brasileira",
+          "Churrascaria steakhouse",
+          "Restaurante japonês",
+          "Restaurante massas italiano",
+          "Restaurante comida árabe",
+          "Açaí / sorveteria",
+          "Cafeteria",
+          "Doceria",
+          "Gastrobar",
+          "Outros",
         ],
       },
       faturamento: {
         label: "Faturamento atual",
         placeholder: "Selecionar",
-        // O payload do WP leva o rótulo (FATURAMENTO_LABELS), não o value do select.
         options: [
           "Até 30 mil",
           "30 mil até 50 mil",
@@ -100,6 +99,10 @@ export const contentPizzaria = {
       // Mesmas mensagens do WP para telefone e CNPJ.
       telefone: "Telefone inválido, confira o número.",
       cnpj: "CNPJ inválido, confira o número.",
+      // Envio ao CRM (mesmos textos da home e da /01-lp). {min} = minutos até liberar.
+      crm: "Não conseguimos enviar agora. Tente de novo em instantes.",
+      validation: "Dados inválidos. Verifique o formulário.",
+      rateLimited: "Recebemos seu cadastro há pouco. Tente novamente em {min} min.",
     },
   },
 
@@ -193,7 +196,6 @@ export const contentPizzaria = {
       volume: "Volume",
     },
     button: "Baixar a estrutura em PDF",
-    sending: "Enviando...",
     buttonSub: "Ao clicar, o time da Alpha recebe seus dados e você é direcionado pro PDF.",
     // Para onde o lead vai depois do clique: cópia local do PDF_URL do WP
     // (wp-content/uploads/2026/09/Playbook-Cardapio-Digital-Alpha.pdf).

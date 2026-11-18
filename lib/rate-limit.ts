@@ -21,8 +21,9 @@ const LIMITS: Record<LimiterName, number> = {
   ip: 3,
 };
 // Cada página com form tem o seu escopo nas chaves ("home:", "01lp:",
-// "pizzaria:", "pizzaria-resultado:"): a cota de uma não bloqueia a outra.
-export type RateLimitScope = "home" | "01lp" | "pizzaria" | "pizzaria-resultado";
+// "pizzaria:", "pizzaria-resultado:", "pizzaria-bastidores:"): a cota de uma não
+// bloqueia a outra.
+export type RateLimitScope = "home" | "01lp" | "pizzaria" | "pizzaria-resultado" | "pizzaria-bastidores";
 
 let cached: Limiters | null | undefined;
 
@@ -70,9 +71,8 @@ export async function checkLeadRateLimit(
 ): Promise<RateLimitResult> {
   if (!limiters) return { ok: true };
   const checks: [LimiterName, string | null][] = [
-    // Vazio = não veio (lead da /alphas-pizzaria sem form): só o IP conta.
-    ["email", input.email ? normalizeEmail(input.email) : null],
-    ["telefone", input.telefone ? normalizeTelefone(input.telefone) : null],
+    ["email", normalizeEmail(input.email)],
+    ["telefone", normalizeTelefone(input.telefone)],
     ["ip", input.ip],
   ];
   // Em sequência e parando no primeiro bloqueio: um e-mail repetido não gasta a cota do IP.
@@ -91,7 +91,7 @@ export async function checkLeadRateLimit(
   return { ok: true };
 }
 
-// O envio (CRM/webhook) falhou e o form pede "tente de novo": devolve a cota de e-mail e telefone
+// O envio ao CRM falhou e o form pede "tente de novo": devolve a cota de e-mail e telefone
 // para a nova tentativa não cair no limite. A do IP continua contando (anti-abuso).
 export async function releaseLeadRateLimit(
   input: { email: string; telefone: string; scope?: RateLimitScope },

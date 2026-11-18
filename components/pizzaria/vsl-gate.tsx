@@ -2,16 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Download, Volume1, Volume2, VolumeX } from "lucide-react";
-import { confirmLeadPizzaria } from "@/app/actions/submit-lead-pizzaria";
-import {
-  clearLeadPizzaria,
-  readFirstTouchPizzaria,
-  readLeadPizzaria,
-  readSentMarkPizzaria,
-} from "@/components/pizzaria/lead-storage";
 import { contentPizzaria } from "@/lib/content-pizzaria";
 import { FRACAO_GATE_PIZZARIA } from "@/lib/lead-pizzaria-constants";
-import { decidirConfirmacaoPizzaria } from "@/lib/obrigado-pizzaria";
 
 const { obrigado } = contentPizzaria;
 const { gate, sound, video: vsl } = obrigado;
@@ -39,7 +31,6 @@ export default function VslGate() {
   const fracaoMax = useRef(0);
   const liberadoRef = useRef(false);
   const soundTouched = useRef(false);
-  const enviado = useRef(false);
 
   const [fill, setFill] = useState(0);
   const [label, setLabel] = useState<Label>({ kind: "waiting" });
@@ -47,7 +38,6 @@ export default function VslGate() {
   const [muted, setMuted] = useState(true);
   const [volume, setVolume] = useState(1);
   const [soundOn, setSoundOn] = useState(false); // já ativou o som alguma vez
-  const [sending, setSending] = useState(false);
 
   function liberar(preview = false) {
     if (liberadoRef.current) return;
@@ -139,30 +129,9 @@ export default function VslGate() {
     };
   }, []);
 
-  async function confirmar() {
-    if (enviado.current) return;
-    enviado.current = true;
-    setSending(true);
-    // Quem veio da /resultado-alphas-pizzaria já teve o lead enviado no submit
-    // (marca no navegador): aqui só abre o PDF, sem webhook e sem "sem-form".
-    if (decidirConfirmacaoPizzaria(readSentMarkPizzaria()) === "enviar") {
-      try {
-        // O WP não espera o webhook (fetch com keepalive). Aqui a confirmação é
-        // uma server action: espera até 10s e segue para o PDF de qualquer jeito.
-        await Promise.race([
-          confirmLeadPizzaria({
-            stored: readLeadPizzaria(),
-            tracking: readFirstTouchPizzaria(),
-            pageUrl: window.location.href,
-            referrer: document.referrer || "",
-          }),
-          new Promise((resolve) => setTimeout(resolve, 10_000)),
-        ]);
-      } catch {
-        // Falha de rede: o lead ainda vai para o PDF, como no WP.
-      }
-    }
-    clearLeadPizzaria();
+  // Esta página só faz o gate do vídeo: o lead já foi para o CRM no submit do form.
+  // O clique apenas abre o PDF.
+  function abrirPdf() {
     window.location.assign(obrigado.pdfUrl);
   }
 
@@ -257,9 +226,9 @@ export default function VslGate() {
 
       <div className="reveal-zone">
         <div className={`reveal-btn ${liberado ? "show" : ""}`} inert={!liberado}>
-          <button ref={buttonRef} type="button" className="pz-btn pz-btn-primary" disabled={sending} onClick={confirmar}>
+          <button ref={buttonRef} type="button" className="pz-btn pz-btn-primary" onClick={abrirPdf}>
             <Download aria-hidden="true" />
-            <span>{sending ? obrigado.sending : obrigado.button}</span>
+            <span>{obrigado.button}</span>
           </button>
           <div className="reveal-sub">{obrigado.buttonSub}</div>
         </div>

@@ -2,11 +2,14 @@
 
 import { useEffect, useRef, useState, type ComponentType } from "react";
 import { useRouter } from "next/navigation";
-import { Lock } from "lucide-react";
+import { CheckCircle2, Lock } from "lucide-react";
 import FlagBR from "@/components/ui/flag-br";
 import type PhoneFieldType from "@/components/lp01/phone-field-01lp";
+import { submitLeadBastidoresPizzaria } from "@/app/actions/submit-lead-bastidores-pizzaria";
+import { submitLeadPizzaria } from "@/app/actions/submit-lead-pizzaria";
 import { submitLeadResultadoPizzaria } from "@/app/actions/submit-lead-resultado-pizzaria";
-import { readFirstTouchPizzaria, saveLeadPizzaria, saveSentMarkPizzaria } from "@/components/pizzaria/lead-storage";
+import { readFirstTouchPizzaria } from "@/components/pizzaria/lead-storage";
+import { BASTIDORES_STORAGE_KEY, contentBastidores } from "@/lib/content-bastidores-pizzaria";
 import { contentPizzaria } from "@/lib/content-pizzaria";
 import { contentResultado } from "@/lib/content-resultado-pizzaria";
 import { FATURAMENTO_EXIGE_EXTRAS_PIZZARIA, type LeadTrackingPizzaria } from "@/lib/lead-pizzaria-constants";
@@ -14,7 +17,31 @@ import { FATURAMENTO_EXIGE_EXTRAS_PIZZARIA, type LeadTrackingPizzaria } from "@/
 const { form } = contentPizzaria;
 const { fields } = form;
 
-export const OBRIGADO_PATH_PIZZARIA = "/alphas-pizzaria/obrigado";
+type Variant = "vsl" | "resultado" | "bastidores";
+
+// Todas as LPs enviam o lead ao CRM comercial no submit (server action, mesmo código
+// da home) e só seguem para o redirectTo se o CRM respondeu ok. O que muda por
+// variante: a action (escopo do rate limit e destino), o texto e o estilo do botão.
+const VARIANTS = {
+  vsl: {
+    submit: submitLeadPizzaria,
+    label: form.submitLabel,
+    buttonClass: "pz-btn pz-btn-primary pz-btn-block",
+    note: true,
+  },
+  resultado: {
+    submit: submitLeadResultadoPizzaria,
+    label: contentResultado.form.submitLabel,
+    buttonClass: "pz-btn pz-btn-primary pz-btn-block",
+    note: false,
+  },
+  bastidores: {
+    submit: submitLeadBastidoresPizzaria,
+    label: contentBastidores.form.submitLabel,
+    buttonClass: "bs-btn bs-btn-primary",
+    note: false,
+  },
+} as const;
 
 // Seletor de DDI (o da /01-lp: mesmos 10 DDIs do WP, bandeiras em SVG) e zod
 // fora do JS inicial: carregam na primeira interação com o form.
@@ -70,14 +97,11 @@ function FieldError({ name, message }: { name: FieldName; message?: string }) {
   );
 }
 
-// variant "vsl" (/alphas-pizzaria): valida, guarda o lead e vai para o vídeo; o
-// envio é na página 2. variant "resultado" (/resultado-alphas-pizzaria): envia o
-// lead no submit (server action) e só então vai para o mesmo obrigado da VSL,
-// deixando no navegador a marca de "lead já enviado" para o obrigado não repetir.
-export default function LeadFormPizzaria({ variant = "vsl" }: { variant?: "vsl" | "resultado" }) {
+export default function LeadFormPizzaria({ variant = "vsl" }: { variant?: Variant }) {
   const router = useRouter();
-  const resultado = variant === "resultado";
+  const cfg = VARIANTS[variant];
   const [globalError, setGlobalError] = useState("");
+  const [redirecting, setRedirecting] = useState(false);
   const [values, setValues] = useState<FormValues>(initial);
   const [errors, setErrors] = useState<Partial<Record<FieldName, string>>>({});
   const [sending, setSending] = useState(false);
@@ -122,8 +146,8 @@ export default function LeadFormPizzaria({ variant = "vsl" }: { variant?: "vsl" 
     e.preventDefault();
     if (sending) return;
     const website = (e.currentTarget.elements.namedItem("website") as HTMLInputElement | null)?.value ?? "";
-    // Resultado: honeypot preenchido = bot, não envia nada.
-    if (resultado && website) return;
+    // Honeypot preenchido = bot: não envia nada.
+    if (website) return;
 
     const lead = {
       nome: values.nome.trim(),
@@ -150,46 +174,26 @@ export default function LeadFormPizzaria({ variant = "vsl" }: { variant?: "vsl" 
     }
 
     setSending(true);
-    // Sem UTM de origem/mídia, a origem sai do referrer (classificarOrigemOrganica do WP).
-    const tracking = { ...trackingRef.current };
-    if (!tracking.utm_source && !tracking.utm_medium) {
-      const { classificarOrigemOrganica } = await import("@/lib/lead-pizzaria");
-      Object.assign(tracking, classificarOrigemOrganica(document.referrer, window.location.hostname));
-    }
-
-    if (resultado) {
-      setGlobalError("");
-      try {
-        const res = await submitLeadResultadoPizzaria(parsed.data, tracking, {
-          pageUrl: window.location.href,
-          referrer: document.referrer || "",
-        });
-        if (res.success) {
-          // Só redireciona se o envio deu certo; a marca vai antes, para o obrigado
-          // da VSL não mandar o mesmo lead de novo.
-          saveSentMarkPizzaria(res.lead);
-          router.push(OBRIGADO_PATH_PIZZARIA);
-          return;
+    setGlobalError("");
+    try {
+      const res = await cfg.submit(parsed.data, trackingRef.current);
+      if (res.success) {
+        // Bastidores: o obrigado personaliza o aviso do e-mail com o primeiro nome
+        // (como no WP, via sessionStorage; o envio do lead já foi feito ao CRM).
+        if (variant === "bastidores") {
+          try {
+            sessionStorage.setItem(BASTIDORES_STORAGE_KEY, JSON.stringify({ nome: parsed.data.nome }));
+          } catch {}
+          setRedirecting(true);
         }
-        setGlobalError(res.error);
-      } catch {
-        setGlobalError(contentResultado.form.errors.webhook);
+        router.push(res.redirectTo);
+        return;
       }
-      setSending(false);
-      return;
+      setGlobalError(res.error);
+    } catch {
+      setGlobalError(form.errors.crm);
     }
-
-    // Como no WP, a página 1 não envia: guarda o lead e vai para o vídeo. O
-    // webhook é chamado na página 2, no clique do botão liberado aos 50%.
-    saveLeadPizzaria({
-      lead: parsed.data,
-      tracking,
-      page_url: window.location.href,
-      referrer: document.referrer || "",
-      form_preenchido_em: new Date().toISOString(),
-      ...(website && { website }),
-    });
-    router.push(OBRIGADO_PATH_PIZZARIA);
+    setSending(false);
   }
 
   return (
@@ -312,8 +316,8 @@ export default function LeadFormPizzaria({ variant = "vsl" }: { variant?: "vsl" 
             {fields.segmento.placeholder}
           </option>
           {fields.segmento.options.map((o) => (
-            <option key={o.value} value={o.value}>
-              {o.label}
+            <option key={o} value={o}>
+              {o}
             </option>
           ))}
         </select>
@@ -393,15 +397,27 @@ export default function LeadFormPizzaria({ variant = "vsl" }: { variant?: "vsl" 
         </p>
       )}
 
-      <button type="submit" disabled={sending} className="pz-btn pz-btn-primary pz-btn-block">
-        {sending ? form.sending : resultado ? contentResultado.form.submitLabel : form.submitLabel}
+      <button
+        type="submit"
+        disabled={sending}
+        className={cfg.buttonClass}
+        {...(variant === "bastidores" && { "data-cursor": "Enviar" })}
+      >
+        {sending ? form.sending : cfg.label}
       </button>
-      {/* O form do WP da resultado não tem a nota de privacidade. */}
-      {!resultado && (
+      {/* Só o form da VSL tem a nota de privacidade no WP. */}
+      {cfg.note && (
         <p className="form-note">
           <Lock aria-hidden="true" />
           <span>{form.note}</span>
         </p>
+      )}
+      {/* Bastidores: aviso do WP entre o envio ok e o redirect. */}
+      {redirecting && (
+        <div className="footer-success show" role="status">
+          <CheckCircle2 aria-hidden="true" />
+          <span>{contentBastidores.form.success}</span>
+        </div>
       )}
     </form>
   );
