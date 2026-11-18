@@ -20,9 +20,9 @@ const LIMITS: Record<LimiterName, number> = {
   // IP compartilhado (escritório, 4G) não pode travar pessoas diferentes.
   ip: 3,
 };
-// Cada página com form tem o seu escopo nas chaves ("home:", "01lp:"): a cota
-// de uma não bloqueia a outra.
-export type RateLimitScope = "home" | "01lp";
+// Cada página com form tem o seu escopo nas chaves ("home:", "01lp:",
+// "pizzaria:"): a cota de uma não bloqueia a outra.
+export type RateLimitScope = "home" | "01lp" | "pizzaria";
 
 let cached: Limiters | null | undefined;
 
@@ -70,8 +70,9 @@ export async function checkLeadRateLimit(
 ): Promise<RateLimitResult> {
   if (!limiters) return { ok: true };
   const checks: [LimiterName, string | null][] = [
-    ["email", normalizeEmail(input.email)],
-    ["telefone", normalizeTelefone(input.telefone)],
+    // Vazio = não veio (lead da /alphas-pizzaria sem form): só o IP conta.
+    ["email", input.email ? normalizeEmail(input.email) : null],
+    ["telefone", input.telefone ? normalizeTelefone(input.telefone) : null],
     ["ip", input.ip],
   ];
   // Em sequência e parando no primeiro bloqueio: um e-mail repetido não gasta a cota do IP.

@@ -1,0 +1,1179 @@
+/* /alphas-pizzaria e /alphas-pizzaria/obrigado. Valores do CSS das páginas do WP
+   (alphas-pizzaria-vsl, page-id 13930, e obrigado-vsl-alphas-pizzaria, 13950).
+   Tudo dentro de .pizzaria (sem camada: ganha das regras em @layer do
+   globals.css). Classes que existiam também no globals.css da home ganharam o
+   prefixo pz- (pz-btn, pz-eyebrow, pz-gold, pz-section-head, pz-reveal). */
+
+.pizzaria {
+  --bg-0: #050505;
+  --bg-1: #0b0b0d;
+  --bg-2: #111113;
+  --gold-1: #ffb703;
+  --gold-2: #f5a623;
+  --amber: #f59e0b;
+  --text: #f6f6f7;
+  --text-muted: #a3a2a9;
+  --text-dim: #6c6b73;
+  --glass: rgba(255, 255, 255, 0.045);
+  --glass-strong: rgba(255, 255, 255, 0.07);
+  --border: rgba(255, 255, 255, 0.09);
+  --border-strong: rgba(255, 255, 255, 0.18);
+  --border-gold: rgba(255, 183, 3, 0.4);
+  --radius-xl: 32px;
+  --radius-lg: 22px;
+  --radius-md: 16px;
+  --radius-sm: 10px;
+  --error: #ff6b6b;
+  --pz-display: var(--font-clash-display), var(--font-general-sans), sans-serif;
+  --pz-heading: var(--font-general-sans), sans-serif;
+  --pz-body: var(--font-inter), sans-serif;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+
+  background: var(--bg-0);
+  color: var(--text);
+  font-family: var(--pz-body);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+
+/* Fundo preto liso do WP (sem o radial do body da home). */
+body:has(.pizzaria) {
+  background: #050505;
+}
+
+.pizzaria :is(h1, h2, h3, h4) {
+  font-family: var(--pz-heading);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  word-spacing: normal;
+  color: #fff;
+}
+
+.pizzaria img {
+  max-width: 100%;
+}
+
+.pizzaria .container {
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.pizzaria .pz-gold {
+  background: linear-gradient(90deg, var(--gold-1), var(--gold-2) 60%, var(--amber));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.pizzaria .pz-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--gold-1);
+  margin-bottom: 14px;
+}
+
+.pizzaria .pz-eyebrow::before {
+  content: "";
+  width: 22px;
+  height: 2px;
+  background: var(--gold-1);
+  border-radius: 2px;
+}
+
+.pizzaria .pz-section-head {
+  max-width: 640px;
+  margin-bottom: 44px;
+}
+
+.pizzaria .pz-section-head h2 {
+  font-family: var(--pz-display);
+  font-size: clamp(1.9rem, 4vw, 2.7rem);
+  line-height: 1.15;
+}
+
+.pizzaria .pz-section-head p {
+  color: var(--text-muted);
+  font-size: 16px;
+  line-height: 1.6;
+  margin-top: 14px;
+}
+
+/* ===== Botões ===== */
+.pizzaria .pz-btn {
+  appearance: none;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-family: var(--pz-heading);
+  font-weight: 700;
+  font-size: 15.5px;
+  padding: 16px 30px;
+  border-radius: 100px;
+  transition:
+    transform 0.25s var(--ease),
+    background-color 0.25s ease,
+    box-shadow 0.25s ease;
+  white-space: normal;
+  text-align: center;
+  text-decoration: none;
+}
+
+.pizzaria .pz-btn-primary {
+  background-color: var(--gold-2);
+  background-image: linear-gradient(90deg, var(--gold-1), var(--gold-2));
+  color: #141005;
+  box-shadow: 0 10px 30px rgba(245, 166, 35, 0.3);
+}
+
+.pizzaria .pz-btn-primary:hover,
+.pizzaria .pz-btn-primary:focus-visible,
+.pizzaria .pz-btn-primary:active {
+  color: #141005;
+  transform: translateY(-3px);
+  box-shadow: 0 16px 40px rgba(245, 166, 35, 0.42);
+}
+
+.pizzaria .pz-btn-primary:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+
+.pizzaria .pz-btn:disabled {
+  cursor: default;
+  opacity: 0.75;
+  transform: none;
+}
+
+.pizzaria .pz-btn-block {
+  width: 100%;
+}
+
+.pizzaria .pz-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* ===== Hero ===== */
+.pizzaria #hero {
+  position: relative;
+  padding: 120px 0 90px;
+  overflow: hidden;
+}
+
+.pizzaria .hero-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.pizzaria .hero-bg img {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+}
+
+.pizzaria .hero-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(100deg, rgba(5, 5, 5, 0.94) 20%, rgba(5, 5, 5, 0.75) 55%, rgba(5, 5, 5, 0.4) 100%),
+    linear-gradient(0deg, rgba(5, 5, 5, 0.9), transparent 40%);
+}
+
+.pizzaria .hero-top {
+  position: absolute;
+  top: 28px;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+}
+
+.pizzaria .hero-logo img {
+  max-width: 180px;
+}
+
+.pizzaria .hero-grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 44px;
+  align-items: center;
+}
+
+.pizzaria .hero-head h1 {
+  font-family: var(--pz-display);
+  font-size: clamp(2rem, 4.8vw, 3.2rem);
+  line-height: 1.14;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.pizzaria .hero-head h1 .pz-gold {
+  display: inline-block;
+  transform-origin: center;
+  animation: pz-gold-breath 4.8s ease-in-out infinite;
+  will-change: filter, transform;
+}
+
+@keyframes pz-gold-breath {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 3px rgba(255, 183, 3, 0.12));
+    transform: scale(1);
+  }
+  50% {
+    filter: drop-shadow(0 0 13px rgba(255, 183, 3, 0.34));
+    transform: scale(1.017);
+  }
+}
+
+.pizzaria .hero-head p.sub {
+  font-size: 16.5px;
+  color: var(--text-muted);
+  line-height: 1.65;
+  max-width: 520px;
+  margin-bottom: 16px;
+}
+
+.pizzaria .hero-checks {
+  list-style: none;
+  margin: 0 0 26px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.pizzaria .hero-checks li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14.5px;
+  color: var(--text);
+}
+
+.pizzaria .hero-checks b {
+  font-weight: 700;
+}
+
+.pizzaria .hero-checks svg {
+  width: 19px;
+  height: 19px;
+  color: var(--gold-2);
+  flex-shrink: 0;
+}
+
+.pizzaria .hero-trust {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin-top: 6px;
+}
+
+.pizzaria .hero-trust div {
+  display: flex;
+  flex-direction: column;
+}
+
+.pizzaria .hero-trust b {
+  font-family: var(--pz-heading);
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1;
+}
+
+.pizzaria .hero-trust span {
+  font-size: 11.5px;
+  color: var(--text-dim);
+  margin-top: 4px;
+}
+
+/* ===== Form ===== */
+.pizzaria .hero-form-card {
+  position: relative;
+  padding: 26px 24px;
+  border-radius: var(--radius-xl);
+  background: var(--glass);
+  border: 1px solid var(--border-strong);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5);
+  z-index: 1;
+}
+
+.pizzaria .hero-form-card h3 {
+  font-size: 18px;
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.pizzaria .hero-form-card > span {
+  font-size: 12.5px;
+  color: var(--text-dim);
+  display: block;
+  margin-bottom: 18px;
+}
+
+.pizzaria .hero-form-card .pz-btn {
+  width: 100%;
+  margin-top: 4px;
+  padding: 14px 26px;
+}
+
+.pizzaria .foot-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 10px;
+}
+
+.pizzaria .foot-field label {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.pizzaria .foot-field input,
+.pizzaria .foot-field select,
+.pizzaria .foot-field .PhoneInputInput {
+  width: 100%;
+  min-width: 0;
+  padding: 11px 14px;
+  background-color: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: #fff;
+  font-family: var(--pz-body);
+  font-size: 13.5px;
+  line-height: normal;
+  outline: none;
+  appearance: none;
+  transition:
+    border-color 0.25s,
+    background-color 0.25s,
+    box-shadow 0.25s;
+}
+
+.pizzaria .foot-field input::placeholder {
+  color: var(--text-dim);
+}
+
+.pizzaria .foot-field input:focus,
+.pizzaria .foot-field select:focus {
+  border-color: var(--gold-1);
+  background-color: rgba(255, 183, 3, 0.06);
+  box-shadow: 0 0 0 4px rgba(255, 183, 3, 0.1);
+}
+
+.pizzaria .foot-field [aria-invalid="true"] {
+  border-color: var(--error);
+}
+
+.pizzaria .foot-field select {
+  padding-right: 36px;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%23a3a2a9' stroke-width='2'%3E%3Cpath d='M5 8l5 5 5-5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 14px;
+}
+
+.pizzaria .foot-field select option {
+  background: #141416;
+  color: #fff;
+}
+
+.pizzaria .foot-field select[data-empty="true"] {
+  color: var(--text-dim);
+}
+
+/* Telefone: seletor de DDI (phone-field-01lp) + número, como o .phone-row do WP. */
+.pizzaria .pizzaria-phone .phone-input-wrapper {
+  display: flex;
+  gap: 8px;
+}
+
+.pizzaria .pizzaria-phone .phone-input-wrapper > span,
+.pizzaria .pizzaria-phone .phone-input-wrapper button[aria-haspopup] {
+  min-width: 92px;
+  padding: 9px 10px;
+  font-size: 13.5px;
+  border-radius: var(--radius-sm);
+}
+
+.pizzaria .field-error {
+  display: block;
+  font-size: 11.5px;
+  color: var(--error);
+  margin-top: 1px;
+  min-height: 1px;
+}
+
+/* Abre com altura animada ("Até 30 mil"), como o .cond-fields do WP. */
+.pizzaria .cond-fields {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition:
+    max-height 0.4s var(--ease),
+    opacity 0.3s ease;
+}
+
+.pizzaria .cond-fields[data-open="true"] {
+  max-height: 260px;
+  opacity: 1;
+}
+
+.pizzaria .form-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 12px;
+  font-size: 11.5px;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+
+.pizzaria .form-note svg {
+  width: 14px;
+  height: 14px;
+  color: var(--gold-1);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* ===== Depoimentos ===== */
+.pizzaria #depoimentos {
+  padding: 80px 0;
+  background: var(--bg-1);
+}
+
+.pizzaria .depo-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-bottom: 34px;
+}
+
+.pizzaria .depo-head .pz-section-head {
+  margin-bottom: 0;
+}
+
+.pizzaria .depo-controls {
+  display: flex;
+  gap: 10px;
+}
+
+.pizzaria .depo-btn {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border-strong);
+  background-color: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #fff;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s;
+}
+
+.pizzaria .depo-btn:hover,
+.pizzaria .depo-btn:focus-visible {
+  background-color: var(--glass-strong);
+  border-color: var(--border-gold);
+}
+
+.pizzaria .depo-btn:active {
+  background-color: var(--glass);
+}
+
+.pizzaria .depo-btn svg {
+  width: 19px;
+  height: 19px;
+}
+
+/* overflow: clip (e não hidden) para o foco num card fora da tela não rolar a faixa. */
+.pizzaria .depo-track-wrap {
+  overflow: clip;
+  cursor: grab;
+  user-select: none;
+}
+
+.pizzaria .depo-track-wrap.is-dragging {
+  cursor: grabbing;
+}
+
+.pizzaria .depo-track {
+  --card: 236px;
+  --gap: 18px;
+  display: flex;
+  gap: var(--gap);
+  padding-bottom: 4px;
+  transition: transform 600ms cubic-bezier(0.25, 0.8, 0.25, 1);
+  will-change: transform;
+}
+
+.pizzaria .depo-track[data-animate="false"] {
+  transition: none;
+}
+
+.pizzaria .depo-card {
+  flex: 0 0 var(--card);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  position: relative;
+  transition:
+    transform 0.3s var(--ease),
+    border-color 0.3s;
+}
+
+.pizzaria .depo-card:hover {
+  transform: translateY(-6px);
+  border-color: var(--border-gold);
+}
+
+.pizzaria .depo-media {
+  position: relative;
+  aspect-ratio: 9 / 16;
+  background: linear-gradient(150deg, rgba(255, 183, 3, 0.1), rgba(255, 255, 255, 0.02));
+}
+
+.pizzaria .depo-media video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  background: #000;
+}
+
+.pizzaria .depo-trigger {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  cursor: pointer;
+  background: #000;
+}
+
+.pizzaria .depo-trigger:focus-visible {
+  outline: 2px solid var(--gold-1);
+  outline-offset: -2px;
+}
+
+.pizzaria .depo-poster {
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.pizzaria .depo-play {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pizzaria .depo-play::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(5, 5, 5, 0.12), rgba(5, 5, 5, 0.55));
+}
+
+.pizzaria .depo-play svg {
+  position: relative;
+  z-index: 1;
+  width: 22px;
+  height: 22px;
+  color: #141005;
+  background: linear-gradient(90deg, var(--gold-1), var(--gold-2));
+  border-radius: 50%;
+  padding: 15px;
+  box-sizing: content-box;
+  box-shadow: 0 12px 30px -6px rgba(245, 166, 35, 0.55);
+}
+
+.pizzaria .depo-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(5, 5, 5, 0.68);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  padding: 6px 10px;
+  border-radius: 100px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--gold-1);
+  pointer-events: none;
+}
+
+.pizzaria .depo-badge svg {
+  width: 12px;
+  height: 12px;
+}
+
+.pizzaria .depo-info {
+  padding: 14px 16px;
+}
+
+.pizzaria .depo-info strong {
+  display: block;
+  font-family: var(--pz-heading);
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 2px;
+  line-height: 1.3;
+}
+
+.pizzaria .depo-info span {
+  font-size: 11.5px;
+  color: var(--gold-1);
+  font-weight: 600;
+}
+
+/* ===== FAQ ===== */
+.pizzaria #faq {
+  padding: 80px 0;
+  background: var(--bg-1);
+  border-top: 1px solid var(--border);
+}
+
+.pizzaria .faq-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 36px;
+}
+
+.pizzaria .faq-sticky h2 {
+  font-family: var(--pz-display);
+  font-size: clamp(1.9rem, 4vw, 2.7rem);
+  line-height: 1.15;
+}
+
+.pizzaria .faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.pizzaria .faq-item {
+  position: relative;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 22px 24px;
+  background: var(--glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition:
+    border-color 0.3s,
+    background-color 0.3s;
+}
+
+.pizzaria .faq-item:hover {
+  background-color: var(--glass-strong);
+}
+
+.pizzaria .faq-item summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  cursor: pointer;
+  list-style: none;
+  font-size: 15.5px;
+  font-weight: 600;
+  color: #fff;
+  font-family: var(--pz-heading);
+}
+
+.pizzaria .faq-item summary::-webkit-details-marker {
+  display: none;
+}
+
+.pizzaria .faq-item summary svg {
+  width: 18px;
+  height: 18px;
+  color: var(--gold-1);
+  flex-shrink: 0;
+  transition: transform 0.3s var(--ease);
+}
+
+.pizzaria .faq-item[open] summary svg {
+  transform: rotate(45deg);
+}
+
+.pizzaria .faq-item p {
+  margin-top: 14px;
+  font-size: 14.5px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+/* ===== Botão fixo ===== */
+.pizzaria .float-cta {
+  position: fixed;
+  bottom: 22px;
+  right: 22px;
+  left: 22px;
+  z-index: 900;
+  display: flex;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(16px);
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
+}
+
+.pizzaria .float-cta.show {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.pizzaria .float-cta .pz-btn {
+  box-shadow: 0 16px 40px -8px rgba(245, 166, 35, 0.5);
+}
+
+/* ===== Reveal (só com JS ligado; sem JS o conteúdo aparece) ===== */
+@media (scripting: enabled) {
+  .pizzaria .pz-reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition:
+      opacity 0.7s var(--ease),
+      transform 0.7s var(--ease);
+  }
+
+  .pizzaria .pz-reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.pizzaria .r-1 {
+  transition-delay: 0.08s;
+}
+.pizzaria .r-2 {
+  transition-delay: 0.16s;
+}
+.pizzaria .r-3 {
+  transition-delay: 0.24s;
+}
+.pizzaria .r-4 {
+  transition-delay: 0.32s;
+}
+
+/* ===== Rodapé ===== */
+.pizzaria footer {
+  padding: 50px 0 26px;
+  background: var(--bg-0);
+  color: var(--text-dim);
+  text-align: center;
+  border-top: 1px solid var(--border);
+}
+
+.pizzaria .footer-logo {
+  display: inline-block;
+}
+
+.pizzaria .footer-logo img {
+  max-width: 140px;
+  margin: 0 auto 14px;
+  object-fit: contain;
+}
+
+.pizzaria footer p {
+  font-size: 12.5px;
+}
+
+@media (min-width: 860px) {
+  .pizzaria #hero {
+    padding: 0;
+    min-height: 94vh;
+    display: flex;
+    align-items: center;
+  }
+  .pizzaria #hero > .container {
+    padding-top: 0;
+  }
+  .pizzaria .hero-top {
+    justify-content: flex-start;
+    padding-left: calc((100% - 1132px) / 2);
+  }
+  .pizzaria .hero-grid {
+    grid-template-columns: 1.05fr 0.95fr;
+  }
+  .pizzaria .depo-track {
+    --card: 248px;
+  }
+  .pizzaria .faq-grid {
+    grid-template-columns: 0.8fr 1.2fr;
+    align-items: start;
+  }
+  .pizzaria .float-cta {
+    left: auto;
+    justify-content: flex-end;
+    max-width: 1180px;
+    margin: 0 auto;
+    right: 24px;
+  }
+}
+
+@media (max-width: 520px) {
+  .pizzaria #hero {
+    padding: 90px 0 60px;
+  }
+  .pizzaria #depoimentos,
+  .pizzaria #faq {
+    padding: 60px 0;
+  }
+  .pizzaria .hero-form-card {
+    padding: 22px 18px;
+  }
+  .pizzaria .depo-track {
+    --card: 208px;
+  }
+}
+
+/* =====================================================================
+   Obrigado (/alphas-pizzaria/obrigado)
+   ===================================================================== */
+.pizzaria-obrigado {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.pizzaria-obrigado .container {
+  max-width: 860px;
+}
+
+.pizzaria-obrigado .pz-btn {
+  font-size: 16px;
+  padding: 17px 34px;
+}
+
+.pizzaria-obrigado .page-top {
+  padding: 30px 0 8px;
+  display: flex;
+  justify-content: center;
+}
+
+.pizzaria-obrigado .page-top img {
+  max-width: 170px;
+}
+
+.pizzaria-obrigado main {
+  flex: 1;
+  padding: 34px 0 80px;
+}
+
+.pizzaria-obrigado .head {
+  text-align: center;
+  max-width: 640px;
+  margin: 0 auto 34px;
+}
+
+.pizzaria-obrigado .head .pz-eyebrow {
+  justify-content: center;
+}
+
+/* No obrigado do WP o eyebrow não tem o tracinho. */
+.pizzaria-obrigado .head .pz-eyebrow::before {
+  content: none;
+}
+
+.pizzaria-obrigado .head h1 {
+  font-family: var(--pz-display);
+  font-size: clamp(1.7rem, 4.3vw, 2.5rem);
+  line-height: 1.16;
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+
+.pizzaria-obrigado .head p {
+  font-size: 16px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.pizzaria-obrigado .video-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--border-strong);
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5);
+  background: #000;
+}
+
+.pizzaria-obrigado .video-wrap video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  background: #000;
+}
+
+/* Novo: aviso de som por cima do vídeo (some quando o som é ativado). */
+.pizzaria-obrigado .sound-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(5, 5, 5, 0.35);
+  cursor: pointer;
+  border: 0;
+  padding: 0;
+}
+
+.pizzaria-obrigado .sound-overlay > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 22px;
+  border-radius: 100px;
+  background: linear-gradient(90deg, var(--gold-1), var(--gold-2));
+  color: #141005;
+  font-family: var(--pz-heading);
+  font-size: 15px;
+  font-weight: 700;
+  box-shadow: 0 16px 40px -8px rgba(245, 166, 35, 0.55);
+  animation: pz-sound-pulse 2.4s ease-in-out infinite;
+}
+
+.pizzaria-obrigado .sound-overlay svg {
+  width: 20px;
+  height: 20px;
+}
+
+.pizzaria-obrigado .sound-overlay:focus-visible > span {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+
+@keyframes pz-sound-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.04);
+  }
+}
+
+/* Novo: controle de volume (mudo/som + slider), canto inferior direito. */
+.pizzaria-obrigado .sound-controls {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px 6px 6px;
+  border-radius: 100px;
+  background: rgba(5, 5, 5, 0.68);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid var(--border);
+}
+
+.pizzaria-obrigado .sound-controls button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.pizzaria-obrigado .sound-controls button:hover,
+.pizzaria-obrigado .sound-controls button:focus-visible {
+  background-color: var(--glass-strong);
+}
+
+.pizzaria-obrigado .sound-controls button svg {
+  width: 19px;
+  height: 19px;
+}
+
+.pizzaria-obrigado .sound-controls input[type="range"] {
+  width: 92px;
+  height: 4px;
+  appearance: none;
+  border-radius: 100px;
+  background: linear-gradient(90deg, var(--gold-1) var(--vol), rgba(255, 255, 255, 0.25) var(--vol));
+  cursor: pointer;
+}
+
+.pizzaria-obrigado .sound-controls input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  border: 0;
+}
+
+.pizzaria-obrigado .sound-controls input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  border: 0;
+}
+
+.pizzaria-obrigado .sound-controls input[type="range"]:focus-visible {
+  outline: 2px solid var(--gold-1);
+  outline-offset: 4px;
+}
+
+.pizzaria-obrigado .gate {
+  max-width: 560px;
+  margin: 26px auto 0;
+  text-align: center;
+}
+
+.pizzaria-obrigado .gate-bar {
+  position: relative;
+  height: 8px;
+  border-radius: 100px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.pizzaria-obrigado .gate-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  border-radius: 100px;
+  background: linear-gradient(90deg, var(--gold-1), var(--gold-2));
+  transition: width 0.6s linear;
+}
+
+.pizzaria-obrigado .gate-fill.done {
+  background: linear-gradient(90deg, var(--gold-1), var(--amber));
+}
+
+.pizzaria-obrigado .gate-label {
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.pizzaria-obrigado .gate-label b {
+  color: #fff;
+  font-family: var(--pz-heading);
+  font-weight: 700;
+}
+
+.pizzaria-obrigado .reveal-zone {
+  max-width: 560px;
+  margin: 30px auto 0;
+  text-align: center;
+}
+
+.pizzaria-obrigado .reveal-btn {
+  opacity: 0;
+  transform: translateY(16px);
+  transition:
+    opacity 0.5s var(--ease),
+    transform 0.5s var(--ease);
+}
+
+.pizzaria-obrigado .reveal-btn.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.pizzaria-obrigado .reveal-btn .pz-btn {
+  width: 100%;
+}
+
+.pizzaria-obrigado .reveal-sub {
+  margin-top: 12px;
+  font-size: 12.5px;
+  color: var(--text-dim);
+}
+
+.pizzaria-obrigado footer {
+  padding: 34px 0 26px;
+}
+
+.pizzaria-obrigado footer img {
+  margin-bottom: 12px;
+}
+
+.pizzaria-obrigado footer p {
+  font-size: 12px;
+}
+
+@media (max-width: 520px) {
+  .pizzaria-obrigado main {
+    padding: 24px 0 56px;
+  }
+  .pizzaria-obrigado .sound-controls input[type="range"] {
+    width: 64px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pizzaria .hero-head h1 .pz-gold,
+  .pizzaria-obrigado .sound-overlay > span {
+    animation: none;
+    transform: none;
+  }
+  .pizzaria .pz-reveal,
+  .pizzaria .depo-track,
+  .pizzaria .cond-fields,
+  .pizzaria .reveal-btn {
+    transition: none;
+  }
+  .pizzaria .pz-reveal {
+    opacity: 1;
+    transform: none;
+  }
+}

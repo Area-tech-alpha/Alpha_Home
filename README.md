@@ -20,6 +20,8 @@ npm run build      # confere as mídias (scripts/check-assets.ts) e gera o build
 | `/obrigado` | Obrigado da home | noindex |
 | `/obrigado-a`, `/obrigado-b`, `/obrigado-c` | Pós-envio da /01-lp (leads A, B, C; a faixa "80 mil até 100 mil" também cai na `/obrigado-a`) | noindex |
 | `/agradecimento` | Pós-envio da /01-lp (desqualificado) | noindex |
+| `/alphas-pizzaria` | LP VSL da Alpha's Pizzaria (migração da `/alphas-pizzaria-vsl/` do WP, ID 13930) | só no domínio final (e só então no sitemap) |
+| `/alphas-pizzaria/obrigado` | Vídeo que libera o PDF na metade; o lead vai para o webhook do n8n no clique (migração da `/obrigado-vsl-alphas-pizzaria/`, ID 13950) | noindex + disallow |
 
 ## Variáveis de ambiente
 
@@ -29,6 +31,7 @@ npm run build      # confere as mídias (scripts/check-assets.ts) e gera o build
 | `CRM_API_URL`, `CRM_EXTERNAL_LEADS_API_KEY`, `CRM_SDR_EMAIL` | Lead da home | servidor |
 | `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | Rate limit dos forms (sem elas, passa direto) | servidor |
 | `LEAD_WEBHOOK_URL_01LP` | Webhook do n8n que recebe o lead da /01-lp (**Sensitive** na Vercel) | servidor |
+| `LEAD_WEBHOOK_URL_PIZZARIA` | Webhook do n8n que recebe o lead da /alphas-pizzaria, o mesmo da página do WP (**Sensitive** na Vercel) | servidor |
 
 ## /01-lp: envio do lead
 
@@ -98,6 +101,23 @@ Campos (ids reais do form do WP, na mesma ordem):
 Obrigatórios (`required=1`): `name`, `email`, `field_bb2d15f`, `field_4169f50`, `field_13a1e79` e `faturamento`, como no HTML do form. Os títulos dos ocultos são o próprio id, como na referência. Os rótulos dos 4 campos `html` só existem no editor do Elementor e não aparecem no HTML público, então vão vazios.
 
 Diferença intencional em relação ao WP: as UTMs vêm do navegador do próprio visitante. No WP, o cache do LiteSpeed servia o HTML com UTMs de outro visitante já preenchidas nos campos ocultos.
+
+## /alphas-pizzaria: envio do lead
+
+Mesmo fluxo da página do WP, em duas etapas:
+
+1. **Página 1** (`components/pizzaria/lead-form-pizzaria.tsx`): valida com zod (`lib/validation-pizzaria.ts`), guarda o lead no navegador (`sessionStorage` + `localStorage` com validade de 2h, chave `alpha_vsl_lead`, como no WP) e vai para `/alphas-pizzaria/obrigado`. **Não envia nada.**
+2. **Página 2** (`components/pizzaria/vsl-gate.tsx`): o vídeo começa sozinho e mudo, sem pausa e sem avanço. Aos 50% libera o botão. No clique, a server action `app/actions/submit-lead-pizzaria.ts` valida o lead de novo, aplica o rate limit (escopo `pizzaria:`) e faz `POST` JSON para `LEAD_WEBHOOK_URL_PIZZARIA` (timeout de 10 s). Em qualquer resultado o navegador segue para o PDF, como no WP.
+
+Quem abre a página 2 sem passar pelo form também é enviado, com `tipo_lead: "sem-form"` e `lead_sem_form: true` (igual ao WP). `?preview=liberado` libera o botão na hora.
+
+O payload (`lib/webhook-pizzaria.ts`) tem as mesmas chaves e a mesma ordem do objeto que o WP manda: `nome, email, telefone, empresa, segmento, faturamento, disposto_investir, cnpj, tipo_lead, redirect_url`, as 10 UTMs, `origem_form, page_url, referrer, form_preenchido_em, lead_sem_form, video_progresso, origem_confirmacao, confirmado_em`. O telefone vai no formato do WP (`+55 (11) 91111-0001`) e o segmento vai no `value` do select (`pizzarias`, `comida-brasileira`…). Sem UTM de origem/mídia, `utm_source`/`utm_medium` saem do referrer (`classificarOrigemOrganica`, igual ao WP).
+
+Diferenças intencionais:
+- Novo no obrigado: aviso "Clique para ativar o som" e controle de volume (mudo/som + slider).
+- O carrossel de depoimentos tem autoplay de 5 s com deslize, loop, arraste e pausa no hover (no WP é só rolagem pelas setas). Os vídeos são locais (`public/videos/depoimento-*.mp4`, com poster) e só carregam no clique.
+- A VSL é local (`public/videos/alphas-pizzaria-vsl.mp4`, 720p, 15 MB; a original no WP tem 1080p e 119 MB).
+- O PDF continua no WordPress (`wp-content/uploads/2026/09/Playbook-Cardapio-Digital-Alpha.pdf`).
 
 ## Pendências (Max)
 
