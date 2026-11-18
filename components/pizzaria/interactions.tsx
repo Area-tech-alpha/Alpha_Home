@@ -33,8 +33,25 @@ export function scrollToForm() {
   window.scrollTo({ top, behavior: reduced ? "auto" : "smooth" });
 }
 
+// Link que rola até o form (data-scroll do WP). O className é fixo: classes de
+// reveal (pz-reveal) ficam num wrapper ou no próprio link, nunca montadas aqui.
+export function ScrollToFormLink({ className, children }: { className: string; children: React.ReactNode }) {
+  return (
+    <a
+      href="#contato"
+      className={className}
+      onClick={(e) => {
+        e.preventDefault();
+        scrollToForm();
+      }}
+    >
+      {children}
+    </a>
+  );
+}
+
 // Botão fixo: aparece quando o form do hero sai da tela.
-export function FloatCtaPizzaria() {
+export function FloatCtaPizzaria({ label = contentPizzaria.floatCta }: { label?: string }) {
   const [show, setShow] = useState(false);
 
   useEffect(() => {
@@ -56,7 +73,7 @@ export function FloatCtaPizzaria() {
           document.getElementById("nome")?.focus({ preventScroll: true });
         }}
       >
-        {contentPizzaria.floatCta}
+        {label}
       </a>
     </div>
   );

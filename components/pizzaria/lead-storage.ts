@@ -1,7 +1,9 @@
 // Só navegador: atribuição first-touch e o lead que vai da página 1 para a 2.
+import { parseSentMarkPizzaria } from "@/lib/obrigado-pizzaria";
 import {
   LEAD_STORAGE_KEY_PIZZARIA,
   LEAD_TTL_MS_PIZZARIA,
+  SENT_MARK_STORAGE_KEY_PIZZARIA,
   TRACKING_KEYS_PIZZARIA,
   TRACKING_STORAGE_KEY_PIZZARIA,
   TRACKING_TTL_MS_PIZZARIA,
@@ -80,11 +82,36 @@ export function readLeadPizzaria(): unknown {
   return null;
 }
 
+// Marca "lead já enviado pela resultado" (lead + data). Os dois storages, como o lead da VSL.
+export function saveSentMarkPizzaria(lead: unknown) {
+  const mark = JSON.stringify({ lead, enviado_em: new Date().toISOString() });
+  try {
+    sessionStorage.setItem(SENT_MARK_STORAGE_KEY_PIZZARIA, mark);
+  } catch {}
+  try {
+    localStorage.setItem(SENT_MARK_STORAGE_KEY_PIZZARIA, mark);
+  } catch {}
+}
+
+// Devolve o que está gravado (válido e dentro das 2h) ou null.
+export function readSentMarkPizzaria(): unknown {
+  for (const storage of ["sessionStorage", "localStorage"] as const) {
+    try {
+      const raw = window[storage].getItem(SENT_MARK_STORAGE_KEY_PIZZARIA);
+      const mark = raw ? parseSentMarkPizzaria(JSON.parse(raw)) : null;
+      if (mark) return mark;
+    } catch {}
+  }
+  return null;
+}
+
 export function clearLeadPizzaria() {
-  try {
-    sessionStorage.removeItem(LEAD_STORAGE_KEY_PIZZARIA);
-  } catch {}
-  try {
-    localStorage.removeItem(LEAD_STORAGE_KEY_PIZZARIA);
-  } catch {}
+  for (const key of [LEAD_STORAGE_KEY_PIZZARIA, SENT_MARK_STORAGE_KEY_PIZZARIA]) {
+    try {
+      sessionStorage.removeItem(key);
+    } catch {}
+    try {
+      localStorage.removeItem(key);
+    } catch {}
+  }
 }

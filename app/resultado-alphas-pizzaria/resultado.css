@@ -1,0 +1,375 @@
+/* /resultado-alphas-pizzaria: só o que difere da /alphas-pizzaria (pizzaria.css traz
+   o resto: tokens, botões, form, FAQ, botão fixo, reveal, rodapé). Valores do CSS
+   da página do WP (resultado-alphas-pizzaria, page-id 13526). Tudo dentro de
+   .pizzaria.pizzaria-resultado para ganhar das regras equivalentes do pizzaria.css. */
+
+/* ===== Hero: padding e altura próprios, sem o logo no topo ===== */
+.pizzaria.pizzaria-resultado #hero {
+  padding: 56px 0 64px;
+}
+
+/* O destaque do título aqui é texto normal (na VSL é inline-block com animação). */
+.pizzaria.pizzaria-resultado .hero-head h1 .pz-gold {
+  display: inline;
+  animation: none;
+  will-change: auto;
+  transform: none;
+}
+
+.pizzaria.pizzaria-resultado .hero-cta {
+  margin-bottom: 0;
+}
+
+.pizzaria.pizzaria-resultado .hero-form-card .pz-btn {
+  padding: 13px 26px;
+}
+
+.pizzaria.pizzaria-resultado .form-error {
+  margin: 4px 0 8px;
+  text-align: center;
+}
+
+/* No WP o FAQ da resultado não tem a linha de cima. */
+.pizzaria.pizzaria-resultado #faq {
+  border-top: 0;
+}
+
+/* ===== Carrossel de episódios ===== */
+.pizzaria.pizzaria-resultado #carrossel {
+  padding: 80px 0;
+  background: var(--bg-1);
+}
+
+.pizzaria.pizzaria-resultado .car-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-bottom: 36px;
+}
+
+.pizzaria.pizzaria-resultado .car-head .pz-section-head {
+  margin-bottom: 0;
+}
+
+.pizzaria.pizzaria-resultado .car-controls {
+  display: flex;
+  gap: 10px;
+}
+
+.pizzaria.pizzaria-resultado .car-btn {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border-strong);
+  background-color: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #fff;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s;
+}
+
+.pizzaria.pizzaria-resultado .car-btn:hover,
+.pizzaria.pizzaria-resultado .car-btn:focus-visible {
+  background-color: var(--glass-strong);
+  border-color: var(--border-gold);
+}
+
+.pizzaria.pizzaria-resultado .car-btn:active {
+  background-color: var(--glass);
+}
+
+.pizzaria.pizzaria-resultado .car-btn svg {
+  width: 19px;
+  height: 19px;
+}
+
+/* overflow: clip (e não hidden) para o foco num card fora da tela não rolar a faixa. */
+.pizzaria.pizzaria-resultado .car-track-wrap {
+  overflow: clip;
+  cursor: grab;
+  user-select: none;
+}
+
+.pizzaria.pizzaria-resultado .car-track-wrap[data-dragging="true"] {
+  cursor: grabbing;
+}
+
+/* Cards sempre de 280px. No WP há regras de 240px (>=860px) e 220px (<=520px), mas
+   elas nunca valem: o card é um <a href> e a regra base com :link/:visited tem
+   especificidade maior que as do @media. */
+.pizzaria.pizzaria-resultado .car-track {
+  --card: 280px;
+  --gap: 20px;
+  display: flex;
+  gap: var(--gap);
+  padding-bottom: 4px;
+  transition: transform 600ms cubic-bezier(0.25, 0.8, 0.25, 1);
+  will-change: transform;
+}
+
+.pizzaria.pizzaria-resultado .car-track[data-animate="false"] {
+  transition: none;
+}
+
+/* Fundo fosco: cinza que puxa para o preto (no WP era quase transparente). */
+.pizzaria.pizzaria-resultado .car-slide {
+  flex: 0 0 var(--card);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: linear-gradient(180deg, #1f1f22 0%, #0b0b0c 100%);
+  border: 1px solid var(--border);
+  display: block;
+  cursor: pointer;
+  color: inherit;
+  text-decoration: none;
+  transition:
+    transform 0.3s var(--ease),
+    border-color 0.3s;
+}
+
+.pizzaria.pizzaria-resultado .car-slide:hover {
+  transform: translateY(-6px);
+  border-color: var(--border-gold);
+}
+
+.pizzaria.pizzaria-resultado .car-slide:focus-visible {
+  outline: 2px solid var(--gold-1);
+  outline-offset: 2px;
+}
+
+.pizzaria.pizzaria-resultado .car-media {
+  position: relative;
+  aspect-ratio: 9 / 16;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: linear-gradient(180deg, #2d2d31 0%, #18181b 50%, #050505 100%);
+}
+
+.pizzaria.pizzaria-resultado .car-cover {
+  object-fit: cover;
+  pointer-events: none;
+}
+
+/* Com capa, um degradê embaixo garante a leitura do "Ver no Instagram". */
+.pizzaria.pizzaria-resultado .car-media[data-cover="true"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 55%, rgba(5, 5, 5, 0.75));
+}
+
+.pizzaria.pizzaria-resultado .car-ig {
+  width: 38px;
+  height: 38px;
+  color: var(--gold-1);
+  opacity: 0.55;
+}
+
+.pizzaria.pizzaria-resultado .car-label {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  right: 12px;
+  z-index: 1;
+  background: rgba(5, 5, 5, 0.75);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-align: center;
+  padding: 7px 8px;
+  border-radius: 8px;
+}
+
+.pizzaria.pizzaria-resultado .car-info {
+  padding: 16px 18px;
+}
+
+.pizzaria.pizzaria-resultado .car-info strong {
+  display: block;
+  font-family: var(--pz-heading);
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 3px;
+  color: #fff;
+}
+
+.pizzaria.pizzaria-resultado .car-info span {
+  font-size: 12.5px;
+  color: var(--gold-1);
+  font-weight: 600;
+}
+
+/* ===== O mesmo método que aplicamos... ===== */
+.pizzaria.pizzaria-resultado #entregaveis {
+  padding: 80px 0;
+}
+
+.pizzaria.pizzaria-resultado .entrega-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 18px;
+}
+
+.pizzaria.pizzaria-resultado .entrega-card {
+  padding: 28px 24px;
+  border-radius: var(--radius-lg);
+  background: var(--bg-1);
+  border: 1px solid var(--border);
+}
+
+.pizzaria.pizzaria-resultado .entrega-card:hover {
+  border-color: var(--border-gold);
+}
+
+.pizzaria.pizzaria-resultado .entrega-card .ic {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: linear-gradient(150deg, rgba(255, 183, 3, 0.16), rgba(255, 255, 255, 0.02));
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+}
+
+.pizzaria.pizzaria-resultado .entrega-card .ic svg {
+  width: 22px;
+  height: 22px;
+  color: var(--gold-1);
+}
+
+.pizzaria.pizzaria-resultado .entrega-card h3 {
+  font-size: 17px;
+  margin-bottom: 8px;
+}
+
+.pizzaria.pizzaria-resultado .entrega-card p {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.55;
+}
+
+.pizzaria.pizzaria-resultado .entrega-roi {
+  margin-top: 44px;
+  padding: 34px 30px;
+  border-radius: var(--radius-xl);
+  background: linear-gradient(150deg, rgba(255, 183, 3, 0.14), rgba(255, 255, 255, 0.02));
+  border: 1px solid var(--border-gold);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: center;
+}
+
+.pizzaria.pizzaria-resultado .entrega-roi span {
+  color: var(--text-muted);
+  font-size: 13.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.pizzaria.pizzaria-resultado .entrega-roi strong {
+  font-family: var(--pz-display);
+  font-size: clamp(1.5rem, 3.6vw, 2.1rem);
+  color: #fff;
+  font-weight: 600;
+}
+
+.pizzaria.pizzaria-resultado .entrega-roi strong em {
+  font-style: normal;
+  background: linear-gradient(90deg, var(--gold-1), var(--gold-2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ===== CTA final ===== */
+.pizzaria.pizzaria-resultado #cta-final {
+  padding: 20px 0 90px;
+}
+
+.pizzaria.pizzaria-resultado .cta-final-box {
+  max-width: 760px;
+  margin: 0 auto;
+  text-align: center;
+  padding: 54px 30px;
+  border-radius: var(--radius-xl);
+  background: var(--bg-1);
+  border: 1px solid var(--border-gold);
+  background-image:
+    radial-gradient(circle at 30% 20%, rgba(255, 183, 3, 0.12), transparent 55%),
+    radial-gradient(circle at 80% 80%, rgba(245, 166, 35, 0.1), transparent 50%);
+  box-shadow: 0 40px 90px -30px rgba(0, 0, 0, 0.6);
+}
+
+.pizzaria.pizzaria-resultado .cta-final-box .pz-eyebrow {
+  justify-content: center;
+}
+
+.pizzaria.pizzaria-resultado .cta-final-box .pz-eyebrow::before {
+  display: none;
+}
+
+.pizzaria.pizzaria-resultado .cta-final-box h2 {
+  font-family: var(--pz-display);
+  font-size: clamp(1.7rem, 4vw, 2.4rem);
+  color: #fff;
+  line-height: 1.2;
+  margin: 14px 0 16px;
+}
+
+.pizzaria.pizzaria-resultado .cta-final-box p {
+  font-size: 15px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  max-width: 520px;
+  margin: 0 auto 30px;
+}
+
+@media (min-width: 860px) {
+  .pizzaria.pizzaria-resultado #hero {
+    padding: 0;
+    min-height: 92vh;
+  }
+  .pizzaria.pizzaria-resultado .entrega-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 520px) {
+  .pizzaria.pizzaria-resultado #hero {
+    padding: 32px 0 48px;
+  }
+  .pizzaria.pizzaria-resultado #carrossel,
+  .pizzaria.pizzaria-resultado #entregaveis {
+    padding: 60px 0;
+  }
+  .pizzaria.pizzaria-resultado .entrega-roi {
+    padding: 26px 20px;
+  }
+  .pizzaria.pizzaria-resultado .cta-final-box {
+    padding: 36px 20px;
+  }
+  .pizzaria.pizzaria-resultado #cta-final {
+    padding: 10px 0 60px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pizzaria.pizzaria-resultado .car-track,
+  .pizzaria.pizzaria-resultado .car-slide {
+    transition: none;
+  }
+}
