@@ -522,7 +522,7 @@ body:has(.pizzaria) {
   user-select: none;
 }
 
-.pizzaria .depo-track-wrap.is-dragging {
+.pizzaria .depo-track-wrap[data-dragging="true"] {
   cursor: grabbing;
 }
 

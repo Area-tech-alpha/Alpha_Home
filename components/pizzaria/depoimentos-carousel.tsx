@@ -190,76 +190,82 @@ export default function DepoimentosCarousel() {
         </div>
       </div>
 
-      <div
-        className={`depo-track-wrap pz-reveal r-1 ${dragging ? "is-dragging" : ""}`}
-        style={{ touchAction: "pan-y" }}
-        onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
-        onPointerUp={(e) => endDrag(e, false)}
-        onPointerCancel={(e) => endDrag(e, true)}
-      >
+      {/* O reveal fica num wrapper com className fixo: o RevealPizzaria põe
+          "visible" via classList, e um className que o React reescreve (ex.:
+          no arraste) apagaria essa classe. O estado do arraste vai em data-*. */}
+      <div className="pz-reveal r-1">
         <div
-          ref={trackRef}
-          className="depo-track"
-          data-animate={animate && !dragging ? "true" : "false"}
-          onTransitionEnd={onTransitionEnd}
-          style={{ transform: `translateX(calc(-1 * ${pos} * (var(--card) + var(--gap)) + ${dragDx}px))` }}
+          className="depo-track-wrap"
+          data-dragging={dragging ? "true" : undefined}
+          style={{ touchAction: "pan-y" }}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={(e) => endDrag(e, false)}
+          onPointerCancel={(e) => endDrag(e, true)}
         >
-          {slides.map((item, i) => {
-            const real = i >= count && i < 2 * count;
-            const isActive = active === i;
-            const video = depoimentoVideo(item.slug);
-            return (
-              <div
-                key={`${i}-${item.slug}`}
-                className="depo-card"
-                data-clone={real ? undefined : "true"}
-                aria-hidden={!real}
-                inert={!real}
-              >
-                <div className="depo-media">
-                  {isActive ? (
-                    // Com som e controles, como o WP faz no clique; no fim volta ao poster.
-                    <video
-                      // play() explícito ao montar (ainda dentro da ativação do clique);
-                      // só o atributo autoPlay com som pode ser barrado pelo navegador.
-                      ref={(el) => {
-                        el?.play().catch(() => {});
-                      }}
-                      src={video.src}
-                      poster={video.poster}
-                      controls
-                      playsInline
-                      onEnded={() => setActive(null)}
-                    />
-                  ) : (
-                    <button
-                      type="button"
-                      className="depo-trigger"
-                      aria-label={`Assistir depoimento: ${item.name}`}
-                      onClick={() => {
-                        if (suppressClick.current) return;
-                        setActive(i);
-                      }}
-                    >
-                      <Image src={video.poster} alt="" fill sizes="248px" draggable={false} className="depo-poster" />
-                      <span className="depo-play" aria-hidden="true">
-                        <Play />
-                      </span>
-                    </button>
-                  )}
-                  <span className="depo-badge">
-                    <BadgeCheck aria-hidden="true" />
-                    <span>{depoimentos.badge}</span>
-                  </span>
+          <div
+            ref={trackRef}
+            className="depo-track"
+            data-animate={animate && !dragging ? "true" : "false"}
+            onTransitionEnd={onTransitionEnd}
+            style={{ transform: `translateX(calc(-1 * ${pos} * (var(--card) + var(--gap)) + ${dragDx}px))` }}
+          >
+            {slides.map((item, i) => {
+              const real = i >= count && i < 2 * count;
+              const isActive = active === i;
+              const video = depoimentoVideo(item.slug);
+              return (
+                <div
+                  key={`${i}-${item.slug}`}
+                  className="depo-card"
+                  data-clone={real ? undefined : "true"}
+                  aria-hidden={!real}
+                  inert={!real}
+                >
+                  <div className="depo-media">
+                    {isActive ? (
+                      // Com som e controles, como o WP faz no clique; no fim volta ao poster.
+                      <video
+                        // play() explícito ao montar (ainda dentro da ativação do clique);
+                        // só o atributo autoPlay com som pode ser barrado pelo navegador.
+                        ref={(el) => {
+                          el?.play().catch(() => {});
+                        }}
+                        src={video.src}
+                        poster={video.poster}
+                        controls
+                        playsInline
+                        onEnded={() => setActive(null)}
+                      />
+                    ) : (
+                      <button
+                        type="button"
+                        className="depo-trigger"
+                        aria-label={`Assistir depoimento: ${item.name}`}
+                        onClick={() => {
+                          if (suppressClick.current) return;
+                          setActive(i);
+                        }}
+                      >
+                        <Image src={video.poster} alt="" fill sizes="248px" draggable={false} className="depo-poster" />
+                        <span className="depo-play" aria-hidden="true">
+                          <Play />
+                        </span>
+                      </button>
+                    )}
+                    <span className="depo-badge">
+                      <BadgeCheck aria-hidden="true" />
+                      <span>{depoimentos.badge}</span>
+                    </span>
+                  </div>
+                  <div className="depo-info">
+                    <strong>{item.name}</strong>
+                    <span>{depoimentos.role}</span>
+                  </div>
                 </div>
-                <div className="depo-info">
-                  <strong>{item.name}</strong>
-                  <span>{depoimentos.role}</span>
-                </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>
