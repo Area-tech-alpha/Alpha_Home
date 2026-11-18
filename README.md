@@ -23,6 +23,8 @@ npm run build      # confere as mídias (scripts/check-assets.ts) e gera o build
 | `/alphas-pizzaria` | LP VSL da Alpha's Pizzaria (migração da `/alphas-pizzaria-vsl/` do WP, ID 13930); lead vai para o CRM | só no domínio final (e só então no sitemap) |
 | `/alphas-pizzaria/obrigado` | Vídeo que libera o PDF na metade. **Não envia lead** (migração da `/obrigado-vsl-alphas-pizzaria/`, ID 13950) | noindex + disallow |
 | `/resultado-alphas-pizzaria` | LP de resultado da Alpha's Pizzaria (migração da `/resultado-alphas-pizzaria/` do WP, ID 13526); lead vai para o CRM e depois para `/alphas-pizzaria/obrigado` | só no domínio final (e só então no sitemap) |
+| `/lead-magnetic-bastidores-alphas-pizzaria` | LP lead magnet "Bastidores da Alpha's Pizzaria" (migração da página do WP, ID 13210); lead vai para o CRM e depois para o obrigado dela | só no domínio final (e só então no sitemap) |
+| `/obrigado-lm-bastidores-alphas-pizzaria` | Obrigado da LP de bastidores (migração da página do WP, ID 13215). **Não envia lead** | noindex + disallow |
 
 ## Variáveis de ambiente
 
@@ -45,7 +47,7 @@ A home e as LPs usam o **mesmo código**: `lib/crm.ts` (`buildCrmLeadPayload`, `
 O caminho de envio das LPs é `lib/lead-intake.ts` (`intakeLead`), chamado pela server action de cada LP:
 
 1. Valida o lead (mesmos campos e regras da home; CNPJ e "investiria" só em "Até 30 mil").
-2. Rate limit (`lib/rate-limit.ts`) no escopo da LP, para uma LP não gastar a cota da outra: `01lp:`, `pizzaria:`, `pizzaria-resultado:` (a home usa `home:`).
+2. Rate limit (`lib/rate-limit.ts`) no escopo da LP, para uma LP não gastar a cota da outra: `01lp:`, `pizzaria:`, `pizzaria-resultado:`, `pizzaria-bastidores:` (a home usa `home:`).
 3. Envia ao CRM. **Só redireciona se o CRM respondeu ok.**
 4. Se falhar, o form mostra "Não conseguimos enviar agora. Tente de novo em instantes." e a cota de e-mail e telefone do rate limit é devolvida (a do IP continua contando). Os logs têm só status e código de erro, nunca a URL, a chave nem dados do lead.
 
@@ -54,6 +56,7 @@ O caminho de envio das LPs é `lib/lead-intake.ts` (`intakeLead`), chamado pela 
 | `/01-lp` | `submit-lead-01lp.ts` | `01lp:` | `rotear01lp` (tabela abaixo) |
 | `/alphas-pizzaria` | `submit-lead-pizzaria.ts` | `pizzaria:` | `/alphas-pizzaria/obrigado` |
 | `/resultado-alphas-pizzaria` | `submit-lead-resultado-pizzaria.ts` | `pizzaria-resultado:` | `/alphas-pizzaria/obrigado` |
+| `/lead-magnetic-bastidores-alphas-pizzaria` | `submit-lead-bastidores-pizzaria.ts` | `pizzaria-bastidores:` | `/obrigado-lm-bastidores-alphas-pizzaria` |
 
 **Sem pixel da Meta:** nenhuma página carrega `fbq`, `fbevents.js` nem `connect.facebook.net`, e não há API de Conversões no servidor. O `fbclid` (e o `fbc` montado dele) só é lido da URL como dado de atribuição do lead. Um teste (`tests/lead-intake.test.ts`) falha se alguma dessas referências voltar ao código.
 
@@ -93,7 +96,18 @@ O form é o mesmo (`variant="resultado"`). Envia ao CRM no submit e vai para `/a
 
 **Capas:** o card usa `public/images/alphas-pizzaria/episodios/ep-NN.webp` (9/16) quando o arquivo está listado em `episodios.covers`; sem capa, mostra o fundo fosco com degradê para o preto, o ícone do Instagram e "Ver no Instagram". A lista está vazia até as capas serem enviadas (o Instagram não entrega o `og:image` por `curl`). Ao adicionar capas, listar os nomes (`"ep-01.webp"`…) em `covers`: o `check-assets` passa a conferi-las.
 
+### /lead-magnetic-bastidores-alphas-pizzaria e o obrigado
+
+O form é o mesmo das outras LPs da pizzaria (`LeadFormPizzaria variant="bastidores"`). **Envia ao CRM no submit** e, se o CRM respondeu ok, mostra "Recebemos seus dados! Redirecionando..." e vai para `/obrigado-lm-bastidores-alphas-pizzaria`. Antes de redirecionar, deixa o primeiro nome no `sessionStorage` (chave `leadMagnetBastidoresPizzaria`, como no WP) para o obrigado personalizar o aviso do e-mail.
+
+**O que o WP fazia (e o que mudou):** o form do WP não enviava nada: guardava o payload no navegador e redirecionava. Quem enviava era o obrigado, para dois webhooks do n8n: ao carregar, um que adicionava o contato à lista #13 da Brevo (o que dispara o e-mail com o material) e, no clique do botão, outro (`leads-lms`) para o comercial. Agora o lead vai ao CRM no submit e o obrigado **não envia nada**: o botão só mostra a mensagem de agradecimento.
+
+Visual do WP: fundo "mesh" fixo, partículas, cursor personalizado e botão magnético (só com mouse), reveal no scroll e rolagem até o form com 100 px de folga (`components/bastidores/fx.tsx`). O CSS tem escopo `.bastidores` (`app/lead-magnetic-bastidores-alphas-pizzaria/bastidores.css`) e o estado de reveal e de cursor vai em `data-*`, nunca em classe adicionada via DOM. A foto é a do Ailton Cruz (`public/images/bastidores/ailton-cruz.webp`, em webp); a imagem do hero e a do case são as mesmas da `/alphas-pizzaria`.
+
 ## Pendências (Max)
+
+- **E-mail com o material (Brevo):** o obrigado do WP dispara, ao carregar, o webhook que adiciona o contato à lista #13 da Brevo e manda o e-mail com o material, e a página diz "Mandamos o material pro seu e-mail". Sem webhook, **esse e-mail deixou de ser disparado**. É preciso que o CRM (ou outra integração) faça esse envio para a LP continuar entregando o que promete.
+- **Bastidores indexável:** o WP tem `noindex,nofollow` nessa LP. Aqui ela segue a regra das outras LPs (indexável só no domínio final, no sitemap). Para manter igual ao WP, trocar `robots` em `app/lead-magnetic-bastidores-alphas-pizzaria/page.tsx` e tirar a rota de `app/sitemap.ts`.
 
 - **Origem do lead no CRM:** a API da home não tem campo de página/LP e `source` é fixo em `"alpha-home"`. Para o comercial distinguir `/01-lp`, `/alphas-pizzaria` e `/resultado-alphas-pizzaria`, o CRM precisa aceitar um valor distinto em `source` (ou um campo novo, como `page_url`). Hoje só as UTMs da campanha ajudam.
 - Faixa "80 mil até 100 mil" não está em nenhuma faixa do script do WP (cairia em `/obrigado`); a /01-lp manda para `/obrigado-a`.

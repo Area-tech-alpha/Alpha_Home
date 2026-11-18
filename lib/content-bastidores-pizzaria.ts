@@ -33,6 +33,8 @@ export const contentBastidores = {
   form: {
     title: "Quero receber os processos",
     subtitle: "Preencha e receba o material no seu e-mail.",
+    // Único campo com texto diferente das outras LPs da pizzaria.
+    empresaPlaceholder: "Nome do restaurante",
     submitLabel: "Quero aumentar o lucro do meu restaurante →",
     sending: "Enviando...",
     success: "Recebemos seus dados! Redirecionando...",

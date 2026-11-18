@@ -28,18 +28,21 @@ const VARIANTS = {
     label: form.submitLabel,
     buttonClass: "pz-btn pz-btn-primary pz-btn-block",
     note: true,
+    empresaPlaceholder: fields.empresa.placeholder,
   },
   resultado: {
     submit: submitLeadResultadoPizzaria,
     label: contentResultado.form.submitLabel,
     buttonClass: "pz-btn pz-btn-primary pz-btn-block",
     note: false,
+    empresaPlaceholder: fields.empresa.placeholder,
   },
   bastidores: {
     submit: submitLeadBastidoresPizzaria,
     label: contentBastidores.form.submitLabel,
     buttonClass: "bs-btn bs-btn-primary",
     note: false,
+    empresaPlaceholder: contentBastidores.form.empresaPlaceholder,
   },
 } as const;
 
@@ -291,7 +294,7 @@ export default function LeadFormPizzaria({ variant = "vsl" }: { variant?: Varian
           type="text"
           autoComplete="organization"
           required
-          placeholder={fields.empresa.placeholder}
+          placeholder={cfg.empresaPlaceholder}
           value={values.empresa}
           onChange={(e) => set("empresa", e.target.value)}
           aria-invalid={!!errors.empresa}
