@@ -7,6 +7,7 @@ import { content01lp } from "@/lib/content-01-lp";
 import { contentPizzaria, depoimentoVideo } from "@/lib/content-pizzaria";
 import { contentBastidores } from "@/lib/content-bastidores-pizzaria";
 import { contentResultado } from "@/lib/content-resultado-pizzaria";
+import { contentLeadMagneticVsl } from "@/lib/content-lead-magnetic-vsl";
 import { availableShorts, availableVideos } from "@/lib/depoimentos";
 
 const srcs = [
@@ -48,6 +49,8 @@ const srcs = [
   contentBastidores.parada.photo.src,
   // /resultado-alphas-pizzaria: só as capas listadas no conteúdo (hoje nenhuma)
   ...contentResultado.episodios.covers.map((file) => `/images/alphas-pizzaria/episodios/${file}`),
+  "/images/lead-magnetic-vsl/hero.webp",
+  ...contentLeadMagneticVsl.resultados.slides,
 ];
 
 const missing = srcs.filter((src) => !existsSync(path.join(process.cwd(), "public", src)));

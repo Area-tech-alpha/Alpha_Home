@@ -19,6 +19,7 @@ export default function robots(): MetadataRoute.Robots {
         "/agradecimento",
         "/alphas-pizzaria/obrigado",
         "/obrigado-lm-bastidores-alphas-pizzaria",
+        "/obrigado-lm-vsl",
       ],
     },
     sitemap: `${SITE_URL}/sitemap.xml`,

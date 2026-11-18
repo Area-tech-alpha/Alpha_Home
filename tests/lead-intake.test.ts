@@ -8,6 +8,7 @@ import type { Limiter, Limiters, RateLimitScope } from "@/lib/rate-limit";
 import { leadSchema, parseTracking } from "@/lib/validation";
 import { leadSchema01lp } from "@/lib/validation-01lp";
 import { leadSchemaPizzaria } from "@/lib/validation-pizzaria";
+import { leadSchemaLeadMagneticVsl } from "@/lib/validation-pizzaria";
 
 // Só mocks locais: o CRM e o Redis aqui são falsos e nenhuma chamada sai para a rede.
 const CRM_URL = "http://crm.mock.local";
@@ -35,6 +36,7 @@ const LPS: { nome: string; schema: Parameters<typeof intakeLead>[0]["schema"]; s
   { nome: "/alphas-pizzaria", schema: leadSchemaPizzaria, scope: "pizzaria" },
   { nome: "/resultado-alphas-pizzaria", schema: leadSchemaPizzaria, scope: "pizzaria-resultado" },
   { nome: "/lead-magnetic-bastidores-alphas-pizzaria", schema: leadSchemaPizzaria, scope: "pizzaria-bastidores" },
+  { nome: "/lead-magnetic-vsl", schema: leadSchemaLeadMagneticVsl, scope: "lead-magnetic-vsl" },
 ];
 
 type Call = { url: string; init: RequestInit };

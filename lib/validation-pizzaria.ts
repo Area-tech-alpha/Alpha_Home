@@ -2,6 +2,7 @@ import { z } from "zod";
 import { isValidPhoneNumber } from "libphonenumber-js";
 import { contentPizzaria } from "@/lib/content-pizzaria";
 import { FATURAMENTO_EXIGE_EXTRAS_PIZZARIA } from "@/lib/lead-pizzaria-constants";
+import { FATURAMENTOS_LMVSL, SEGMENTOS_LMVSL } from "@/lib/content-lead-magnetic-vsl";
 
 // Form das LPs da pizzaria: mesmos campos e regras do form do WP. Usado no
 // navegador (antes de enviar) e de novo no servidor, na server action de cada LP.
@@ -56,3 +57,36 @@ export const leadSchemaPizzaria = z
   });
 
 export type LeadFormDataPizzaria = z.infer<typeof leadSchemaPizzaria>;
+
+export function createLeadSchema(options: {
+  segmentos: readonly [string, ...string[]];
+  faturamentos: readonly [string, ...string[]];
+  requireConditionalFields?: boolean;
+}) {
+  const base = z.object({
+    nome: z.string().trim().min(2, "Nome obrigatório").max(120),
+    email: z.string().trim().email("E-mail inválido").max(200),
+    telefone: z
+      .string()
+      .min(1, errors.telefone)
+      .max(20)
+      .refine((v) => isValidPhoneNumber(v), errors.telefone),
+    empresa: z.string().trim().min(2, "Nome da empresa obrigatório").max(160),
+    segmento: z.enum(options.segmentos, { message: "Selecione um segmento" }),
+    faturamento: z.enum(options.faturamentos, { message: "Selecione uma faixa de faturamento" }),
+    cnpj: z.string().max(20).optional(),
+    investiria: z.enum(["Sim", "Não"], { message: "Selecione uma opção" }).optional(),
+  });
+  if (!options.requireConditionalFields) return base;
+  return base.superRefine((data, ctx) => {
+    if (data.faturamento !== "Até 30 mil") return;
+    if (!data.cnpj || !isValidCNPJ(data.cnpj)) ctx.addIssue({ code: "custom", message: errors.cnpj, path: ["cnpj"] });
+    if (!data.investiria) ctx.addIssue({ code: "custom", message: "Selecione uma opção", path: ["investiria"] });
+  });
+}
+
+export const leadSchemaLeadMagneticVsl = createLeadSchema({
+  segmentos: SEGMENTOS_LMVSL,
+  faturamentos: FATURAMENTOS_LMVSL,
+  requireConditionalFields: false,
+});
