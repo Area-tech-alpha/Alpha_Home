@@ -79,7 +79,7 @@ export const content01lp = {
     submitLabel: "Quero vender mais investindo menos",
     sending: "Enviando...",
     errors: {
-      webhook: "Não conseguimos enviar agora. Tente de novo em instantes.",
+      crm: "Não conseguimos enviar agora. Tente de novo em instantes.",
       validation: "Dados inválidos. Verifique o formulário.",
       // {min} = minutos até liberar (lib/rate-limit.ts).
       rateLimited: "Recebemos seu cadastro há pouco. Tente novamente em {min} min.",

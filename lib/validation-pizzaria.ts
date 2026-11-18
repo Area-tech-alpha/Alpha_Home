@@ -3,12 +3,11 @@ import { isValidPhoneNumber } from "libphonenumber-js";
 import { contentPizzaria } from "@/lib/content-pizzaria";
 import { FATURAMENTO_EXIGE_EXTRAS_PIZZARIA } from "@/lib/lead-pizzaria-constants";
 
-// Form da /alphas-pizzaria: mesmos campos e regras do form do WP (página 1).
-// Usado no navegador (antes de ir para o vídeo) e de novo no servidor, na
-// confirmação da página 2, porque o lead chega lá vindo do storage do navegador.
+// Form das LPs da pizzaria: mesmos campos e regras do form do WP. Usado no
+// navegador (antes de enviar) e de novo no servidor, na server action de cada LP.
 
 const { fields, errors } = contentPizzaria.form;
-const SEGMENTOS = fields.segmento.options.map((o) => o.value) as [string, ...string[]];
+const SEGMENTOS = fields.segmento.options as unknown as [string, ...string[]];
 const FATURAMENTOS = fields.faturamento.options as unknown as [string, ...string[]];
 
 function cnpjDigit(digits: string, length: number): number {

@@ -1,0 +1,1049 @@
+/* /lead-magnetic-bastidores-alphas-pizzaria e /obrigado-lm-bastidores-alphas-pizzaria.
+   Valores do CSS das páginas do WP (page-id 13210 e 13215). Tudo dentro de
+   .bastidores (sem camada: ganha das regras em @layer do globals.css). Classes que
+   existiam também no globals.css da home ganharam o prefixo bs- (bs-btn, bs-eyebrow,
+   bs-gold, bs-reveal...). Estado de reveal e de cursor vai em data-* (data-visible,
+   data-show, data-big): nunca em classe adicionada via DOM. */
+
+.bastidores {
+  --bg-0: #050505;
+  --bg-1: #0b0b0d;
+  --bg-2: #111113;
+  --petrol: #0c2b2c;
+  --burnt: #c4551d;
+  --gold-1: #ffb703;
+  --gold-2: #f5a623;
+  --amber: #f59e0b;
+  --text: #f6f6f7;
+  --text-muted: #c7c6cc;
+  --text-dim: #94939a;
+  --glass: rgba(255, 255, 255, 0.045);
+  --glass-strong: rgba(255, 255, 255, 0.07);
+  --border: rgba(255, 255, 255, 0.09);
+  --border-strong: rgba(255, 255, 255, 0.18);
+  --border-gold: rgba(255, 183, 3, 0.4);
+  --radius-xl: 32px;
+  --radius-lg: 22px;
+  --radius-md: 16px;
+  --radius-sm: 10px;
+  --error: #ff6b6b;
+  --bs-display: var(--font-clash-display), var(--font-general-sans), sans-serif;
+  --bs-heading: var(--font-general-sans), sans-serif;
+  --bs-body: var(--font-inter), sans-serif;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+
+  position: relative;
+  background: var(--bg-0);
+  color: var(--text);
+  font-family: var(--bs-body);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+
+/* Fundo preto liso do WP (sem o radial do body da home). */
+body:has(.bastidores) {
+  background: #050505;
+}
+
+.bastidores ::selection {
+  background: var(--gold-1);
+  color: #050505;
+}
+
+.bastidores :is(h1, h2, h3, h4) {
+  font-family: var(--bs-heading);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  word-spacing: normal;
+  color: #fff;
+}
+
+.bastidores img {
+  max-width: 100%;
+  display: block;
+}
+
+.bastidores .bs-container {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 0 6%;
+}
+
+.bastidores .page {
+  position: relative;
+  z-index: 1;
+}
+
+.bastidores section {
+  position: relative;
+}
+
+/* ============ CURSOR PERSONALIZADO (só com mouse) ============ */
+@media (pointer: fine) {
+  .bastidores[data-cursor-active] {
+    cursor: none;
+  }
+  .bastidores[data-cursor-active] :is(a, button, input, select, summary) {
+    cursor: none;
+  }
+}
+
+.bastidores .bs-cursor-dot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--gold-1);
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  transition:
+    width 0.25s var(--ease),
+    height 0.25s var(--ease),
+    background-color 0.25s ease,
+    opacity 0.25s ease;
+  opacity: 0;
+}
+
+.bastidores .bs-cursor-dot[data-show="true"] {
+  opacity: 1;
+}
+
+.bastidores .bs-cursor-dot[data-big="true"] {
+  width: 64px;
+  height: 64px;
+  background: rgba(255, 183, 3, 0.12);
+  border: 1px solid var(--border-gold);
+  backdrop-filter: blur(6px);
+}
+
+.bastidores .bs-cursor-label {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 9999;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #141005;
+  background: var(--gold-1);
+  padding: 7px 14px;
+  border-radius: 999px;
+  white-space: nowrap;
+  transform: translate(-50%, -50%) scale(0.7);
+  opacity: 0;
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s var(--ease);
+}
+
+.bastidores .bs-cursor-label[data-show="true"] {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* ============ FUNDO "MESH" ============ */
+.bastidores .bs-mesh {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--bg-0);
+}
+
+.bastidores .bs-mesh .blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.5;
+  will-change: transform;
+}
+
+.bastidores .bs-mesh .b1 {
+  width: 50vw;
+  height: 50vw;
+  top: -16%;
+  left: -14%;
+  background: radial-gradient(circle, var(--petrol), transparent 70%);
+  animation: bs-drift1 28s ease-in-out infinite;
+}
+
+.bastidores .bs-mesh .b2 {
+  width: 42vw;
+  height: 42vw;
+  top: 4%;
+  right: -16%;
+  background: radial-gradient(circle, rgba(255, 183, 3, 0.45), transparent 70%);
+  animation: bs-drift2 32s ease-in-out infinite;
+}
+
+.bastidores .bs-mesh .b3 {
+  width: 46vw;
+  height: 46vw;
+  bottom: -18%;
+  left: 8%;
+  background: radial-gradient(circle, rgba(196, 85, 29, 0.4), transparent 70%);
+  animation: bs-drift3 36s ease-in-out infinite;
+}
+
+.bastidores .bs-mesh .b4 {
+  width: 32vw;
+  height: 32vw;
+  bottom: 6%;
+  right: 6%;
+  background: radial-gradient(circle, rgba(12, 43, 44, 0.7), transparent 70%);
+  animation: bs-drift1 24s ease-in-out infinite reverse;
+}
+
+.bastidores .bs-mesh .noise {
+  position: absolute;
+  inset: 0;
+  opacity: 0.045;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+@keyframes bs-drift1 {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(4%, 6%) scale(1.08);
+  }
+}
+
+@keyframes bs-drift2 {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(-5%, 4%) scale(1.1);
+  }
+}
+
+@keyframes bs-drift3 {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(3%, -5%) scale(1.06);
+  }
+}
+
+/* ============ PARTÍCULAS ============ */
+.bastidores .particles {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.bastidores .particles span {
+  position: absolute;
+  bottom: -10px;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--gold-1);
+  opacity: 0.5;
+  animation: bs-particle linear infinite;
+}
+
+@keyframes bs-particle {
+  0% {
+    transform: translateY(0) translateX(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.6;
+  }
+  90% {
+    opacity: 0.4;
+  }
+  100% {
+    transform: translateY(-90vh) translateX(20px);
+    opacity: 0;
+  }
+}
+
+/* ============ TIPOGRAFIA ============ */
+.bastidores .bs-gold {
+  background: linear-gradient(90deg, var(--gold-1), var(--gold-2) 60%, var(--amber));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.bastidores .bs-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold-1);
+  margin-bottom: 18px;
+}
+
+.bastidores .bs-eyebrow::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--gold-1);
+  box-shadow: 0 0 12px var(--gold-1);
+}
+
+/* ============ REVEAL (só com JS ligado; sem JS o conteúdo aparece) ============ */
+@media (scripting: enabled) {
+  .bastidores .bs-reveal {
+    opacity: 0;
+    transform: translateY(34px);
+    transition:
+      opacity 0.9s var(--ease),
+      transform 0.9s var(--ease);
+  }
+
+  .bastidores .bs-reveal-scale {
+    opacity: 0;
+    transform: scale(0.92);
+    transition:
+      opacity 1s var(--ease),
+      transform 1s var(--ease);
+  }
+
+  .bastidores .bs-reveal[data-visible="true"],
+  .bastidores .bs-reveal-scale[data-visible="true"] {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.bastidores .r-1 {
+  transition-delay: 0.1s;
+}
+.bastidores .r-2 {
+  transition-delay: 0.2s;
+}
+.bastidores .r-3 {
+  transition-delay: 0.3s;
+}
+.bastidores .r-4 {
+  transition-delay: 0.4s;
+}
+
+/* ============ BOTÕES ============ */
+.bastidores .bs-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 17px 32px;
+  border-radius: 999px;
+  font-family: var(--bs-body);
+  font-size: 14.5px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  min-height: 52px;
+  -webkit-appearance: none;
+  appearance: none;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    transform 0.3s var(--ease),
+    box-shadow 0.3s ease,
+    background-color 0.2s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  isolation: isolate;
+  text-decoration: none;
+}
+
+.bastidores .bs-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(120deg, transparent 30%, rgba(255, 255, 255, 0.35) 50%, transparent 70%);
+  transform: translateX(-120%);
+  transition: transform 0.7s ease;
+}
+
+.bastidores .bs-btn:hover::before {
+  transform: translateX(120%);
+}
+
+.bastidores .bs-btn-primary {
+  background: linear-gradient(90deg, var(--gold-1), var(--gold-2));
+  background-color: var(--gold-2);
+  color: #141005;
+  box-shadow: 0 8px 30px rgba(255, 183, 3, 0.25);
+}
+
+.bastidores .bs-btn-primary:hover,
+.bastidores .bs-btn-primary:focus-visible,
+.bastidores .bs-btn-primary:active {
+  background-color: var(--gold-2);
+  color: #141005;
+  transform: translateY(-3px);
+  box-shadow: 0 16px 42px rgba(255, 183, 3, 0.4);
+}
+
+.bastidores .bs-btn-primary:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+
+.bastidores .bs-btn:disabled {
+  cursor: default;
+  opacity: 0.75;
+}
+
+.bastidores .bs-btn svg {
+  width: 17px;
+  height: 17px;
+}
+
+/* ============ HERO (headline à esquerda + formulário) ============ */
+.bastidores #hero {
+  padding: 150px 0 110px;
+  overflow: hidden;
+}
+
+.bastidores .hero-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.bastidores .hero-bg img {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+  object-position: center 30%;
+  opacity: 0.52;
+}
+
+.bastidores .hero-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, var(--bg-0) 30%, rgba(5, 5, 5, 0.5) 58%, rgba(5, 5, 5, 0.16) 100%);
+}
+
+.bastidores .hero-grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 56px;
+  align-items: center;
+}
+
+.bastidores .hero-grid > * {
+  min-width: 0;
+}
+
+.bastidores .hero-head {
+  position: relative;
+  z-index: 1;
+}
+
+.bastidores .hero-head h1 {
+  font-family: var(--bs-display);
+  font-size: clamp(2rem, 4vw, 3.3rem);
+  line-height: 1.14;
+  font-weight: 600;
+  margin-bottom: 22px;
+}
+
+.bastidores .hero-head p.sub {
+  font-size: clamp(1rem, 1.2vw, 1.12rem);
+  font-weight: 400;
+  color: var(--text-muted);
+  line-height: 1.7;
+  max-width: 560px;
+  margin-bottom: 28px;
+}
+
+.bastidores .hero-form-card {
+  position: relative;
+  padding: 40px 36px;
+  border-radius: var(--radius-xl);
+  background: var(--glass);
+  border: 1px solid var(--border-strong);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5);
+  z-index: 1;
+}
+
+.bastidores .hero-form-card h3 {
+  font-size: 19px;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.bastidores .hero-form-card > span {
+  font-size: 13.5px;
+  color: var(--text-dim);
+  display: block;
+  margin-bottom: 24px;
+}
+
+.bastidores .hero-form-card .bs-btn {
+  width: 100%;
+  margin-top: 6px;
+}
+
+/* ============ CAMPOS DO FORM ============ */
+.bastidores .foot-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 14px;
+}
+
+.bastidores .foot-field label {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.bastidores .foot-field input,
+.bastidores .foot-field select,
+.bastidores .foot-field .PhoneInputInput {
+  width: 100%;
+  min-width: 0;
+  padding: 14px 16px;
+  background-color: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: #fff;
+  font-family: var(--bs-body);
+  font-size: 14px;
+  line-height: normal;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  transition:
+    border-color 0.25s,
+    background-color 0.25s,
+    box-shadow 0.25s;
+}
+
+.bastidores .foot-field input:focus,
+.bastidores .foot-field select:focus {
+  border-color: var(--gold-1);
+  background-color: rgba(255, 183, 3, 0.06);
+  box-shadow: 0 0 0 4px rgba(255, 183, 3, 0.1);
+}
+
+.bastidores .foot-field input::placeholder {
+  color: var(--text-dim);
+}
+
+.bastidores .foot-field [aria-invalid="true"] {
+  border-color: var(--error);
+}
+
+.bastidores .foot-field select {
+  padding-right: 40px;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%23a3a2a9' stroke-width='2'%3E%3Cpath d='M5 8l5 5 5-5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 15px;
+}
+
+.bastidores .foot-field select option {
+  background: #141416;
+  color: #fff;
+}
+
+.bastidores .foot-field select[data-empty="true"] {
+  color: var(--text-dim);
+}
+
+/* Telefone: seletor de DDI (phone-field-01lp) + número, como o .phone-row do WP. */
+.bastidores .pizzaria-phone .phone-input-wrapper {
+  display: flex;
+  gap: 8px;
+}
+
+.bastidores .pizzaria-phone .phone-input-wrapper > span,
+.bastidores .pizzaria-phone .phone-input-wrapper button[aria-haspopup] {
+  min-width: 100px;
+  padding: 14px 12px;
+  font-size: 14px;
+  border-radius: var(--radius-sm);
+}
+
+.bastidores .field-error {
+  display: block;
+  font-size: 11.5px;
+  color: var(--error);
+  margin-top: 1px;
+  min-height: 1px;
+}
+
+.bastidores .form-error {
+  margin: 4px 0 8px;
+  text-align: center;
+}
+
+.bastidores .cond-fields {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition:
+    max-height 0.4s var(--ease),
+    opacity 0.3s ease;
+}
+
+.bastidores .cond-fields[data-open="true"] {
+  max-height: 260px;
+  opacity: 1;
+}
+
+.bastidores .footer-success {
+  display: none;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 18px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 183, 3, 0.08);
+  border: 1px solid var(--border-gold);
+  margin-top: 14px;
+}
+
+.bastidores .footer-success.show {
+  display: flex;
+}
+
+.bastidores .footer-success svg {
+  width: 18px;
+  height: 18px;
+  color: var(--gold-1);
+  flex-shrink: 0;
+}
+
+.bastidores .footer-success span {
+  font-size: 13.5px;
+  color: var(--text-muted);
+}
+
+/* ============ SEÇÃO 2: PROBLEMA ============ */
+.bastidores #problema {
+  padding: 110px 0 60px;
+}
+
+.bastidores .problema-head {
+  max-width: 820px;
+  position: relative;
+  z-index: 1;
+}
+
+.bastidores .problema-head h2 {
+  font-family: var(--bs-display);
+  font-size: clamp(1.7rem, 3.4vw, 2.5rem);
+  line-height: 1.25;
+  margin-bottom: 26px;
+}
+
+.bastidores .problema-body {
+  max-width: 760px;
+  font-size: clamp(1rem, 1.2vw, 1.1rem);
+  color: var(--text-muted);
+  font-weight: 400;
+  line-height: 1.8;
+  margin-bottom: 20px;
+}
+
+.bastidores .problema-body strong {
+  color: #fff;
+  font-weight: 600;
+}
+
+.bastidores .problema-list {
+  list-style: none;
+  max-width: 760px;
+  margin: 0 0 20px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bastidores .problema-list li {
+  font-size: clamp(1rem, 1.2vw, 1.1rem);
+  color: var(--text-muted);
+  font-weight: 400;
+  line-height: 1.7;
+  padding-left: 24px;
+  position: relative;
+}
+
+.bastidores .problema-list li::before {
+  content: "•";
+  position: absolute;
+  left: 2px;
+  color: var(--gold-1);
+  font-weight: 700;
+}
+
+/* ============ ALPHA'S PIZZARIA: RESULTADOS ============ */
+.bastidores #pizzaria-resultados {
+  min-height: 88vh;
+  display: flex;
+  align-items: flex-end;
+  padding: 0;
+  overflow: hidden;
+}
+
+.bastidores .pizzaria-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.bastidores .pizzaria-bg img {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+  object-position: center 55%;
+}
+
+.bastidores .pizzaria-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    0deg,
+    rgba(2, 2, 2, 0.97) 8%,
+    rgba(2, 2, 2, 0.8) 42%,
+    rgba(2, 2, 2, 0.55) 68%,
+    rgba(2, 2, 2, 0.72) 100%
+  );
+}
+
+.bastidores .pizzaria-content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  padding-bottom: 90px;
+}
+
+.bastidores .pizzaria-content h2 {
+  font-family: var(--bs-display);
+  font-size: clamp(1.9rem, 4vw, 3rem);
+  line-height: 1.15;
+  max-width: 760px;
+  margin-bottom: 20px;
+}
+
+.bastidores .pizzaria-content p {
+  font-size: 15.5px;
+  color: rgba(255, 255, 255, 0.88);
+  font-weight: 400;
+  line-height: 1.7;
+  max-width: 540px;
+}
+
+/* ============ SEÇÃO 3: MOMENTO DE PARADA ============ */
+.bastidores #parada {
+  padding: 60px 0 130px;
+  text-align: left;
+  overflow: hidden;
+}
+
+.bastidores .parada-glow {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 70vw;
+  height: 70vw;
+  max-width: 900px;
+  max-height: 900px;
+  background: radial-gradient(circle, rgba(255, 183, 3, 0.14), transparent 68%);
+  filter: blur(60px);
+  pointer-events: none;
+}
+
+.bastidores #parada .bs-container {
+  position: relative;
+  z-index: 1;
+}
+
+.bastidores .parada-grid {
+  display: grid;
+  grid-template-columns: 1.3fr 0.9fr;
+  gap: 56px;
+  align-items: center;
+}
+
+.bastidores .parada-grid > * {
+  min-width: 0;
+}
+
+.bastidores .parada-quote {
+  font-family: var(--bs-display);
+  font-size: clamp(1.9rem, 4.6vw, 3.4rem);
+  line-height: 1.2;
+  font-weight: 600;
+  margin-bottom: 34px;
+}
+
+.bastidores .parada-body {
+  font-size: clamp(1rem, 1.2vw, 1.12rem);
+  color: var(--text-muted);
+  font-weight: 400;
+  line-height: 1.8;
+  max-width: 680px;
+  margin: 0 0 20px;
+}
+
+.bastidores .parada-cta {
+  margin-top: 30px;
+}
+
+.bastidores .parada-photo {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  border-radius: 24px;
+  overflow: hidden;
+  border: 1px solid var(--border-strong);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+}
+
+.bastidores .parada-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ============ RESPONSIVO ============ */
+@media (max-width: 1100px) {
+  .bastidores .hero-grid {
+    grid-template-columns: 1fr;
+    gap: 48px;
+  }
+  .bastidores .hero-form-card {
+    max-width: 520px;
+  }
+  .bastidores .parada-grid {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+  .bastidores .parada-photo {
+    max-width: 420px;
+  }
+}
+
+@media (max-width: 768px) {
+  .bastidores #hero {
+    padding: 130px 0 70px;
+  }
+  .bastidores #problema {
+    padding: 80px 0 40px;
+  }
+  .bastidores #parada {
+    padding: 40px 0 90px;
+  }
+  .bastidores .bs-btn {
+    white-space: normal;
+    text-align: center;
+    max-width: 100%;
+  }
+  .bastidores #pizzaria-resultados {
+    min-height: auto;
+    padding: 100px 0 70px;
+  }
+  .bastidores .pizzaria-content {
+    padding-bottom: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bastidores .bs-mesh .blob,
+  .bastidores .particles span {
+    animation: none;
+  }
+  .bastidores .bs-reveal,
+  .bastidores .bs-reveal-scale,
+  .bastidores .cond-fields {
+    transition: none;
+  }
+  .bastidores .bs-reveal,
+  .bastidores .bs-reveal-scale {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* =====================================================================
+   Obrigado (/obrigado-lm-bastidores-alphas-pizzaria)
+   ===================================================================== */
+.bastidores-obrigado {
+  --text-muted: #a3a2a9;
+  --text-dim: #6c6b73;
+}
+
+.bastidores-obrigado .bs-container {
+  max-width: 900px;
+}
+
+.bastidores-obrigado .bs-mesh .blob {
+  opacity: 0.45;
+}
+
+.bastidores-obrigado .bs-mesh .b2 {
+  background: radial-gradient(circle, rgba(255, 183, 3, 0.4), transparent 70%);
+}
+
+.bastidores-obrigado .bs-btn {
+  padding: 17px 34px;
+  font-size: 15px;
+  font-weight: 600;
+  min-height: 54px;
+  transition:
+    transform 0.3s var(--ease),
+    box-shadow 0.3s ease,
+    background-color 0.2s ease,
+    opacity 0.4s var(--ease);
+}
+
+.bastidores-obrigado .bs-btn-primary {
+  color: #141005;
+}
+
+/* O reveal do obrigado sobe 28px (na LP, 34px). */
+@media (scripting: enabled) {
+  .bastidores-obrigado .bs-reveal {
+    transform: translateY(28px);
+  }
+
+  .bastidores-obrigado .bs-reveal[data-visible="true"] {
+    transform: none;
+  }
+}
+
+.bastidores-obrigado #vsl {
+  padding: 120px 0 90px;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.bastidores-obrigado #vsl h1 {
+  font-family: var(--bs-display);
+  font-size: clamp(1.7rem, 3.6vw, 2.6rem);
+  line-height: 1.25;
+  margin-bottom: 16px;
+}
+
+.bastidores-obrigado #vsl .sub {
+  font-size: clamp(1rem, 1.2vw, 1.1rem);
+  color: var(--text-muted);
+  font-weight: 300;
+  line-height: 1.7;
+  max-width: 600px;
+  margin: 0 auto 44px;
+}
+
+/* Aviso do e-mail: texto grande em verde, sem balão (como no WP). */
+.bastidores-obrigado .email-notice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 0 auto 30px;
+  max-width: 900px;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: 0;
+}
+
+.bastidores-obrigado .email-notice svg {
+  width: clamp(28px, 3vw, 38px);
+  height: clamp(28px, 3vw, 38px);
+  color: #22c55e;
+  flex-shrink: 0;
+}
+
+.bastidores-obrigado .email-notice span {
+  font-family: var(--bs-display);
+  font-size: clamp(1.35rem, 2.8vw, 2.1rem);
+  font-weight: 700;
+  color: #22c55e;
+  text-align: center;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+/* O botão só some/aparece: nunca fica "quebrado" ocupando espaço errado. */
+.bastidores-obrigado .cta-gate {
+  min-height: 52px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.bastidores-obrigado .thanks-msg {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 22px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 183, 3, 0.08);
+  border: 1px solid var(--border-gold);
+}
+
+.bastidores-obrigado .thanks-msg svg {
+  width: 20px;
+  height: 20px;
+  color: var(--gold-1);
+  flex-shrink: 0;
+}
+
+.bastidores-obrigado .thanks-msg span {
+  font-size: 14.5px;
+  color: var(--text-muted);
+  text-align: left;
+}
+
+/* No obrigado do WP o botão nunca quebra linha (a regra de quebra é só da LP). */
+@media (max-width: 768px) {
+  .bastidores-obrigado .bs-btn {
+    white-space: nowrap;
+    max-width: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .bastidores-obrigado #vsl {
+    padding: 90px 0 60px;
+  }
+  .bastidores-obrigado .email-notice {
+    gap: 10px;
+  }
+}

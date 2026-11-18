@@ -29,14 +29,6 @@ export const contentResultado = {
     title: "Quero aplicar esse método",
     subtitle: "Preencha e um especialista da Alpha entra em contato.",
     submitLabel: "Quero aplicar esse método",
-    sending: "Enviando...",
-    // Mensagens do envio no servidor (mesmas da /01-lp). O WP não tem: lá o
-    // webhook é "fire and forget"; aqui falha de envio pede para tentar de novo.
-    errors: {
-      webhook: "Não conseguimos enviar agora. Tente de novo em instantes.",
-      rateLimited: "Recebemos seu cadastro há pouco. Tente novamente em {min} min.",
-      validation: "Dados inválidos. Verifique o formulário.",
-    },
   },
 
   episodios: {

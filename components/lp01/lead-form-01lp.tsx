@@ -242,17 +242,14 @@ export default function LeadForm01lp() {
     setSending(true);
     setGlobalError("");
     try {
-      const res = await submitLead01lp(parsed.data, {
-        ...trackingRef.current,
-        debug_full_url: window.location.href,
-      });
+      const res = await submitLead01lp(parsed.data, trackingRef.current);
       if (res.success) {
         window.location.assign(res.redirectTo);
         return;
       }
       setGlobalError(res.error);
     } catch {
-      setGlobalError(form.errors.webhook);
+      setGlobalError(form.errors.crm);
     }
     setSending(false);
   }

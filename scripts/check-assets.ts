@@ -5,6 +5,7 @@ import path from "node:path";
 import { content } from "@/lib/content";
 import { content01lp } from "@/lib/content-01-lp";
 import { contentPizzaria, depoimentoVideo } from "@/lib/content-pizzaria";
+import { contentBastidores } from "@/lib/content-bastidores-pizzaria";
 import { contentResultado } from "@/lib/content-resultado-pizzaria";
 import { availableShorts, availableVideos } from "@/lib/depoimentos";
 
@@ -43,6 +44,8 @@ const srcs = [
     const v = depoimentoVideo(item.slug);
     return [v.src, v.poster];
   }),
+  // /lead-magnetic-bastidores-alphas-pizzaria (a imagem do hero é a mesma da /alphas-pizzaria)
+  contentBastidores.parada.photo.src,
   // /resultado-alphas-pizzaria: só as capas listadas no conteúdo (hoje nenhuma)
   ...contentResultado.episodios.covers.map((file) => `/images/alphas-pizzaria/episodios/${file}`),
 ];
