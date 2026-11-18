@@ -23,7 +23,7 @@ npm run build      # confere as mídias (scripts/check-assets.ts) e gera o build
 | `/alphas-pizzaria` | LP VSL da Alpha's Pizzaria (migração da `/alphas-pizzaria-vsl/` do WP, ID 13930); lead vai para o CRM | só no domínio final (e só então no sitemap) |
 | `/alphas-pizzaria/obrigado` | Vídeo que libera o PDF na metade. **Não envia lead** (migração da `/obrigado-vsl-alphas-pizzaria/`, ID 13950) | noindex + disallow |
 | `/resultado-alphas-pizzaria` | LP de resultado da Alpha's Pizzaria (migração da `/resultado-alphas-pizzaria/` do WP, ID 13526); lead vai para o CRM e depois para `/alphas-pizzaria/obrigado` | só no domínio final (e só então no sitemap) |
-| `/lead-magnetic-bastidores-alphas-pizzaria` | LP lead magnet "Bastidores da Alpha's Pizzaria" (migração da página do WP, ID 13210); lead vai para o CRM e depois para o obrigado dela | só no domínio final (e só então no sitemap) |
+| `/lead-magnetic-bastidores-alphas-pizzaria` | LP lead magnet "Bastidores da Alpha's Pizzaria" (migração da página do WP, ID 13210); lead vai para o CRM e depois para o obrigado dela | noindex,nofollow em qualquer domínio (igual ao WP); fora do sitemap |
 | `/obrigado-lm-bastidores-alphas-pizzaria` | Obrigado da LP de bastidores (migração da página do WP, ID 13215). **Não envia lead** | noindex + disallow |
 
 ## Variáveis de ambiente
@@ -107,7 +107,6 @@ Visual do WP: fundo "mesh" fixo, partículas, cursor personalizado e botão magn
 ## Pendências (Max)
 
 - **E-mail com o material (Brevo):** o obrigado do WP dispara, ao carregar, o webhook que adiciona o contato à lista #13 da Brevo e manda o e-mail com o material, e a página diz "Mandamos o material pro seu e-mail". Sem webhook, **esse e-mail deixou de ser disparado**. É preciso que o CRM (ou outra integração) faça esse envio para a LP continuar entregando o que promete.
-- **Bastidores indexável:** o WP tem `noindex,nofollow` nessa LP. Aqui ela segue a regra das outras LPs (indexável só no domínio final, no sitemap). Para manter igual ao WP, trocar `robots` em `app/lead-magnetic-bastidores-alphas-pizzaria/page.tsx` e tirar a rota de `app/sitemap.ts`.
 
 - **Origem do lead no CRM:** a API da home não tem campo de página/LP e `source` é fixo em `"alpha-home"`. Para o comercial distinguir `/01-lp`, `/alphas-pizzaria` e `/resultado-alphas-pizzaria`, o CRM precisa aceitar um valor distinto em `source` (ou um campo novo, como `page_url`). Hoje só as UTMs da campanha ajudam.
 - Faixa "80 mil até 100 mil" não está em nenhuma faixa do script do WP (cairia em `/obrigado`); a /01-lp manda para `/obrigado-a`.
