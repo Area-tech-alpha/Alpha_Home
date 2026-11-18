@@ -404,7 +404,6 @@ export default function LeadFormPizzaria({ variant = "vsl" }: { variant?: Varian
         type="submit"
         disabled={sending}
         className={cfg.buttonClass}
-        {...(variant === "bastidores" && { "data-cursor": "Enviar" })}
       >
         {sending ? form.sending : cfg.label}
       </button>

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import BastidoresFx from "@/components/bastidores/fx";
 import ObrigadoBastidores from "@/components/bastidores/obrigado";
-import { MeshBackground } from "@/components/bastidores/sections";
 import { contentBastidores } from "@/lib/content-bastidores-pizzaria";
 import "../lead-magnetic-bastidores-alphas-pizzaria/bastidores.css";
 
@@ -18,7 +17,6 @@ export const metadata: Metadata = {
 export default function ObrigadoLmBastidores() {
   return (
     <div className="bastidores bastidores-obrigado">
-      <MeshBackground blobs={2} />
       <main className="page">
         <ObrigadoBastidores />
       </main>

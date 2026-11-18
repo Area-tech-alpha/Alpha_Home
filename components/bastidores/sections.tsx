@@ -24,42 +24,6 @@ function Parts({ parts, mark }: { parts: readonly (readonly [string, boolean])[]
   );
 }
 
-// Fundo "mesh" fixo do WP. A LP tem 4 manchas; o obrigado, 2.
-export function MeshBackground({ blobs = 4 }: { blobs?: 2 | 4 }) {
-  return (
-    <div className="bs-mesh" aria-hidden="true">
-      <div className="blob b1" />
-      <div className="blob b2" />
-      {blobs === 4 && (
-        <>
-          <div className="blob b3" />
-          <div className="blob b4" />
-          <div className="noise" />
-        </>
-      )}
-    </div>
-  );
-}
-
-// 22 partículas como no WP, mas com valores determinísticos (o WP sorteava no
-// navegador; aqui o servidor e o cliente renderizam o mesmo HTML).
-function Particles() {
-  return (
-    <div className="particles" aria-hidden="true">
-      {Array.from({ length: 22 }, (_, i) => (
-        <span
-          key={i}
-          style={{
-            left: `${(i * 47 + 13) % 100}%`,
-            animationDuration: `${10 + ((i * 7) % 12)}s`,
-            animationDelay: `${(i * 5) % 12}s`,
-          }}
-        />
-      ))}
-    </div>
-  );
-}
-
 // ===== Hero + form "Quero receber os processos" =====
 export function HeroBastidores() {
   const { hero, form } = c;
@@ -69,7 +33,6 @@ export function HeroBastidores() {
       <div className="hero-bg">
         <Image src={bg.src} alt="Alpha's Pizzaria" width={bg.width} height={bg.height} priority sizes="100vw" />
       </div>
-      <Particles />
       <div className="bs-container hero-grid">
         <div className="hero-head">
           <span className="bs-eyebrow bs-reveal">{hero.eyebrow}</span>
@@ -77,7 +40,7 @@ export function HeroBastidores() {
             <Parts parts={hero.title} mark="gold" />
           </h1>
           <p className="sub bs-reveal r-2">{hero.sub}</p>
-          <a href="#contato" className="bs-btn bs-btn-primary bs-reveal r-3" data-cursor="Ver">
+          <a href="#contato" className="bs-btn bs-btn-primary bs-reveal r-3">
             {hero.cta}
           </a>
         </div>
@@ -114,7 +77,7 @@ export function ProblemaBastidores() {
         </ul>
         <div className="problema-body bs-reveal r-3">{p.body3}</div>
         <div className="problema-body bs-reveal r-4">{p.body4}</div>
-        <a href="#contato" className="bs-btn bs-btn-primary bs-reveal r-4" data-cursor="Ver">
+        <a href="#contato" className="bs-btn bs-btn-primary bs-reveal r-4">
           {p.cta}
         </a>
       </div>
@@ -136,7 +99,7 @@ export function ParadaBastidores() {
           <p className="parada-body bs-reveal r-1">{p.body[0]}</p>
           <p className="parada-body bs-reveal r-2">{p.body[1]}</p>
           <p className="parada-body bs-reveal r-2">{p.body[2]}</p>
-          <a href="#contato" className="bs-btn bs-btn-primary parada-cta bs-reveal r-3" data-cursor="Ver">
+          <a href="#contato" className="bs-btn bs-btn-primary parada-cta bs-reveal r-3">
             {p.cta}
           </a>
         </div>
@@ -146,7 +109,9 @@ export function ParadaBastidores() {
             alt={p.photo.alt}
             width={p.photo.width}
             height={p.photo.height}
-            sizes="(max-width: 1100px) 420px, 480px"
+            // Até 1100px a foto tem no máximo 420px (ou a largura do container);
+            // acima, ocupa a coluna da direita (~460px).
+            sizes="(max-width: 1100px) min(420px, 88vw), 460px"
           />
         </div>
       </div>
@@ -170,7 +135,7 @@ export function CaseBastidores() {
         <p className="bs-reveal r-3" style={{ marginTop: 22 }}>
           {k.body2}
         </p>
-        <a href="#contato" className="bs-btn bs-btn-primary bs-reveal r-3" data-cursor="Ver">
+        <a href="#contato" className="bs-btn bs-btn-primary bs-reveal r-3">
           {k.cta}
         </a>
       </div>
