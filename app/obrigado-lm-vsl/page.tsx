@@ -15,7 +15,7 @@ export default function ObrigadoLmVslPage() {
     <div className="lmvsl lmvsl-obrigado">
       <main>
         <div>
-          <Image className="lv-obrigado-logo" src="/images/logo-alpha.png" alt="Assessoria Alpha" width={764} height={247} priority sizes="(max-width:390px) 370px, 764px" />
+          <Image className="lv-obrigado-logo" src="/images/logo-alpha.png" alt="Assessoria Alpha" width={764} height={247} priority sizes="200px" />
           <ObrigadoLmvsl />
         </div>
       </main>

@@ -78,6 +78,7 @@ export const contentLeadMagneticVsl = {
     titleGold: "máquina de vendas",
     sub: "Linguagem simples, aplicação imediata. Comece a ver resultado já na próxima semana sem precisar trocar de plataforma.",
     note: "100% gratuito. Sem cadastro complicado. Acesso imediato.",
+    benefits: ["+2.000 restaurantes", "Leitura em 15 min", "PDF para celular"],
   },
   footer: "2025 © Assessoria Alpha. Todos os direitos reservados",
   form: {

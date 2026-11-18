@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import { IS_PRODUCTION_SITE } from "@/lib/site";
 import { contentLeadMagneticVsl as c, LMVSL_PATH } from "@/lib/content-lead-magnetic-vsl";
 import LmvslReveal from "@/components/lead-magnetic-vsl/reveal";
@@ -25,10 +24,6 @@ export default function LeadMagneticVslPage() {
         <AprenderLmvsl />
         <FinalLmvsl />
       </main>
-      <footer className="lmvsl-footer">
-        <Image src="/images/logo-alpha.png" alt="Assessoria Alpha" width={764} height={247} sizes="150px" />
-        <span>{c.footer}</span>
-      </footer>
       <LmvslReveal />
     </div>
   );
