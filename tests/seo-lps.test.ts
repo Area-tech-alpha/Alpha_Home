@@ -10,7 +10,7 @@ import sitemap from "@/app/sitemap";
 // A LP de bastidores é noindex,nofollow como no WP: fora do sitemap, mas SEM
 // disallow, para o Google conseguir ler o noindex.
 
-const LPS_INDEXAVEIS = ["/01-lp", "/alphas-pizzaria", "/resultado-alphas-pizzaria", "/lead-magnetic-vsl"];
+const LPS_INDEXAVEIS = ["/01-lp", "/alphas-pizzaria", "/resultado-alphas-pizzaria", "/lead-magnetic-vsl", "/nao-dependa-de-sorte"];
 const BASTIDORES = "/lead-magnetic-bastidores-alphas-pizzaria";
 // LPs de POP: noindex como no WP (fora do sitemap, sem disallow).
 const POPS = [

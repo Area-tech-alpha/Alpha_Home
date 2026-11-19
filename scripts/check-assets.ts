@@ -14,6 +14,7 @@ import { contentPopProducao } from "@/lib/content-pop-producao";
 import { contentPopExpedicao } from "@/lib/content-pop-expedicao";
 import { contentPopDelivery } from "@/lib/content-pop-delivery";
 import { contentRaioX } from "@/lib/content-raio-x";
+import { contentNds } from "@/lib/content-nao-dependa-de-sorte";
 import { contentFichaTecnica } from "@/lib/content-ficha-tecnica";
 import { contentCronogramaLimpeza } from "@/lib/content-cronograma-de-limpeza";
 import { cardapioExtras, contentCardapioQueVende } from "@/lib/content-cardapio-que-vende";
@@ -77,6 +78,11 @@ const srcs = [
   cardapioExtras.antesDepois.depois.img,
   cardapioExtras.fachada.src,
   contentRaioX.hero.image,
+  // /nao-dependa-de-sorte (vídeos e fotos que já existiam no projeto)
+  contentNds.prova.video.src,
+  contentNds.prova.video.poster,
+  ...contentNds.historia.time.map((p) => p.foto),
+  ...contentNds.depoimentos.videos.flatMap(([s]) => [`/videos/depoimento-${s}.mp4`, `/videos/depoimento-${s}-poster.jpg`]),
   contentRaioX.analisa.destaque.print.src,
   ...contentRaioX.testado.videos.flatMap((v) => [`/videos/depoimento-${v.slug}.mp4`, `/videos/depoimento-${v.slug}-poster.jpg`]),
 ];

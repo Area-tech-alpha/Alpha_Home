@@ -36,7 +36,8 @@ export type RateLimitScope =
   | "ficha-tecnica"
   | "cronograma-limpeza"
   | "cardapio-que-vende"
-  | "calculadora-cmv";
+  | "calculadora-cmv"
+  | "nao-dependa-de-sorte";
 
 let cached: Limiters | null | undefined;
 
