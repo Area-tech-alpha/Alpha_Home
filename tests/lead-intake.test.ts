@@ -251,10 +251,12 @@ function sources(dir: string, out: string[] = []) {
   return out;
 }
 
-test("nenhum código, config ou doc referencia webhook do n8n das LPs", () => {
+// As LPs de isca mandam ao n8n via env (LEAD_WEBHOOK_URL_ISCAS / _RAIO_X): o nome da
+// env pode aparecer; a URL do webhook, nunca (só em .env.local e na Vercel).
+test("nenhum código, config, teste ou doc tem URL de webhook do n8n", () => {
   const root = process.cwd();
-  const files = [...sources(path.join(root, "app")), ...sources(path.join(root, "components")), ...sources(path.join(root, "lib")), path.join(root, ".env.example"), path.join(root, "README.md"), path.join(root, "next.config.ts")];
-  const proibido = /LEAD_WEBHOOK_URL|webhook3\.assessorialpha|\/webhook\/(wordpress-geral|leads-lms|lead-magnet)/;
+  const files = [...sources(path.join(root, "app")), ...sources(path.join(root, "components")), ...sources(path.join(root, "lib")), ...sources(path.join(root, "tests")), path.join(root, ".env.example"), path.join(root, "README.md"), path.join(root, "next.config.ts")];
+  const proibido = /webhook3\.assessorialpha|assessorialpha\.com\/webhook|\/webhook\/(wordpress-geral|leads-lms|lead-magnet|leads-iscas|leads-raio-x)/;
   const achou = files.filter((f) => proibido.test(readFileSync(f, "utf8"))).map((f) => path.relative(root, f));
   assert.deepEqual(achou, []);
 });

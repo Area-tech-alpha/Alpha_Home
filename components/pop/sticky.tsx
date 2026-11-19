@@ -14,7 +14,7 @@ export default function PopSticky({ targetId, children }: { targetId: string; ch
     return () => io.disconnect();
   }, [targetId]);
   return (
-    <div className={on ? "tz-sticky on" : "tz-sticky"} inert={!on}>
+    <div className="tz-sticky" data-on={on ? "true" : undefined} inert={!on}>
       {children}
     </div>
   );

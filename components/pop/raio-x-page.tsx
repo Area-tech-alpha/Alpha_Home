@@ -2,12 +2,13 @@ import Image from "next/image";
 import { popFontClasses } from "@/components/pop/fonts";
 import { Ic } from "@/components/pop/icons";
 import { Autor, Logo, Title } from "@/components/pop/parts";
-import { RaioXOk, RaioXVideos } from "@/components/pop/raio-x-client";
+import { AbrirCalc, IscaTexto, RaioXOk, RaioXVideos } from "@/components/pop/raio-x-client";
 import PopSticky from "@/components/pop/sticky";
-import { contentRaioX as c, type RaioXVariacao } from "@/lib/content-raio-x";
+import { contentRaioX as c } from "@/lib/content-raio-x";
 
 // /raio-x-do-restaurante: obrigado das LPs de POP (migração da página do WP).
-// A barra amarela e a etiqueta do hero mudam conforme a isca (?isca=).
+// A barra amarela e a etiqueta do hero mudam conforme a isca (?isca=): o texto é
+// escolhido no navegador (página estática), com o espaço já reservado.
 
 const HERO_CTA_ID = "raio-x-cta";
 
@@ -22,7 +23,7 @@ function RaioXBtn({ id }: { id?: string }) {
   );
 }
 
-export default function RaioXPage({ v }: { v: RaioXVariacao }) {
+export default function RaioXPage() {
   const { rx } = c.hero;
   return (
     <div className={`pop tz ${popFontClasses}`}>
@@ -30,8 +31,9 @@ export default function RaioXPage({ v }: { v: RaioXVariacao }) {
         <div className="tz-wrap">
           <p>
             <Ic name="check" />
-            <span>{v.barra}</span>
+            <IscaTexto campo="barra" />
           </p>
+          <AbrirCalc />
         </div>
       </div>
 
@@ -46,7 +48,9 @@ export default function RaioXPage({ v }: { v: RaioXVariacao }) {
           </div>
           <div className="tz-grid2">
             <div className="tz-stack">
-              <p className="tz-etq-g">{v.etq}</p>
+              <p className="tz-etq-g">
+                <IscaTexto campo="etq" />
+              </p>
               <h1 className="tz-h1 xl">
                 <Title t={c.hero.title} />
               </h1>

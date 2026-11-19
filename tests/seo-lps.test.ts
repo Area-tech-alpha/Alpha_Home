@@ -13,7 +13,16 @@ import sitemap from "@/app/sitemap";
 const LPS_INDEXAVEIS = ["/01-lp", "/alphas-pizzaria", "/resultado-alphas-pizzaria", "/lead-magnetic-vsl"];
 const BASTIDORES = "/lead-magnetic-bastidores-alphas-pizzaria";
 // LPs de POP: noindex como no WP (fora do sitemap, sem disallow).
-const POPS = ["/pop-producao", "/pop-expedicao", "/pop-delivery"];
+const POPS = [
+  "/pop-producao",
+  "/pop-expedicao",
+  "/pop-delivery",
+  "/ficha-tecnica",
+  "/cronograma-de-limpeza",
+  "/cardapio-que-vende",
+  "/calculadora-de-cmv",
+  "/ferramenta-calculadora-cmv",
+];
 const OBRIGADOS = [
   "/obrigado",
   "/obrigado-a",
@@ -57,10 +66,12 @@ test("POP: metadata com noindex fixo (igual ao WP) e obrigado do Raio-X com noin
   const meta = readFileSync(path.join(process.cwd(), "components/pop/metadata.ts"), "utf8");
   assert.match(meta, /robots:\s*\{\s*index:\s*false,\s*follow:\s*true\s*\}/);
   assert.ok(!meta.includes("IS_PRODUCTION_SITE"));
-  for (const slug of ["pop-producao", "pop-expedicao", "pop-delivery"]) {
+  for (const slug of ["pop-producao", "pop-expedicao", "pop-delivery", "ficha-tecnica", "cronograma-de-limpeza", "cardapio-que-vende", "calculadora-de-cmv"]) {
     const src = readFileSync(path.join(process.cwd(), `app/${slug}/page.tsx`), "utf8");
     assert.match(src, /popMetadata\(/, slug);
   }
+  const fx = readFileSync(path.join(process.cwd(), "app/ferramenta-calculadora-cmv/page.tsx"), "utf8");
+  assert.match(fx, /robots:\s*\{\s*index:\s*false,\s*follow:\s*true\s*\}/);
   const rx = readFileSync(path.join(process.cwd(), "app/raio-x-do-restaurante/page.tsx"), "utf8");
   assert.match(rx, /robots:\s*\{\s*index:\s*false,\s*follow:\s*false\s*\}/);
 });

@@ -4,8 +4,24 @@
 
 export type RaioXVariacao = { barra: string; etq: string };
 
-// Variações do WP para as iscas migradas aqui (as outras iscas do WP não chegam a esta rota).
+// Variações do WP (window.TZ_OB.variacoes) para as iscas migradas aqui.
 export const RAIO_X_VARIACOES: Record<string, RaioXVariacao> = {
+  "isca-cmv": {
+    barra: "Sua calculadora abriu numa nova aba, e o link também está no seu e-mail para você usar quando quiser.",
+    etq: "Mas o seu problema não é só o CMV.",
+  },
+  "isca-cardapio": {
+    barra: "O Cardápio que Vende em 10 Segundos já está no seu e-mail. Não chegou em 5 minutos? Olhe o spam ou a aba Promoções.",
+    etq: "Mas o seu problema não é só o cardápio.",
+  },
+  "isca-pop-higienizacao": {
+    barra: "Seu cronograma de limpeza já está no seu e-mail. Não chegou em 5 minutos? Olhe o spam ou a aba Promoções.",
+    etq: "Mas o seu problema não é só a fiscalização.",
+  },
+  "isca-ficha-tecnica": {
+    barra: "Sua Ficha Técnica da Margem Blindada já está no seu e-mail. Não chegou em 5 minutos? Olhe o spam ou a aba Promoções.",
+    etq: "Mas proteger a margem é só metade do lucro.",
+  },
   "isca-pop-producao": {
     barra: "Seu POP de produção já está no seu e-mail. Não chegou em 5 minutos? Olhe o spam ou a aba Promoções.",
     etq: "Mas o seu problema não é só a pizza fora do padrão.",
@@ -37,6 +53,9 @@ export const contentRaioX = {
       "Em 45 minutos, um especialista da Alpha analisa a sua demanda, a sua operação e a sua margem e entrega o seu plano de ação.",
   },
   topTag: "Raio-X do Restaurante",
+  // Calculadora de CMV: o WP abria a ferramenta numa nova aba no envio; aqui o
+  // obrigado mostra este botão (mesmo fallback do WP quando o navegador bloqueava).
+  abrirCalc: { label: "Abrir minha calculadora", href: "/ferramenta-calculadora-cmv?utm_campaign=isca-cmv" },
   cta: "QUERO MEU RAIO-X GRATUITO",
   hero: {
     image: "/images/pop/hero-raio-x.webp",

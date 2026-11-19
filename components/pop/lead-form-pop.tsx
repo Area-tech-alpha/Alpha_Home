@@ -7,7 +7,8 @@ import type PhoneFieldType from "@/components/lp01/phone-field-01lp";
 import { submitLeadPop } from "@/app/actions/submit-lead-pop";
 import { readFirstTouchPizzaria } from "@/components/pizzaria/lead-storage";
 import { Ic } from "@/components/pop/icons";
-import { FATURAMENTOS_POP, SEGMENTOS_POP, popForm as f, type PopSlug } from "@/lib/content-pop";
+import { FATURAMENTOS_POP, SEGMENTOS_POP, popForm as f, type IscaSlug } from "@/lib/content-pop";
+import { TZ_LEAD_KEY } from "@/lib/lead-webhook-constants";
 import { FATURAMENTO_EXIGE_EXTRAS_PIZZARIA, type LeadTrackingPizzaria } from "@/lib/lead-pizzaria-constants";
 import { maskCNPJ } from "@/lib/mask-cnpj";
 
@@ -59,7 +60,7 @@ function Msg({ name, message }: { name: FieldName; message?: string }) {
   );
 }
 
-export default function LeadFormPop({ slug }: { slug: PopSlug }) {
+export default function LeadFormPop({ slug, submit, nota }: { slug: IscaSlug; submit: string; nota: string }) {
   const router = useRouter();
   const [values, setValues] = useState<FormValues>(initial);
   const [errors, setErrors] = useState<Partial<Record<FieldName, string>>>({});
@@ -135,8 +136,12 @@ export default function LeadFormPop({ slug }: { slug: PopSlug }) {
     setSending(true);
     setGlobalError("");
     try {
-      const res = await submitLeadPop(slug, lead, trackingRef.current);
+      const res = await submitLeadPop(slug, lead, trackingRef.current, window.location.href.split("#")[0]);
       if (res.success) {
+        // Como no WP: o lead fica no navegador para o aceite do Raio-X no obrigado.
+        try {
+          localStorage.setItem(TZ_LEAD_KEY, JSON.stringify(res.tzLead));
+        } catch {}
         router.push(res.redirectTo);
         return;
       }
@@ -337,12 +342,12 @@ export default function LeadFormPop({ slug }: { slug: PopSlug }) {
       )}
 
       <button type="submit" className="tz-btn" disabled={sending}>
-        <span>{sending ? f.sending : f.submit}</span>
+        <span>{sending ? f.sending : submit}</span>
         <span className="tz-arr">
           <Ic name="arrow" />
         </span>
       </button>
-      <p className="tz-nota">{f.nota}</p>
+      <p className="tz-nota">{nota}</p>
       <p className="tz-seg">
         <Ic name="lock" />
         {f.seguro}
