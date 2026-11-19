@@ -30,6 +30,7 @@ npm run build      # confere as mídias (scripts/check-assets.ts) e gera o build
 | `/pop-producao`, `/pop-expedicao`, `/pop-delivery` | LPs dos POPs da Alpha's Pizzaria (migração das páginas do WP). Form visível no hero; lead vai para o CRM e depois para `/raio-x-do-restaurante` | noindex em qualquer domínio (igual ao WP); fora do sitemap, sem disallow |
 | `/ficha-tecnica`, `/cronograma-de-limpeza`, `/cardapio-que-vende`, `/calculadora-de-cmv` | LPs de isca no padrão das POP (migração das páginas do WP, IDs 14305, 14295, 14290, 14285). Form no hero; lead vai para o CRM e o n8n e depois para `/raio-x-do-restaurante` | noindex (igual ao WP); fora do sitemap, sem disallow |
 | `/ferramenta-calculadora-cmv` | "Calculadora mágica de CMV" (WP ID 14300). **Sem form** (como no WP); cálculo em `lib/cmv.ts`, visual novo | noindex (igual ao WP); fora do sitemap, sem disallow |
+| `/nao-dependa-de-sorte` | Carta de vendas (migração da página do WP, ID 14248). Form da /01-lp no hero; lead vai para o CRM e o n8n `wordpress-geral` e segue a régua da /01-lp (`/obrigado-a`, `-b`, `-c`, `/agradecimento`) | só no domínio final (e só então no sitemap) |
 | `/raio-x-do-restaurante` | Obrigado das LPs de isca (mesma rota do WP), estático; barra muda pela isca (`?isca=`, escolhida no navegador). O botão "Quero meu Raio-X" manda o aceite ao n8n | noindex + disallow |
 
 ## Variáveis de ambiente
@@ -40,6 +41,7 @@ npm run build      # confere as mídias (scripts/check-assets.ts) e gera o build
 | `CRM_API_URL`, `CRM_EXTERNAL_LEADS_API_KEY`, `CRM_SDR_EMAIL` | CRM comercial: lead da home e de **todas as LPs** (**Sensitive** na Vercel) | servidor |
 | `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | Rate limit dos forms (sem elas, passa direto) | servidor |
 | `LEAD_WEBHOOK_URL_ISCAS` | n8n "leads-iscas": lead das LPs de isca (POP, ficha, cronograma, cardápio, calculadora), **além** do CRM; é quem manda o material por e-mail (**Sensitive**) | servidor |
+| `LEAD_WEBHOOK_URL_WORDPRESS_GERAL` | n8n "wordpress-geral": lead da `/nao-dependa-de-sorte`, **além** do CRM, com o body do WP (**Sensitive**). Só essa LP usa | servidor |
 | `LEAD_WEBHOOK_URL_RAIO_X` | n8n "leads-raio-x": aceite do Raio-X em `/raio-x-do-restaurante` (**Sensitive**) | servidor |
 
 Todo lead vai para o CRM. As LPs de isca também mandam ao n8n (`lib/lead-webhook.ts`), com o mesmo body do WP; a URL fica só nas envs (nunca em código, teste, log ou README). Falha no n8n não bloqueia o lead nem o redirect.
@@ -124,6 +126,7 @@ Visual do WP: fundo "mesh" fixo, partículas, cursor personalizado e botão magn
 ## Pendências (Max)
 
 - **n8n das iscas:** o e-mail com o material e o aceite do Raio-X dependem de `LEAD_WEBHOOK_URL_ISCAS` e `LEAD_WEBHOOK_URL_RAIO_X` na Vercel. Sem elas, o lead chega ao CRM mas o material não é enviado.
+- **/nao-dependa-de-sorte:** o body do n8n leva `tipo_lead` e `redirect_url` pela régua do WP (80–100 vai como "qualificado-geral" e `.../obrigado/`), mas a pessoa navega para `/obrigado-a`, como na /01-lp. A /01-lp usa o mesmo webhook "wordpress-geral" no WP e aqui não manda (só CRM).
 - **Inconsistências do WP (mantidas):** `/calculadora-de-cmv` e `/ferramenta-calculadora-cmv` têm o mesmo título ("Calculadora Mágica de CMV · Alpha"); os chips de segmento da calculadora (12) e a lista da ferramenta (13) têm nomes e quantidades diferentes; a isca do cronograma é `isca-pop-higienizacao`.
 - **Origem POP no CRM:** o form do WP não pede empresa; o lead chega sem `company` e com `source` "alpha-home" (sem indicar qual POP). Só as UTMs ajudam a distinguir.
 

@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState, type ComponentType } from "react";
-import { submitLead01lp } from "@/app/actions/submit-lead-01lp";
+import { useEffect, useRef, useState, type ComponentType, type ReactNode } from "react";
+import { submitLead01lp, type SubmitLead01lpResult } from "@/app/actions/submit-lead-01lp";
+import type { LeadFormData01lp } from "@/lib/validation-01lp";
 import FlagBR from "@/components/ui/flag-br";
 import type PhoneFieldType from "@/components/lp01/phone-field-01lp";
 import { content01lp } from "@/lib/content-01-lp";
@@ -166,7 +167,24 @@ function Select({
   );
 }
 
-export default function LeadForm01lp() {
+// Outras LPs com o mesmo form da /01-lp (mesmos campos e régua) passam "config":
+// a action de envio, os rótulos visíveis e o botão. Sem config, é a /01-lp.
+export type LeadForm01lpConfig = {
+  submit: (data: LeadFormData01lp, tracking: LeadTracking01lp) => Promise<SubmitLead01lpResult>;
+  labels: Record<FieldName, string>;
+  placeholders: Partial<Record<FieldName, string>>;
+  labelClassName: string;
+  submitLabel: string;
+  submitClassName: string;
+  submitIcon?: ReactNode;
+  ariaLabel?: string;
+};
+
+export default function LeadForm01lp({ config }: { config?: LeadForm01lpConfig } = {}) {
+  const lbl = (k: FieldName, base: string) => config?.labels[k] ?? base;
+  const ph = (k: FieldName, base?: string) => config?.placeholders[k] ?? base;
+  const srOnly = config ? config.labelClassName : "sr-only";
+  const selLabel = (base: string) => (config ? config.labelClassName : base);
   const [values, setValues] = useState<FormValues>(initial);
   const [errors, setErrors] = useState<Partial<Record<FieldName, string>>>({});
   const [sending, setSending] = useState(false);
@@ -242,7 +260,7 @@ export default function LeadForm01lp() {
     setSending(true);
     setGlobalError("");
     try {
-      const res = await submitLead01lp(parsed.data, trackingRef.current);
+      const res = await (config?.submit ?? submitLead01lp)(parsed.data, trackingRef.current);
       if (res.success) {
         window.location.assign(res.redirectTo);
         return;
@@ -260,14 +278,14 @@ export default function LeadForm01lp() {
       onFocusCapture={warmUp}
       onPointerDownCapture={warmUp}
       noValidate
-      aria-label="Formulário de contato"
+      aria-label={config?.ariaLabel ?? "Formulário de contato"}
       className="flex flex-col gap-3"
     >
       <input type="text" name="website" tabIndex={-1} aria-hidden="true" autoComplete="off" className="hidden" />
 
       <div>
-        <label htmlFor="nome" className="sr-only">
-          {fields.nome.label}
+        <label htmlFor="nome" className={srOnly}>
+          {lbl("nome", fields.nome.label)}
         </label>
         <input
           id="nome"
@@ -275,7 +293,7 @@ export default function LeadForm01lp() {
           type="text"
           autoComplete="name"
           required
-          placeholder={fields.nome.placeholder}
+          placeholder={ph("nome", fields.nome.placeholder)}
           value={values.nome}
           onChange={(e) => set("nome", e.target.value)}
           aria-invalid={!!errors.nome}
@@ -286,8 +304,8 @@ export default function LeadForm01lp() {
       </div>
 
       <div>
-        <label htmlFor="email" className="sr-only">
-          {fields.email.label}
+        <label htmlFor="email" className={srOnly}>
+          {lbl("email", fields.email.label)}
         </label>
         <input
           id="email"
@@ -295,7 +313,7 @@ export default function LeadForm01lp() {
           type="email"
           autoComplete="email"
           required
-          placeholder={fields.email.placeholder}
+          placeholder={ph("email", fields.email.placeholder)}
           value={values.email}
           onChange={(e) => set("email", e.target.value)}
           aria-invalid={!!errors.email}
@@ -306,14 +324,14 @@ export default function LeadForm01lp() {
       </div>
 
       <div className="lp01-phone">
-        <label htmlFor="telefone" className="sr-only">
-          {fields.telefone.label}
+        <label htmlFor="telefone" className={srOnly}>
+          {lbl("telefone", fields.telefone.label)}
         </label>
         {PhoneField ? (
           <PhoneField
             value={values.telefone}
             onChange={(v) => set("telefone", v)}
-            placeholder={fields.telefone.placeholder}
+            placeholder={ph("telefone", fields.telefone.placeholder) ?? ""}
             invalid={!!errors.telefone}
             describedBy={errors.telefone ? "erro-telefone" : undefined}
             autoFocus={phoneFocused}
@@ -333,7 +351,7 @@ export default function LeadForm01lp() {
               name="telefone"
               type="tel"
               autoComplete="tel"
-              placeholder={fields.telefone.placeholder}
+              placeholder={ph("telefone", fields.telefone.placeholder) ?? ""}
               value={rawPhone}
               onChange={(e) => {
                 rawPhoneRef.current = e.target.value;
@@ -350,8 +368,8 @@ export default function LeadForm01lp() {
       </div>
 
       <div>
-        <label htmlFor="empresa" className="sr-only">
-          {fields.empresa.label}
+        <label htmlFor="empresa" className={srOnly}>
+          {lbl("empresa", fields.empresa.label)}
         </label>
         <input
           id="empresa"
@@ -359,7 +377,7 @@ export default function LeadForm01lp() {
           type="text"
           autoComplete="organization"
           required
-          placeholder={fields.empresa.placeholder}
+          placeholder={ph("empresa", fields.empresa.placeholder)}
           value={values.empresa}
           onChange={(e) => set("empresa", e.target.value)}
           aria-invalid={!!errors.empresa}
@@ -370,13 +388,13 @@ export default function LeadForm01lp() {
       </div>
 
       <div>
-        <label htmlFor="segmento" className="field-label mb-3">
-          {fields.segmento.label}
+        <label htmlFor="segmento" className={selLabel("field-label mb-3")}>
+          {lbl("segmento", fields.segmento.label)}
         </label>
         <Select
           id="segmento"
           value={values.segmento}
-          placeholder={fields.segmento.placeholder}
+          placeholder={ph("segmento", fields.segmento.placeholder)}
           options={fields.segmento.options}
           error={errors.segmento}
           onChange={(v) => set("segmento", v)}
@@ -385,13 +403,13 @@ export default function LeadForm01lp() {
       </div>
 
       <div>
-        <label htmlFor="faturamento" className="field-label mb-3">
-          {fields.faturamento.label}
+        <label htmlFor="faturamento" className={selLabel("field-label mb-3")}>
+          {lbl("faturamento", fields.faturamento.label)}
         </label>
         <Select
           id="faturamento"
           value={values.faturamento}
-          placeholder={fields.faturamento.placeholder}
+          placeholder={ph("faturamento", fields.faturamento.placeholder)}
           options={fields.faturamento.options}
           error={errors.faturamento}
           onChange={setFaturamento}
@@ -402,8 +420,8 @@ export default function LeadForm01lp() {
       {needsExtras && (
         <>
           <div>
-            <label htmlFor="cnpj" className="sr-only">
-              {fields.cnpj.label}
+            <label htmlFor="cnpj" className={srOnly}>
+              {lbl("cnpj", fields.cnpj.label)}
             </label>
             <input
               id="cnpj"
@@ -411,7 +429,7 @@ export default function LeadForm01lp() {
               type="text"
               inputMode="numeric"
               required
-              placeholder={fields.cnpj.placeholder}
+              placeholder={ph("cnpj", fields.cnpj.placeholder)}
               value={values.cnpj}
               onChange={(e) => set("cnpj", maskCNPJ(e.target.value))}
               aria-invalid={!!errors.cnpj}
@@ -422,8 +440,8 @@ export default function LeadForm01lp() {
           </div>
 
           <div>
-            <label htmlFor="investiria" className="field-label mb-1.5">
-              {fields.investiria.label}
+            <label htmlFor="investiria" className={selLabel("field-label mb-1.5")}>
+              {lbl("investiria", fields.investiria.label)}
             </label>
             <Select
               id="investiria"
@@ -443,8 +461,9 @@ export default function LeadForm01lp() {
         </p>
       )}
 
-      <button type="submit" disabled={sending} className="lp01-btn lp01-submit">
-        {sending ? form.sending : form.submitLabel}
+      <button type="submit" disabled={sending} className={config?.submitClassName ?? "lp01-btn lp01-submit"}>
+        {sending ? form.sending : (config?.submitLabel ?? form.submitLabel)}
+        {config?.submitIcon}
       </button>
     </form>
   );

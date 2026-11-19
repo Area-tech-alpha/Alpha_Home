@@ -10,8 +10,13 @@ import { TZ_LEAD_FIELDS, WEBHOOK_UTM_KEYS, type TzLead } from "@/lib/lead-webhoo
 // As URLs ficam só nas envs (nunca em código, log ou teste). Falha no webhook não
 // bloqueia o lead nem o redirect: só registra o erro, sem a URL.
 
-export type WebhookKind = "iscas" | "raio-x";
-const ENV: Record<WebhookKind, string> = { iscas: "LEAD_WEBHOOK_URL_ISCAS", "raio-x": "LEAD_WEBHOOK_URL_RAIO_X" };
+// - LEAD_WEBHOOK_URL_WORDPRESS_GERAL: lead da /nao-dependa-de-sorte (body em lib/lead-webhook-wp-geral.ts).
+export type WebhookKind = "iscas" | "raio-x" | "wordpress-geral";
+const ENV: Record<WebhookKind, string> = {
+  iscas: "LEAD_WEBHOOK_URL_ISCAS",
+  "raio-x": "LEAD_WEBHOOK_URL_RAIO_X",
+  "wordpress-geral": "LEAD_WEBHOOK_URL_WORDPRESS_GERAL",
+};
 
 const str = (v: unknown, max = 500) => (typeof v === "string" ? v.trim().slice(0, max) : "");
 
