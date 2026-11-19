@@ -28,7 +28,9 @@ npm run build      # confere as mídias (scripts/check-assets.ts) e gera o build
 | `/lead-magnetic-vsl` | LP lead magnetic VSL (migração da página do WP, ID 11029); lead vai para o CRM e depois para o obrigado dela | só no domínio final (e só então no sitemap) |
 | `/obrigado-lm-vsl` | Obrigado da LP lead magnetic VSL (migração da página do WP, ID 11040). **Não envia lead** | noindex + disallow |
 | `/pop-producao`, `/pop-expedicao`, `/pop-delivery` | LPs dos POPs da Alpha's Pizzaria (migração das páginas do WP). Form visível no hero; lead vai para o CRM e depois para `/raio-x-do-restaurante` | noindex em qualquer domínio (igual ao WP); fora do sitemap, sem disallow |
-| `/raio-x-do-restaurante` | Obrigado das LPs de POP (mesma rota do WP); barra muda pela isca (`?isca=`). **Não envia lead** | noindex + disallow |
+| `/ficha-tecnica`, `/cronograma-de-limpeza`, `/cardapio-que-vende`, `/calculadora-de-cmv` | LPs de isca no padrão das POP (migração das páginas do WP, IDs 14305, 14295, 14290, 14285). Form no hero; lead vai para o CRM e o n8n e depois para `/raio-x-do-restaurante` | noindex (igual ao WP); fora do sitemap, sem disallow |
+| `/ferramenta-calculadora-cmv` | "Calculadora mágica de CMV" (WP ID 14300). **Sem form** (como no WP); cálculo em `lib/cmv.ts`, visual novo | noindex (igual ao WP); fora do sitemap, sem disallow |
+| `/raio-x-do-restaurante` | Obrigado das LPs de isca (mesma rota do WP), estático; barra muda pela isca (`?isca=`, escolhida no navegador). O botão "Quero meu Raio-X" manda o aceite ao n8n | noindex + disallow |
 
 ## Variáveis de ambiente
 
@@ -37,8 +39,10 @@ npm run build      # confere as mídias (scripts/check-assets.ts) e gera o build
 | `NEXT_PUBLIC_SITE_URL` | Domínio do deploy. Fora de `https://assessorialpha.com` tudo fica noindex | todas |
 | `CRM_API_URL`, `CRM_EXTERNAL_LEADS_API_KEY`, `CRM_SDR_EMAIL` | CRM comercial: lead da home e de **todas as LPs** (**Sensitive** na Vercel) | servidor |
 | `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | Rate limit dos forms (sem elas, passa direto) | servidor |
+| `LEAD_WEBHOOK_URL_ISCAS` | n8n "leads-iscas": lead das LPs de isca (POP, ficha, cronograma, cardápio, calculadora), **além** do CRM; é quem manda o material por e-mail (**Sensitive**) | servidor |
+| `LEAD_WEBHOOK_URL_RAIO_X` | n8n "leads-raio-x": aceite do Raio-X em `/raio-x-do-restaurante` (**Sensitive**) | servidor |
 
-Não há webhook do n8n: todo lead vai para o CRM.
+Todo lead vai para o CRM. As LPs de isca também mandam ao n8n (`lib/lead-webhook.ts`), com o mesmo body do WP; a URL fica só nas envs (nunca em código, teste, log ou README). Falha no n8n não bloqueia o lead nem o redirect.
 
 ## Leads: todas as LPs enviam para o CRM comercial
 
@@ -63,6 +67,7 @@ O caminho de envio das LPs é `lib/lead-intake.ts` (`intakeLead`), chamado pela 
 | `/lead-magnetic-bastidores-alphas-pizzaria` | `submit-lead-bastidores-pizzaria.ts` | `pizzaria-bastidores:` | `/obrigado-lm-bastidores-alphas-pizzaria` |
 | `/lead-magnetic-vsl` | `submit-lead-magnetic-vsl.ts` | `lead-magnetic-vsl:` | `/obrigado-lm-vsl` |
 | `/pop-producao`, `/pop-expedicao`, `/pop-delivery` | `submit-lead-pop.ts` | `pop-producao:`, `pop-expedicao:`, `pop-delivery:` | `/raio-x-do-restaurante?isca=isca-pop-…` |
+| `/ficha-tecnica`, `/cronograma-de-limpeza`, `/cardapio-que-vende`, `/calculadora-de-cmv` | `submit-lead-pop.ts` | `ficha-tecnica:`, `cronograma-limpeza:`, `cardapio-que-vende:`, `calculadora-cmv:` | `/raio-x-do-restaurante?isca=…` (calculadora com `&calc=1`) |
 
 **Sem pixel da Meta:** nenhuma página carrega `fbq`, `fbevents.js` nem `connect.facebook.net`, e não há API de Conversões no servidor. O `fbclid` (e o `fbc` montado dele) só é lido da URL como dado de atribuição do lead. Um teste (`tests/lead-intake.test.ts`) falha se alguma dessas referências voltar ao código.
 
@@ -118,8 +123,8 @@ Visual do WP: fundo "mesh" fixo, partículas, cursor personalizado e botão magn
 
 ## Pendências (Max)
 
-- **E-mail com o POP (LPs de POP):** no WP o form manda o lead para o webhook do n8n "leads-iscas", que é quem envia o POP por e-mail. Esse webhook não foi recriado: hoje **nenhum e-mail com o material é disparado**, mas a LP diz "O material chega no seu e-mail em seguida" e o obrigado diz "Seu POP de … já está no seu e-mail". O CRM (ou outra integração) precisa assumir esse envio.
-- **Aceite do Raio-X:** no WP o botão "Quero meu Raio-X gratuito" manda o lead para o webhook "leads-raio-x" com a tag "aceitou-raio-x". Aqui o clique só mostra a confirmação; o comercial não fica sabendo quem aceitou. Precisa de um campo/evento no CRM.
+- **n8n das iscas:** o e-mail com o material e o aceite do Raio-X dependem de `LEAD_WEBHOOK_URL_ISCAS` e `LEAD_WEBHOOK_URL_RAIO_X` na Vercel. Sem elas, o lead chega ao CRM mas o material não é enviado.
+- **Inconsistências do WP (mantidas):** `/calculadora-de-cmv` e `/ferramenta-calculadora-cmv` têm o mesmo título ("Calculadora Mágica de CMV · Alpha"); os chips de segmento da calculadora (12) e a lista da ferramenta (13) têm nomes e quantidades diferentes; a isca do cronograma é `isca-pop-higienizacao`.
 - **Origem POP no CRM:** o form do WP não pede empresa; o lead chega sem `company` e com `source` "alpha-home" (sem indicar qual POP). Só as UTMs ajudam a distinguir.
 
 - **E-mail com o material (Brevo):** o obrigado do WP dispara, ao carregar, o webhook que adiciona o contato à lista #13 da Brevo e manda o e-mail com o material, e a página diz "Mandamos o material pro seu e-mail". Sem webhook, **esse e-mail deixou de ser disparado**. É preciso que o CRM (ou outra integração) faça esse envio para a LP continuar entregando o que promete.

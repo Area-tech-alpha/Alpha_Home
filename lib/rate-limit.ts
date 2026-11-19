@@ -32,7 +32,11 @@ export type RateLimitScope =
   | "lead-magnetic-vsl"
   | "pop-producao"
   | "pop-expedicao"
-  | "pop-delivery";
+  | "pop-delivery"
+  | "ficha-tecnica"
+  | "cronograma-limpeza"
+  | "cardapio-que-vende"
+  | "calculadora-cmv";
 
 let cached: Limiters | null | undefined;
 

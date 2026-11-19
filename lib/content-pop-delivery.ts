@@ -39,6 +39,7 @@ export const contentPopDelivery = {
         { label: "#234 · refeito do zero", value: "pagou 2x", tone: "red" },
         { label: "Com o POP: comanda conferida", value: "saiu certo", tone: "ok" },
       ],
+      sepAntes: 4,
       nota: "Cena ilustrativa",
       carimbo: "Pago 2 vezes",
     },

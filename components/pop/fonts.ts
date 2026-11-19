@@ -17,7 +17,6 @@ export const jetbrainsMono = localFont({
   weight: "400 600",
   display: "swap",
   variable: "--font-jetbrains-mono",
-  preload: false,
 });
 
 export const popFontClasses = `${instrumentSerif.variable} ${jetbrainsMono.variable}`;

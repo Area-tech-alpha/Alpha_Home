@@ -5,11 +5,11 @@ import { popShared as s, type PopTitle } from "@/lib/content-pop";
 
 const LOGO = { src: "/images/logo-alpha.png", width: 764, height: 247 };
 
-export function Title({ t }: { t: PopTitle }) {
+export function Title({ t, tone }: { t: PopTitle; tone?: "loss" }) {
   return (
     <>
       {t[0]}
-      <span className="tz-hl">{t[1]}</span>
+      <span className={tone === "loss" ? "tz-loss" : "tz-hl"}>{t[1]}</span>
       {t[2]}
     </>
   );
