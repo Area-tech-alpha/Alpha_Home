@@ -42,7 +42,7 @@ export default function PaginaNds() {
       </header>
 
       <main>
-        <section className="cv-hero" id="cv-topo" data-tema="preto">
+        <section className="cv-hero" id="cv-topo" data-tema="branco">
           <div className="cv-wide cv-hero-grid">
             <div className="cv-hero-txt">
               <span className="cv-kick">
@@ -99,7 +99,7 @@ export default function PaginaNds() {
           </div>
         </section>
 
-        <section className="cv-week" id="cv-rotina" data-tema="branco">
+        <section className="cv-week" id="cv-rotina" data-tema="preto">
           <div className="cv-col">
             <div className="cv-letterhead">
               <b>{c.semana.de[0]}</b>
@@ -134,7 +134,7 @@ export default function PaginaNds() {
           </div>
         </section>
 
-        <section className="cv-why" id="cv-porque" data-tema="preto">
+        <section className="cv-why" id="cv-porque" data-tema="branco">
           <div className="cv-wide">
             <div className="cv-col" style={{ padding: 0 }}>
               <span className="cv-lbl">{c.porque.lbl}</span>
@@ -174,7 +174,7 @@ export default function PaginaNds() {
           </div>
         </section>
 
-        <section className="cv-proofblk" id="cv-video" data-tema="branco">
+        <section className="cv-proofblk" id="cv-video" data-tema="preto">
           <div className="cv-wide">
             <div className="cv-proof-top">
               <div>
@@ -217,7 +217,7 @@ export default function PaginaNds() {
           </div>
         </section>
 
-        <section className="cv-method" id="cv-metodo" data-tema="preto">
+        <section className="cv-method" id="cv-metodo" data-tema="branco">
           <div className="cv-wide">
             <div className="cv-method-top">
               <div>
@@ -252,11 +252,11 @@ export default function PaginaNds() {
           </div>
         </section>
 
-        <section className="cv-voices" id="cv-cases" data-tema="branco">
+        <section className="cv-voices" id="cv-cases" data-tema="preto">
           <Depoimentos />
         </section>
 
-        <section className="cv-story" id="cv-historia" data-tema="preto">
+        <section className="cv-story" id="cv-historia" data-tema="branco">
           <div className="cv-wide cv-story-grid">
             <div>
               <span className="cv-lbl">{c.historia.lbl}</span>
@@ -286,7 +286,7 @@ export default function PaginaNds() {
           </div>
         </section>
 
-        <section className="cv-offer" id="cv-oferta" data-tema="branco">
+        <section className="cv-offer" id="cv-oferta" data-tema="preto">
           <div className="cv-wide">
             <span className="cv-lbl">{c.oferta.lbl}</span>
             <h2 className="cv-h2">
@@ -326,7 +326,7 @@ export default function PaginaNds() {
           </div>
         </section>
 
-        <section className="cv-paths" id="cv-caminhos" data-tema="preto">
+        <section className="cv-paths" id="cv-caminhos" data-tema="branco">
           <div className="cv-wide">
             <div style={{ textAlign: "center" }}>
               <span className="cv-lbl">{c.caminhos.lbl}</span>
@@ -365,7 +365,7 @@ export default function PaginaNds() {
           </div>
         </section>
 
-        <section className="cv-faq" id="cv-faq" data-tema="branco">
+        <section className="cv-faq" id="cv-faq" data-tema="preto">
           <div className="cv-col">
             <span className="cv-lbl">{c.faq.lbl}</span>
             <h2 className="cv-h2">
@@ -376,7 +376,7 @@ export default function PaginaNds() {
           </div>
         </section>
 
-        <section className="cv-close" id="cv-final" data-tema="preto">
+        <section className="cv-close" id="cv-final" data-tema="branco">
           <div className="cv-wide">
             <h2>
               {c.final.h2[0]}

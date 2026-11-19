@@ -396,13 +396,16 @@ html:has(.cv) { scroll-padding-top: 20px; }
 /* Seções: preto (texto branco, destaque amarelo) e branco (texto preto). Nas pretas,
    os tokens do WP são invertidos, então as regras originais continuam valendo. */
 .cv [data-tema="preto"] {
+  --sec-bg: #0B0B0C;
   background: #0B0B0C; color: #fff;
   --ink: #fff; --ink-2: #d6d4cf; --ink-3: #a9a7ae;
   --rule: rgba(255,255,255,.14); --rule-s: rgba(255,255,255,.28);
   --paper: #151517; --paper-2: #151517; --paper-3: #1c1c1f;
   --gold-deep: var(--gold);
 }
-.cv [data-tema="branco"] { background: #fff; color: #121110; }
+/* Tema branco: cinza e dourado do WP um pouco mais escuros para passar AA também
+   sobre os cards bege (#EAE3D6 / #FBF8F2). */
+.cv [data-tema="branco"] { --sec-bg: #fff; --ink-3: #5c574f; --gold-deep: #8a5200; background: #fff; color: #121110; }
 .cv [data-tema="preto"] .cv-btn:not(.cv-btn-gold) { background-color: var(--gold) !important; color: #121110 !important; box-shadow: 0 14px 40px rgba(255,183,3,.3); }
 .cv [data-tema="preto"] .cv-btn:not(.cv-btn-gold):hover { background-color: #FFC533 !important; }
 .cv [data-tema="preto"] .cv-btn .cv-btn-ic { background-color: #121110; color: var(--gold); }
@@ -419,36 +422,40 @@ html:has(.cv) { scroll-padding-top: 20px; }
 .cv .cv-hero { padding-bottom: 0; }
 .cv .cv-hero-grid { grid-template-columns: minmax(0,1.15fr) minmax(0,.85fr); align-items: center; }
 .cv .cv-hero h1 { font-size: clamp(2.9rem, 4.6vw, 5rem); }
-.cv .cv-kick { background: #1c1c1f; border: 1px solid rgba(255,183,3,.35); color: #fff; }
-.cv .cv-rot { color: #a9a7ae; }
-.cv .cv-rot::after { background: #ff5a4e; }
-.cv .cv-strip { background: #0B0B0C; border-top: 2px solid var(--gold); }
-.cv .cv-strip-t b { color: var(--gold); }
+.cv [data-tema="preto"] .cv-kick { background: #1c1c1f; border: 1px solid rgba(255,183,3,.35); color: #fff; }
+.cv [data-tema="preto"] .cv-rot { color: #a9a7ae; }
+.cv [data-tema="preto"] .cv-rot::after { background: #ff5a4e; }
+.cv .cv-strip { background: var(--sec-bg); }
+.cv [data-tema="preto"] .cv-strip { border-top: 2px solid var(--gold); }
+.cv [data-tema="preto"] .cv-strip-t b { color: var(--gold); }
+.cv [data-tema="branco"] .cv-kick { background: #121110; color: #fff; }
 .cv .hero-form-card {
   --border: rgba(255,255,255,.09); --border-strong: rgba(255,255,255,.18); --text-muted: #b4b3ba; --text-dim: #8a8992; --gold-1: #FFB703;
-  position: relative; width: 100%; max-width: 470px; justify-self: end; padding: 32px 28px 26px; border-radius: 24px;
+  position: relative; width: 100%; max-width: 420px; justify-self: end; padding: 26px 24px 22px; border-radius: 22px;
   background: #121214; border: 1px solid var(--border-strong); box-shadow: 0 40px 100px rgba(0,0,0,.55); color: #f6f6f7; scroll-margin-top: 20px;
 }
 .cv .hero-form-card:focus { outline: none; }
 .cv .hero-form-card::before { content: ""; position: absolute; top: -1px; left: 28px; right: 28px; height: 3px; background: var(--gold); border-radius: 0 0 3px 3px; }
-.cv .nds-form-t { font-family: var(--sans); font-size: 20px; font-weight: 600; letter-spacing: -.02em; color: #fff; margin: 0 0 6px; }
-.cv .nds-form-sub { display: block; font-size: 13.5px; color: #b4b3ba; margin-bottom: 22px; }
-.cv .al-modal-steps { display: flex; gap: 6px; margin: -8px 0 20px; flex-wrap: wrap; }
+.cv .nds-form-t { font-family: var(--sans); font-size: 18px; font-weight: 600; letter-spacing: -.02em; color: #fff; margin: 0 0 6px; }
+.cv .nds-form-sub { display: block; font-size: 13px; color: #b4b3ba; margin-bottom: 18px; }
+.cv .al-modal-steps { display: flex; gap: 6px; margin: -6px 0 16px; flex-wrap: wrap; }
 .cv .al-modal-steps span { font-size: 11.5px; color: #b4b3ba; border: 1px solid var(--border); border-radius: 999px; padding: 5px 10px; }
 .cv .al-modal-steps b { color: var(--gold); font-weight: 600; margin-right: 4px; }
-.cv .nds-label { display: block; font-size: 12px; font-weight: 500; color: #b4b3ba; margin-bottom: 7px; }
-.cv .hero-form-card .field-input, .cv .hero-form-card .PhoneInputInput { font-size: 15px; }
-.cv .hero-form-card .nds-submit { width: 100%; margin-top: 6px; justify-content: space-between; font-size: 16px; }
+.cv .nds-label { display: block; font-size: 12px; font-weight: 500; color: #b4b3ba; margin-bottom: 5px; }
+.cv .hero-form-card form { gap: 10px; }
+.cv .hero-form-card .field-input, .cv .hero-form-card .PhoneInputInput { min-height: 44px; padding-top: 11px; padding-bottom: 11px; font-size: 15px; }
+.cv .hero-form-card .phone-input-wrapper > span, .cv .hero-form-card .phone-input-wrapper button[aria-haspopup] { min-height: 44px; }
+.cv .hero-form-card .nds-submit { width: 100%; min-height: 56px; margin-top: 4px; justify-content: space-between; font-size: 15px; }
+.cv .hero-form-card .nds-submit .cv-btn-ic { flex-basis: 42px; width: 42px; height: 42px; }
 .cv .hero-form-card .nds-submit[disabled] { opacity: .7; cursor: wait; }
 .cv .dg-form-note { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 12px; color: #a9a7ae; margin: 12px 0 0; }
 .cv .dg-form-note .ic { width: 13px; height: 13px; color: var(--gold); }
 
 /* 2. semana (branco) */
-.cv .cv-week { background: #fff; }
-.cv .cv-day::before { background: #fff; }
+.cv .cv-day::before { background: var(--sec-bg); }
 
 /* 3. problema real (preto) */
-.cv .cv-why .cv-box-b { background: #151517; border: 1px solid rgba(255,183,3,.35); }
+.cv [data-tema="preto"].cv-why .cv-box-b { background: #151517; border: 1px solid rgba(255,183,3,.35); }
 
 /* 4. prova + vídeo (branco; no WP era escuro) */
 .cv .cv-proofblk[data-tema="branco"] { background: #fff; color: #121110; }
@@ -466,10 +473,9 @@ html:has(.cv) { scroll-padding-top: 20px; }
 .cv .cv-vsl-poster { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 
 /* 5. método (preto) */
-.cv .cv-method .cv-moves { border-top-color: var(--gold); }
+.cv [data-tema="preto"].cv-method .cv-moves { border-top-color: var(--gold); }
 
 /* 6. depoimentos (branco): o card inteiro é o botão de play */
-.cv .cv-voices { background: #fff; }
 .cv .cv-vid video { background: #0d0c0b; }
 .cv .cv-vid-btn { position: absolute; inset: 0; z-index: 2; width: 100%; height: 100%; cursor: pointer; color: #fff !important; }
 
@@ -486,10 +492,10 @@ html:has(.cv) { scroll-padding-top: 20px; }
 .cv .cv-offer[data-tema="branco"] .cv-why-free p { color: var(--ink-3); }
 
 /* 9. caminhos (preto) */
-.cv .cv-paths .cv-path-b { border-color: var(--gold); }
+.cv [data-tema="preto"].cv-paths .cv-path-b { border-color: var(--gold); }
 
 /* 10. FAQ (branco) */
-.cv .cv-faq { background: #fff; }
+
 
 /* 11. fechamento (preto) e rodapé (preto) */
 .cv .cv-ps-link { text-decoration: underline; text-underline-offset: 3px; font-weight: 600; color: var(--ink); }
@@ -503,7 +509,9 @@ html:has(.cv) { scroll-padding-top: 20px; }
   .cv .cv-hm { display: none; }
   .cv .cv-hero-deck { display: none; }
   .cv .cv-hero-grid { gap: 24px; }
-  .cv .hero-form-card { padding: 28px 20px 22px; }
+  .cv .hero-form-card { padding: 24px 18px 20px; }
+  /* 16px nos campos: o iOS não dá zoom ao focar. */
+  .cv .hero-form-card .field-input, .cv .hero-form-card .PhoneInputInput { font-size: 16px; }
 }
 
 /* Sobre amarelo o texto é sempre escuro (nas seções pretas --ink vira branco). */
@@ -511,3 +519,16 @@ html:has(.cv) { scroll-padding-top: 20px; }
 .cv [data-tema="preto"] .cv-btn-gold .cv-btn-ic { background-color: #121110; color: var(--gold); }
 .cv [data-tema="preto"] .cv-kick i,
 .cv [data-tema="preto"] .cv-chain li .n { color: #121110; }
+
+/* Seções escuras: ícones sobre amarelo também escuros. */
+.cv [data-tema="preto"] .cv-acc-i[data-aberto="true"] .cv-acc-q span { color: #121110; }
+.cv [data-tema="preto"] .cv-arrows button:hover, .cv [data-tema="preto"] .cv-arrows button:focus-visible { background-color: var(--gold) !important; color: #121110 !important; border-color: var(--gold); }
+
+/* Oferta no tema preto (como no WP): o "ticket" continua claro e o botão sobre o
+   painel amarelo continua escuro. */
+.cv [data-tema="preto"] .cv-ticket {
+  --ink: #121110; --ink-2: #3b3833; --ink-3: #6f6a61; --rule: rgba(18,17,16,.14); --paper: #F3EEE4; --gold-deep: #a86400;
+  background: #F3EEE4; color: #121110;
+}
+.cv [data-tema="preto"] .cv-ticket-side .cv-btn { background-color: #121110 !important; color: #fff !important; box-shadow: 0 14px 34px rgba(18,17,16,.22); }
+.cv [data-tema="preto"] .cv-ticket-side .cv-btn .cv-btn-ic { background-color: var(--gold); color: #121110; }
