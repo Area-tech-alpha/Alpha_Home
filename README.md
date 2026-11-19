@@ -27,6 +27,8 @@ npm run build      # confere as mídias (scripts/check-assets.ts) e gera o build
 | `/obrigado-lm-bastidores-alphas-pizzaria` | Obrigado da LP de bastidores (migração da página do WP, ID 13215). **Não envia lead** | noindex + disallow |
 | `/lead-magnetic-vsl` | LP lead magnetic VSL (migração da página do WP, ID 11029); lead vai para o CRM e depois para o obrigado dela | só no domínio final (e só então no sitemap) |
 | `/obrigado-lm-vsl` | Obrigado da LP lead magnetic VSL (migração da página do WP, ID 11040). **Não envia lead** | noindex + disallow |
+| `/pop-producao`, `/pop-expedicao`, `/pop-delivery` | LPs dos POPs da Alpha's Pizzaria (migração das páginas do WP). Form visível no hero; lead vai para o CRM e depois para `/raio-x-do-restaurante` | noindex em qualquer domínio (igual ao WP); fora do sitemap, sem disallow |
+| `/raio-x-do-restaurante` | Obrigado das LPs de POP (mesma rota do WP); barra muda pela isca (`?isca=`). **Não envia lead** | noindex + disallow |
 
 ## Variáveis de ambiente
 
@@ -60,6 +62,7 @@ O caminho de envio das LPs é `lib/lead-intake.ts` (`intakeLead`), chamado pela 
 | `/resultado-alphas-pizzaria` | `submit-lead-resultado-pizzaria.ts` | `pizzaria-resultado:` | `/alphas-pizzaria/obrigado` |
 | `/lead-magnetic-bastidores-alphas-pizzaria` | `submit-lead-bastidores-pizzaria.ts` | `pizzaria-bastidores:` | `/obrigado-lm-bastidores-alphas-pizzaria` |
 | `/lead-magnetic-vsl` | `submit-lead-magnetic-vsl.ts` | `lead-magnetic-vsl:` | `/obrigado-lm-vsl` |
+| `/pop-producao`, `/pop-expedicao`, `/pop-delivery` | `submit-lead-pop.ts` | `pop-producao:`, `pop-expedicao:`, `pop-delivery:` | `/raio-x-do-restaurante?isca=isca-pop-…` |
 
 **Sem pixel da Meta:** nenhuma página carrega `fbq`, `fbevents.js` nem `connect.facebook.net`, e não há API de Conversões no servidor. O `fbclid` (e o `fbc` montado dele) só é lido da URL como dado de atribuição do lead. Um teste (`tests/lead-intake.test.ts`) falha se alguma dessas referências voltar ao código.
 
@@ -114,6 +117,10 @@ O form é o mesmo das outras LPs da pizzaria (`LeadFormPizzaria variant="bastido
 Visual do WP: fundo "mesh" fixo, partículas, cursor personalizado e botão magnético (só com mouse), reveal no scroll e rolagem até o form com 100 px de folga (`components/bastidores/fx.tsx`). O CSS tem escopo `.bastidores` (`app/lead-magnetic-bastidores-alphas-pizzaria/bastidores.css`) e o estado de reveal e de cursor vai em `data-*`, nunca em classe adicionada via DOM. A foto é a do Ailton Cruz (`public/images/bastidores/ailton-cruz.webp`, em webp); a imagem do hero e a do case são as mesmas da `/alphas-pizzaria`.
 
 ## Pendências (Max)
+
+- **E-mail com o POP (LPs de POP):** no WP o form manda o lead para o webhook do n8n "leads-iscas", que é quem envia o POP por e-mail. Esse webhook não foi recriado: hoje **nenhum e-mail com o material é disparado**, mas a LP diz "O material chega no seu e-mail em seguida" e o obrigado diz "Seu POP de … já está no seu e-mail". O CRM (ou outra integração) precisa assumir esse envio.
+- **Aceite do Raio-X:** no WP o botão "Quero meu Raio-X gratuito" manda o lead para o webhook "leads-raio-x" com a tag "aceitou-raio-x". Aqui o clique só mostra a confirmação; o comercial não fica sabendo quem aceitou. Precisa de um campo/evento no CRM.
+- **Origem POP no CRM:** o form do WP não pede empresa; o lead chega sem `company` e com `source` "alpha-home" (sem indicar qual POP). Só as UTMs ajudam a distinguir.
 
 - **E-mail com o material (Brevo):** o obrigado do WP dispara, ao carregar, o webhook que adiciona o contato à lista #13 da Brevo e manda o e-mail com o material, e a página diz "Mandamos o material pro seu e-mail". Sem webhook, **esse e-mail deixou de ser disparado**. É preciso que o CRM (ou outra integração) faça esse envio para a LP continuar entregando o que promete.
 

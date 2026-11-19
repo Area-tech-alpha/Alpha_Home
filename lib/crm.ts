@@ -30,7 +30,8 @@ export function buildCrmLeadPayload(
     niche: "food",
     lead_category: route.lead_category,
     name: lead.nome,
-    company: lead.empresa,
+    // As LPs de POP não pedem empresa (como no WP): sem valor, o campo não vai.
+    company: lead.empresa || undefined,
     email: lead.email,
     phone: lead.telefone,
     document: lead.cnpj,
