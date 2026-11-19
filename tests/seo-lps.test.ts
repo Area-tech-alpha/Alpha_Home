@@ -12,6 +12,8 @@ import sitemap from "@/app/sitemap";
 
 const LPS_INDEXAVEIS = ["/01-lp", "/alphas-pizzaria", "/resultado-alphas-pizzaria", "/lead-magnetic-vsl"];
 const BASTIDORES = "/lead-magnetic-bastidores-alphas-pizzaria";
+// LPs de POP: noindex como no WP (fora do sitemap, sem disallow).
+const POPS = ["/pop-producao", "/pop-expedicao", "/pop-delivery"];
 const OBRIGADOS = [
   "/obrigado",
   "/obrigado-a",
@@ -21,6 +23,7 @@ const OBRIGADOS = [
   "/alphas-pizzaria/obrigado",
   "/obrigado-lm-bastidores-alphas-pizzaria",
   "/obrigado-lm-vsl",
+  "/raio-x-do-restaurante",
 ];
 
 function disallow() {
@@ -33,13 +36,14 @@ test("sitemap: as LPs indexáveis entram; bastidores e páginas de obrigado não
   const urls = sitemap().map((e) => new URL(e.url).pathname);
   for (const lp of LPS_INDEXAVEIS) assert.ok(urls.includes(lp), `sitemap sem ${lp}`);
   assert.ok(!urls.includes(BASTIDORES), "bastidores não pode estar no sitemap");
+  for (const p of POPS) assert.ok(!urls.includes(p), `sitemap com ${p}`);
   for (const o of OBRIGADOS) assert.ok(!urls.includes(o), `sitemap com ${o}`);
 });
 
 test("robots: toda página de obrigado tem disallow; as LPs (inclusive bastidores) não", () => {
   const d = disallow();
   for (const o of OBRIGADOS) assert.ok(d.includes(o), `robots sem disallow de ${o}`);
-  for (const lp of [...LPS_INDEXAVEIS, BASTIDORES]) assert.ok(!d.includes(lp), `robots bloqueando ${lp}`);
+  for (const lp of [...LPS_INDEXAVEIS, BASTIDORES, ...POPS]) assert.ok(!d.includes(lp), `robots bloqueando ${lp}`);
 });
 
 test("bastidores: metadata com noindex,nofollow fixo (igual ao WP), sem depender do domínio", () => {
@@ -47,4 +51,16 @@ test("bastidores: metadata com noindex,nofollow fixo (igual ao WP), sem depender
   const src = readFileSync(path.join(process.cwd(), "app/lead-magnetic-bastidores-alphas-pizzaria/page.tsx"), "utf8");
   assert.match(src, /robots:\s*\{\s*index:\s*false,\s*follow:\s*false\s*\}/);
   assert.ok(!src.includes("IS_PRODUCTION_SITE"));
+});
+
+test("POP: metadata com noindex fixo (igual ao WP) e obrigado do Raio-X com noindex", () => {
+  const meta = readFileSync(path.join(process.cwd(), "components/pop/metadata.ts"), "utf8");
+  assert.match(meta, /robots:\s*\{\s*index:\s*false,\s*follow:\s*true\s*\}/);
+  assert.ok(!meta.includes("IS_PRODUCTION_SITE"));
+  for (const slug of ["pop-producao", "pop-expedicao", "pop-delivery"]) {
+    const src = readFileSync(path.join(process.cwd(), `app/${slug}/page.tsx`), "utf8");
+    assert.match(src, /popMetadata\(/, slug);
+  }
+  const rx = readFileSync(path.join(process.cwd(), "app/raio-x-do-restaurante/page.tsx"), "utf8");
+  assert.match(rx, /robots:\s*\{\s*index:\s*false,\s*follow:\s*false\s*\}/);
 });

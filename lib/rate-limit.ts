@@ -21,15 +21,18 @@ const LIMITS: Record<LimiterName, number> = {
   ip: 3,
 };
 // Cada página com form tem o seu escopo nas chaves ("home:", "01lp:",
-// "pizzaria:", "pizzaria-resultado:", "pizzaria-bastidores:"): a cota de uma não
-// bloqueia a outra.
+// "pizzaria:", "pizzaria-resultado:", "pizzaria-bastidores:", "pop-producao:"...):
+// a cota de uma não bloqueia a outra.
 export type RateLimitScope =
   | "home"
   | "01lp"
   | "pizzaria"
   | "pizzaria-resultado"
   | "pizzaria-bastidores"
-  | "lead-magnetic-vsl";
+  | "lead-magnetic-vsl"
+  | "pop-producao"
+  | "pop-expedicao"
+  | "pop-delivery";
 
 let cached: Limiters | null | undefined;
 

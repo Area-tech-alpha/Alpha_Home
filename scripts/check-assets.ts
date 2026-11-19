@@ -9,6 +9,11 @@ import { contentBastidores } from "@/lib/content-bastidores-pizzaria";
 import { contentResultado } from "@/lib/content-resultado-pizzaria";
 import { contentLeadMagneticVsl } from "@/lib/content-lead-magnetic-vsl";
 import { availableShorts, availableVideos } from "@/lib/depoimentos";
+import { popShared } from "@/lib/content-pop";
+import { contentPopProducao } from "@/lib/content-pop-producao";
+import { contentPopExpedicao } from "@/lib/content-pop-expedicao";
+import { contentPopDelivery } from "@/lib/content-pop-delivery";
+import { contentRaioX } from "@/lib/content-raio-x";
 
 const srcs = [
   content.logo.src,
@@ -51,6 +56,18 @@ const srcs = [
   ...contentResultado.episodios.covers.map((file) => `/images/alphas-pizzaria/episodios/${file}`),
   "/images/lead-magnetic-vsl/hero.webp",
   ...contentLeadMagneticVsl.resultados.slides,
+  // /pop-producao, /pop-expedicao, /pop-delivery e o obrigado /raio-x-do-restaurante
+  popShared.autor.foto.src,
+  popShared.autor.badge.src,
+  ...[contentPopProducao, contentPopExpedicao, contentPopDelivery].flatMap((c) => [
+    c.hero.image,
+    c.folhas.capa,
+    c.folhas.pagina2,
+    c.meta.ogImage,
+  ]),
+  contentRaioX.hero.image,
+  contentRaioX.analisa.destaque.print.src,
+  ...contentRaioX.testado.videos.flatMap((v) => [`/videos/depoimento-${v.slug}.mp4`, `/videos/depoimento-${v.slug}-poster.jpg`]),
 ];
 
 const missing = srcs.filter((src) => !existsSync(path.join(process.cwd(), "public", src)));
