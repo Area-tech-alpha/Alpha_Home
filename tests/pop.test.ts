@@ -2,17 +2,16 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import { buildCrmLeadPayload } from "@/lib/crm";
-import { intakeLead, type IntakeErrors } from "@/lib/lead-intake";
+import { buildTzLead } from "@/lib/crm";
+import { intakeLead, type CrmTarget, type IntakeErrors } from "@/lib/lead-intake";
 import type { Limiter, Limiters } from "@/lib/rate-limit";
-import { parseTracking } from "@/lib/validation";
-import { FATURAMENTOS_POP, ISCA_LPS, ISCA_SLUGS, SEGMENTOS_POP, isPopSlug, popForm, raioXPath } from "@/lib/content-pop";
+import { FATURAMENTOS_POP, ISCA_LPS, ISCA_SLUGS, SEGMENTOS_POP, isPopSlug, popForm, raioXPath, type IscaSlug } from "@/lib/content-pop";
 import { contentPizzaria } from "@/lib/content-pizzaria";
 import { RAIO_X_PADRAO, raioXVariacao } from "@/lib/content-raio-x";
 import { leadSchemaPop } from "@/lib/validation-pop";
 
-// LPs de POP: validação do form, envio ao CRM (mock local, nada sai para a rede) e
-// rate limit com escopo por LP.
+// LPs de isca: validação do form, envio a food/isca do CRM (mock local, nada sai para a
+// rede) e rate limit com escopo por LP.
 
 const CRM_URL = "http://crm.mock.local";
 const CRM_KEY = "chave-falsa-de-teste";
@@ -27,7 +26,7 @@ const lead = {
 };
 const rawTracking = { utm_source: "meta", utm_medium: "cpc", utm_campaign: "pop", utm_content: "a1", utm_term: "t", fbclid: "abc", gclid: "ignorado" };
 
-function fakeCrm(respond: () => Response = () => Response.json({ crmLeadId: "crm-1" }, { status: 201 })) {
+function fakeCrm(respond: () => Response = () => Response.json({ status: "crm", crmLeadId: "crm-1", category: "A" })) {
   const calls: { url: string; init: RequestInit }[] = [];
   const fetchImpl = (async (url: string, init: RequestInit) => {
     calls.push({ url, init });
@@ -54,18 +53,21 @@ function fakeLimiters(max: { ip?: number } = {}) {
 }
 
 async function withCrmEnv<T>(fn: () => Promise<T>) {
-  const old = { url: process.env.CRM_API_URL, key: process.env.CRM_EXTERNAL_LEADS_API_KEY, sdr: process.env.CRM_SDR_EMAIL };
+  const old = { url: process.env.CRM_API_URL, key: process.env.CRM_LEAD_INTAKE_FOOD_KEY };
   process.env.CRM_API_URL = CRM_URL;
-  process.env.CRM_EXTERNAL_LEADS_API_KEY = CRM_KEY;
-  delete process.env.CRM_SDR_EMAIL;
+  process.env.CRM_LEAD_INTAKE_FOOD_KEY = CRM_KEY;
   const restore = (k: string, v: string | undefined) => (v === undefined ? delete process.env[k] : (process.env[k] = v));
   try {
     return await fn();
   } finally {
     restore("CRM_API_URL", old.url);
-    restore("CRM_EXTERNAL_LEADS_API_KEY", old.key);
-    restore("CRM_SDR_EMAIL", old.sdr);
+    restore("CRM_LEAD_INTAKE_FOOD_KEY", old.key);
   }
+}
+
+// O mesmo destino da server action (submit-lead-pop.ts): food/isca com o lead da isca.
+function isca(slug: IscaSlug, pageUrl = `https://assessorialpha.com/${slug}`): CrmTarget {
+  return { route: "isca", body: (l) => buildTzLead({ slug, pageUrl, lead: l, rawTracking }) };
 }
 
 // ===== Validação =====
@@ -112,64 +114,68 @@ test("form POP: CNPJ e investiria só são exigidos em 'Até 30 mil'", () => {
   for (const { value } of FATURAMENTOS_POP.slice(1)) assert.equal(leadSchemaPop.safeParse({ ...lead, faturamento: value }).success, true, value);
 });
 
-// ===== Envio ao CRM =====
+// ===== Envio ao CRM (food/isca) =====
 
 for (const slug of ISCA_SLUGS) {
-  test(`/${slug}: 1 envio ao CRM com o payload da home (sem company)`, async () => {
+  test(`/${slug}: 1 envio a food/isca com a isca, a página e os rótulos do form`, async () => {
     await withCrmEnv(async () => {
       const crm = fakeCrm();
-      const r = await intakeLead({ data: lead, rawTracking, ip: "200.1.1.1", schema: leadSchemaPop, scope: ISCA_LPS[slug].scope, errors, limiters: null, fetchImpl: crm.fetchImpl });
+      const r = await intakeLead({ data: lead, rawTracking, ip: "200.1.1.1", schema: leadSchemaPop, scope: ISCA_LPS[slug].scope, errors, crm: isca(slug), limiters: null, fetchImpl: crm.fetchImpl });
       assert.equal(r.success, true);
       assert.equal(crm.calls.length, 1);
       const { url, init } = crm.calls[0];
-      assert.equal(url, `${CRM_URL}/external/leads`);
+      assert.equal(url, `${CRM_URL}/external/lead-intake/food/isca`);
       assert.deepEqual(init.headers, { "Content-Type": "application/json", "x-api-key": CRM_KEY });
       const body = JSON.parse(String(init.body));
-      const daHome = buildCrmLeadPayload({ ...lead, empresa: "" }, parseTracking(rawTracking), undefined);
-      assert.deepEqual(body, JSON.parse(JSON.stringify(daHome)));
-      assert.ok(!("company" in body));
-      assert.equal(body.source, "alpha-home");
-      assert.equal(body.destination, "hq");
+      assert.equal(body.isca, ISCA_LPS[slug].isca);
+      assert.equal(body.origem_pagina, slug);
+      assert.equal(body.page_url, `https://assessorialpha.com/${slug}`);
+      assert.deepEqual([body.nome, body.email, body.telefone], ["Ana Souza", "ana@ex.com", "+5511911110001"]);
+      // Rótulos do form (o CRM converte o segmento e lê a faixa por eles).
       assert.equal(body.segmento, "Pizzarias");
-      assert.equal(body.faturamento, "100 mil até 150 mil");
-      assert.ok(!("gclid" in body));
+      assert.equal(body.faturamento, "100–150 mil");
+      assert.equal(body.utm_source, "meta");
+      assert.ok(!("empresa" in body) && !("whatsapp" in body) && !("destination" in body) && !("gclid" in body));
     });
   });
 }
 
-test("POP: 'Até 30 mil' + Sim vai como categoria D, com o CNPJ em document", async () => {
+test("isca: 'Até 30 mil' não leva CNPJ nem investiria (régua das iscas, piso D, é do CRM)", async () => {
   await withCrmEnv(async () => {
     const crm = fakeCrm();
-    const data = { ...lead, faturamento: "Até 30 mil", cnpj: "11.222.333/0001-81", investiria: "Sim" };
-    const r = await intakeLead({ data, ip: null, schema: leadSchemaPop, scope: "pop-delivery", errors, limiters: null, fetchImpl: crm.fetchImpl });
+    const data = { ...lead, faturamento: "Até 30 mil", cnpj: "11.222.333/0001-81", investiria: "Não" };
+    const r = await intakeLead({ data, ip: null, schema: leadSchemaPop, scope: "pop-delivery", errors, crm: isca("pop-delivery"), limiters: null, fetchImpl: crm.fetchImpl });
     assert.equal(r.success, true);
     const body = JSON.parse(String(crm.calls[0].init.body));
-    assert.equal(body.lead_category, "D");
-    assert.equal(body.document, "11.222.333/0001-81");
+    assert.equal(body.faturamento, "Até 30 mil");
+    assert.ok(!("cnpj" in body) && !("investiria" in body));
   });
 });
 
-test("POP: CRM com erro não dá sucesso (sem redirect) e devolve a cota", async () => {
+test("isca: CRM com 5xx não dá sucesso (sem redirect) e devolve a cota; 400 vira erro de validação", async () => {
   await withCrmEnv(async () => {
     const orig = console.error;
     console.error = () => {};
     try {
-      const crm = fakeCrm(() => Response.json({ code: "INVALID_LEAD" }, { status: 422 }));
+      const crm = fakeCrm(() => Response.json({ message: "Erro" }, { status: 503 }));
       const { limiters } = fakeLimiters();
-      const args = { data: lead, ip: "9.9.9.9", schema: leadSchemaPop, scope: "pop-producao" as const, errors, limiters, fetchImpl: crm.fetchImpl };
+      const args = { data: lead, ip: "9.9.9.9", schema: leadSchemaPop, scope: "pop-producao" as const, errors, crm: isca("pop-producao"), limiters, fetchImpl: crm.fetchImpl };
       assert.deepEqual(await intakeLead(args), { success: false, error: errors.crm, reason: "crm" });
       assert.deepEqual(await intakeLead(args), { success: false, error: errors.crm, reason: "crm" });
       assert.equal(crm.calls.length, 2);
+      const recusa = fakeCrm(() => Response.json({ code: "SECURITY_FILTER", reasons: ["nome: HTML"] }, { status: 400 }));
+      const r = await intakeLead({ ...args, ip: "9.9.9.10", fetchImpl: recusa.fetchImpl });
+      assert.deepEqual(r, { success: false, error: errors.validation, reason: "validation" });
     } finally {
       console.error = orig;
     }
   });
 });
 
-test("POP: lead inválido não chama o CRM", async () => {
+test("isca: lead inválido não chama o CRM", async () => {
   await withCrmEnv(async () => {
     const crm = fakeCrm();
-    const r = await intakeLead({ data: { ...lead, email: "x" }, ip: null, schema: leadSchemaPop, scope: "pop-expedicao", errors, limiters: null, fetchImpl: crm.fetchImpl });
+    const r = await intakeLead({ data: { ...lead, email: "x" }, ip: null, schema: leadSchemaPop, scope: "pop-expedicao", errors, crm: isca("pop-expedicao"), limiters: null, fetchImpl: crm.fetchImpl });
     assert.equal(r.success, false);
     assert.equal(crm.calls.length, 0);
   });
@@ -186,7 +192,7 @@ test("rate limit: cada LP de isca tem o seu escopo e não divide cota com as out
     for (const slug of ISCA_SLUGS) {
       const crm = fakeCrm();
       const scope = ISCA_LPS[slug].scope;
-      const r = await intakeLead({ data: lead, ip: "8.8.8.8", schema: leadSchemaPop, scope, errors, limiters, fetchImpl: crm.fetchImpl });
+      const r = await intakeLead({ data: lead, ip: "8.8.8.8", schema: leadSchemaPop, scope, errors, crm: isca(slug), limiters, fetchImpl: crm.fetchImpl });
       assert.equal(r.success, true, `${slug}: mesmo lead nas 7 LPs não colide`);
       for (const name of ["email", "telefone", "ip"]) {
         assert.ok(seen.some((k) => new RegExp(`^${scope}:${name}:[0-9a-f]{64}$`).test(k)), `${scope}:${name}`);
@@ -194,7 +200,7 @@ test("rate limit: cada LP de isca tem o seu escopo e não divide cota com as out
     }
     // Segundo envio na mesma LP: bloqueado, sem chamar o CRM.
     const crm = fakeCrm();
-    const again = await intakeLead({ data: lead, ip: "8.8.8.8", schema: leadSchemaPop, scope: "pop-producao", errors, limiters, fetchImpl: crm.fetchImpl });
+    const again = await intakeLead({ data: lead, ip: "8.8.8.8", schema: leadSchemaPop, scope: "pop-producao", errors, crm: isca("pop-producao"), limiters, fetchImpl: crm.fetchImpl });
     assert.deepEqual(again, { success: false, error: "Tente em 3 min.", reason: "rate_limited" });
     assert.equal(crm.calls.length, 0);
     assert.ok(seen.every((k) => !k.includes("ana@ex.com")));
@@ -229,4 +235,8 @@ test("form e obrigado: nada sai do navegador direto (só server actions), sem UR
   const action = readFileSync(path.join(process.cwd(), "app/actions/submit-lead-pop.ts"), "utf8");
   assert.match(action, /intakeLead/);
   assert.match(action, /scope: ISCA_LPS\[slug\]\.scope/);
+  // Isca vai a food/isca (um envio) e o Raio-X a food/raio-x; nada de n8n.
+  assert.match(action, /route: "isca", body: \(lead\) => \(tzLead = buildTzLead\(\{ slug, pageUrl, lead, rawTracking \}\)\)/);
+  assert.match(action, /sendToLeadIntake\("raio-x", body\)/);
+  assert.doesNotMatch(action, /postWebhook|after\(|LEAD_WEBHOOK/);
 });

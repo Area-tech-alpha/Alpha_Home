@@ -7,7 +7,7 @@ import {
 } from "@/lib/lead-pizzaria-constants";
 
 function readCookie(name: string) {
-  const match = document.cookie.match(new RegExp(`(?:^|;\s*)${name}=([^;]*)`));
+  const match = document.cookie.match(new RegExp(`(?:^|;\\s*)${name}=([^;]*)`));
   return match ? decodeURIComponent(match[1]) : undefined;
 }
 
@@ -15,7 +15,7 @@ function readCookie(name: string) {
 // campanha fica gravada por 30 dias. fbc/gcl_aw vêm dos cookies _fbc/_gcl_aw;
 // sem cookie, o fbc segue o formato do Meta a partir do fbclid da URL. Isso é só
 // dado de atribuição que segue no lead: nenhuma LP carrega pixel da Meta. O CRM
-// recebe os campos que a home já manda (utm_*, fbclid).
+// recebe utm_*, fbclid, fbc e fbp.
 export function readFirstTouchPizzaria(): LeadTrackingPizzaria {
   let stored: { at: number; tracking: LeadTrackingPizzaria } | null = null;
   try {
@@ -44,9 +44,11 @@ export function readFirstTouchPizzaria(): LeadTrackingPizzaria {
 
   const fbcCookie = readCookie("_fbc");
   const gclCookie = readCookie("_gcl_aw");
+  const fbpCookie = readCookie("_fbp");
   return {
     ...tracking,
     ...(!tracking.fbc && fbcCookie && { fbc: fbcCookie }),
     ...(!tracking.gcl_aw && gclCookie && { gcl_aw: gclCookie }),
+    ...(fbpCookie && { fbp: fbpCookie }),
   };
 }

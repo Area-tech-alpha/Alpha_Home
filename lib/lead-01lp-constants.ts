@@ -13,6 +13,7 @@ export const TRACKING_KEYS_01LP = [
   "gclid",
   "fbc",
   "gcl_aw",
+  "fbp",
 ] as const;
 
 export type TrackingKey01lp = (typeof TRACKING_KEYS_01LP)[number];

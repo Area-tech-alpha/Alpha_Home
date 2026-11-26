@@ -1,8 +1,8 @@
 // Constantes da /alphas-pizzaria sem dependências (o form e o player importam
 // daqui sem puxar o zod).
 
-// Mesmas chaves do UTM_KEYS do script da página no WP, lidas da URL. O CRM recebe
-// só as que a home já manda (utm_source/medium/campaign/content/term e fbclid).
+// Mesmas chaves do UTM_KEYS do script da página no WP, lidas da URL (fbp só do cookie
+// _fbp). O CRM recebe utm_*, fbclid, fbc e fbp (lib/lead-constants.ts).
 export const TRACKING_KEYS_PIZZARIA = [
   "utm_source",
   "utm_medium",
@@ -14,6 +14,7 @@ export const TRACKING_KEYS_PIZZARIA = [
   "fbclid",
   "fbc",
   "gcl_aw",
+  "fbp",
 ] as const;
 
 export type TrackingKeyPizzaria = (typeof TRACKING_KEYS_PIZZARIA)[number];
