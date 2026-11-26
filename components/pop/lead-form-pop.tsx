@@ -8,7 +8,7 @@ import { submitLeadPop } from "@/app/actions/submit-lead-pop";
 import { readFirstTouchPizzaria } from "@/components/pizzaria/lead-storage";
 import { Ic } from "@/components/pop/icons";
 import { FATURAMENTOS_POP, SEGMENTOS_POP, popForm as f, type IscaSlug } from "@/lib/content-pop";
-import { TZ_LEAD_KEY } from "@/lib/lead-webhook-constants";
+import { TZ_LEAD_KEY } from "@/lib/tz-lead-constants";
 import { FATURAMENTO_EXIGE_EXTRAS_PIZZARIA, type LeadTrackingPizzaria } from "@/lib/lead-pizzaria-constants";
 import { maskCNPJ } from "@/lib/mask-cnpj";
 

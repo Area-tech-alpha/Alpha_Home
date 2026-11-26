@@ -14,7 +14,7 @@ npm run build      # confere as mídias (scripts/check-assets.ts) e gera o build
 
 | Rota | O que é | Indexação |
 |---|---|---|
-| `/` | Home; lead vai para o CRM (`lib/crm.ts`) | só no domínio final |
+| `/` | Home; lead vai para o CRM (`food/lp`, `lib/crm.ts`) | só no domínio final |
 | `/depoimentos` | Vídeos de clientes | só no domínio final |
 | `/01-lp` | LP de restaurantes (migração da `/00-lp/` do WP, ID 3445); lead vai para o CRM | só no domínio final (e só então no sitemap) |
 | `/obrigado` | Obrigado da home | noindex |
@@ -27,53 +27,57 @@ npm run build      # confere as mídias (scripts/check-assets.ts) e gera o build
 | `/obrigado-lm-bastidores-alphas-pizzaria` | Obrigado da LP de bastidores (migração da página do WP, ID 13215). **Não envia lead** | noindex + disallow |
 | `/lead-magnetic-vsl` | LP lead magnetic VSL (migração da página do WP, ID 11029); lead vai para o CRM e depois para o obrigado dela | só no domínio final (e só então no sitemap) |
 | `/obrigado-lm-vsl` | Obrigado da LP lead magnetic VSL (migração da página do WP, ID 11040). **Não envia lead** | noindex + disallow |
-| `/pop-producao`, `/pop-expedicao`, `/pop-delivery` | LPs dos POPs da Alpha's Pizzaria (migração das páginas do WP). Form visível no hero; lead vai para o CRM e depois para `/raio-x-do-restaurante` | noindex em qualquer domínio (igual ao WP); fora do sitemap, sem disallow |
-| `/ficha-tecnica`, `/cronograma-de-limpeza`, `/cardapio-que-vende`, `/calculadora-de-cmv` | LPs de isca no padrão das POP (migração das páginas do WP, IDs 14305, 14295, 14290, 14285). Form no hero; lead vai para o CRM e o n8n e depois para `/raio-x-do-restaurante` | noindex (igual ao WP); fora do sitemap, sem disallow |
+| `/pop-producao`, `/pop-expedicao`, `/pop-delivery` | LPs dos POPs da Alpha's Pizzaria (migração das páginas do WP). Form visível no hero; lead vai para o CRM (`food/isca`) e depois para `/raio-x-do-restaurante` | noindex em qualquer domínio (igual ao WP); fora do sitemap, sem disallow |
+| `/ficha-tecnica`, `/cronograma-de-limpeza`, `/cardapio-que-vende`, `/calculadora-de-cmv` | LPs de isca no padrão das POP (migração das páginas do WP, IDs 14305, 14295, 14290, 14285). Form no hero; lead vai para o CRM (`food/isca`) e depois para `/raio-x-do-restaurante` | noindex (igual ao WP); fora do sitemap, sem disallow |
 | `/ferramenta-calculadora-cmv` | "Calculadora mágica de CMV" (WP ID 14300). **Sem form** (como no WP); cálculo em `lib/cmv.ts`, visual novo | noindex (igual ao WP); fora do sitemap, sem disallow |
-| `/nao-dependa-de-sorte` | Carta de vendas (migração da página do WP, ID 14248). Form da /01-lp no hero; lead vai para o CRM e o n8n `wordpress-geral` e segue a régua da /01-lp (`/obrigado-a`, `-b`, `-c`, `/agradecimento`) | só no domínio final (e só então no sitemap) |
-| `/raio-x-do-restaurante` | Obrigado das LPs de isca (mesma rota do WP), estático; barra muda pela isca (`?isca=`, escolhida no navegador). O botão "Quero meu Raio-X" manda o aceite ao n8n | noindex + disallow |
+| `/nao-dependa-de-sorte` | Carta de vendas (migração da página do WP, ID 14248). Form da /01-lp no hero; lead vai para o CRM (`food/lp`) e segue a régua da /01-lp (`/obrigado-a`, `-b`, `-c`, `/agradecimento`) | só no domínio final (e só então no sitemap) |
+| `/raio-x-do-restaurante` | Obrigado das LPs de isca (mesma rota do WP), estático; barra muda pela isca (`?isca=`, escolhida no navegador). O botão "Quero meu Raio-X" manda o aceite ao CRM (`food/raio-x`) | noindex + disallow |
 
 ## Variáveis de ambiente
 
 | Variável | Uso | Onde |
 |---|---|---|
 | `NEXT_PUBLIC_SITE_URL` | Domínio do deploy. Fora de `https://assessorialpha.com` tudo fica noindex | todas |
-| `CRM_API_URL`, `CRM_EXTERNAL_LEADS_API_KEY`, `CRM_SDR_EMAIL` | CRM comercial: lead da home e de **todas as LPs** (**Sensitive** na Vercel) | servidor |
+| `CRM_API_URL`, `CRM_LEAD_INTAKE_FOOD_KEY` | Entrada de leads do CRM comercial (`food/*`): lead da home, de **todas as LPs** e o aceite do Raio-X. A chave é a `LEAD_INTAKE_FOOD_KEY` do CRM (**Sensitive** na Vercel) | servidor |
 | `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | Rate limit dos forms (sem elas, passa direto) | servidor |
-| `LEAD_WEBHOOK_URL_ISCAS` | n8n "leads-iscas": lead das LPs de isca (POP, ficha, cronograma, cardápio, calculadora), **além** do CRM; é quem manda o material por e-mail (**Sensitive**) | servidor |
-| `LEAD_WEBHOOK_URL_WORDPRESS_GERAL` | n8n "wordpress-geral": lead da `/nao-dependa-de-sorte`, **além** do CRM, com o body do WP (**Sensitive**). Só essa LP usa | servidor |
-| `LEAD_WEBHOOK_URL_RAIO_X` | n8n "leads-raio-x": aceite do Raio-X em `/raio-x-do-restaurante` (**Sensitive**) | servidor |
 
-Todo lead vai para o CRM. As LPs de isca também mandam ao n8n (`lib/lead-webhook.ts`), com o mesmo body do WP; a URL fica só nas envs (nunca em código, teste, log ou README). Falha no n8n não bloqueia o lead nem o redirect.
+Nada vai mais ao n8n nem à rota genérica antiga do CRM: cada form chama **uma** rota da entrada de leads, uma vez.
 
-## Leads: todas as LPs enviam para o CRM comercial
+## Leads: todas as páginas enviam para a entrada de leads do CRM
 
-A home e as LPs usam o **mesmo código**: `lib/crm.ts` (`buildCrmLeadPayload`, `resolverDestino`, `sendLeadToCrm`: `POST {CRM_API_URL}/external/leads`, com `x-api-key`, timeout de 10 s). O payload e a regra de destino/categoria são os da home:
+`lib/crm.ts` (`sendToLeadIntake`): `POST {CRM_API_URL}/external/lead-intake/food/<rota>`, header `x-api-key` = `CRM_LEAD_INTAKE_FOOD_KEY`, timeout de 25 s (o `food/lp` pode esperar o Growth Hub). Contrato completo: `docs/modules/lead-intake.md` do CRM. **Quem decide destino e categoria é o CRM**, nunca a LP.
 
-- `destination: "hq"`, `niche: "food"`, `source: "alpha-home"`, nome, empresa, e-mail, telefone, `document` (CNPJ), faturamento, segmento e as atribuições que a home já manda (`utm_source`, `utm_medium`, `utm_campaign`, `utm_content`, `utm_term`, `fbclid`).
-- Categoria: "Até 30 mil" + "Sim" para o investimento vira `lead_category: "D"`; as demais combinações vão sem categoria.
-- `gclid`, `fbc`, `gcl_aw` e `utm_id` são lidos no navegador, mas **não vão para o CRM** (a API da home não tem esses campos).
-
-O caminho de envio das LPs é `lib/lead-intake.ts` (`intakeLead`), chamado pela server action de cada LP:
-
-1. Valida o lead (mesmos campos e regras da home; CNPJ e "investiria" só em "Até 30 mil").
-2. Rate limit (`lib/rate-limit.ts`) no escopo da LP, para uma LP não gastar a cota da outra: `01lp:`, `pizzaria:`, `pizzaria-resultado:`, `pizzaria-bastidores:` (a home usa `home:`).
-3. Envia ao CRM. **Só redireciona se o CRM respondeu ok.**
-4. Se falhar, o form mostra "Não conseguimos enviar agora. Tente de novo em instantes." e a cota de e-mail e telefone do rate limit é devolvida (a do IP continua contando). Os logs têm só status e código de erro, nunca a URL, a chave nem dados do lead.
-
-| LP | Server action | Escopo | Depois do envio ok |
+| Rota | Quem manda | Corpo | O que o CRM faz |
 |---|---|---|---|
-| `/01-lp` | `submit-lead-01lp.ts` | `01lp:` | `rotear01lp` (tabela abaixo) |
-| `/alphas-pizzaria` | `submit-lead-pizzaria.ts` | `pizzaria:` | `/alphas-pizzaria/obrigado` |
-| `/resultado-alphas-pizzaria` | `submit-lead-resultado-pizzaria.ts` | `pizzaria-resultado:` | `/alphas-pizzaria/obrigado` |
-| `/lead-magnetic-bastidores-alphas-pizzaria` | `submit-lead-bastidores-pizzaria.ts` | `pizzaria-bastidores:` | `/obrigado-lm-bastidores-alphas-pizzaria` |
-| `/lead-magnetic-vsl` | `submit-lead-magnetic-vsl.ts` | `lead-magnetic-vsl:` | `/obrigado-lm-vsl` |
-| `/pop-producao`, `/pop-expedicao`, `/pop-delivery` | `submit-lead-pop.ts` | `pop-producao:`, `pop-expedicao:`, `pop-delivery:` | `/raio-x-do-restaurante?isca=isca-pop-…` |
-| `/ficha-tecnica`, `/cronograma-de-limpeza`, `/cardapio-que-vende`, `/calculadora-de-cmv` | `submit-lead-pop.ts` | `ficha-tecnica:`, `cronograma-limpeza:`, `cardapio-que-vende:`, `calculadora-cmv:` | `/raio-x-do-restaurante?isca=…` (calculadora com `&calc=1`) |
+| `food/lp` | home e LPs de restaurante (tabela abaixo) | `origem` (página), `nome`, `email`, `telefone` (E.164), `empresa`, `segmento`, `faturamento`, `investiria` e `cnpj` ("Até 30 mil"), `utm_source/medium/campaign/content/term/id`, `fbclid`, `fbc`, `fbp`, `page_url` | Régua A–E. **Pago** (tem UTM): lead novo vai primeiro pro Growth Hub (E entra como oportunidade); já conhecido volta pra Matriz. **Orgânico** (sem UTM): entra na Matriz; E vira oportunidade no GH. Planilha e aviso no WhatsApp |
+| `food/isca` | LPs de isca (`submit-lead-pop.ts`) | o lead da isca (`isca`, `origem_pagina`, `page_url`, `nome`, `telefone`, `email`, rótulos de `segmento`/`faturamento`, `enviado_em`, UTMs) | Régua das iscas (piso D), Matriz, e-mail do material (Brevo), aba "Leads (Iscas LPs)" e aviso. Repetido em 24 h não manda nada de novo |
+| `food/raio-x` | botão do `/raio-x-do-restaurante` (`submitRaioXAceite`) | o lead da isca salvo no navegador (`tzLead`) + a isca do obrigado + `page_url` | Marca "Aceitou Raio-X" na planilha, nota no lead da Matriz ou lead novo |
+| `food/lm` | `/lead-magnetic-vsl` | `lead_magnet: "lead-magnetic-vsl"`, os campos do form, UTMs, `fbclid/fbc/fbp`, `page_url` | Régua v3 pelo faturamento: E vira oportunidade no GH, o resto entra na Matriz. Aba "Leads (Leadmagnetic)" e e-mail da Brevo da LM |
 
-**Sem pixel da Meta:** nenhuma página carrega `fbq`, `fbevents.js` nem `connect.facebook.net`, e não há API de Conversões no servidor. O `fbclid` (e o `fbc` montado dele) só é lido da URL como dado de atribuição do lead. Um teste (`tests/lead-intake.test.ts`) falha se alguma dessas referências voltar ao código.
+Respostas: 2xx = recebido (inclusive `ignored`/`duplicate`: segue o redirect). **400** = o CRM recusou o conteúdo (filtro de segurança: link, script ou fórmula no texto; telefone inválido): o form mostra "Dados inválidos. Verifique o formulário.". 401/403 (chave), 5xx e rede: "Não conseguimos enviar agora. Tente de novo em instantes.".
 
-**Origem no CRM:** o payload da home não tem `page_url` nem campo de página, e `source` é fixo em `"alpha-home"`. Por isso o CRM **não distingue** de qual LP o lead veio, a não ser pelas UTMs da campanha (ver Pendências).
+O caminho de envio é `lib/lead-intake.ts` (`intakeLead`), chamado pela server action de cada página com o destino dela (`foodLp(origem, rota)`, `foodLm(lm, rota)` ou `{ route: "isca", ... }`):
+
+1. Valida o lead (CNPJ e "investiria" só em "Até 30 mil").
+2. Rate limit (`lib/rate-limit.ts`) no escopo da página, para uma não gastar a cota da outra (`home:`, `01lp:`, `pizzaria:`…).
+3. Envia ao CRM, uma vez. **Só redireciona se o CRM respondeu ok.**
+4. Se falhar, mostra o erro acima e devolve a cota de e-mail e telefone do rate limit (a do IP continua contando). Os logs têm só status, código e motivos do CRM (nomes de campo), nunca a URL, a chave nem dados do lead.
+
+| Página | Server action | Rota / origem no CRM | Escopo | Depois do envio ok |
+|---|---|---|---|---|
+| `/` | `submit-lead.ts` | `food/lp` · `alpha-home` | `home:` | `/obrigado` |
+| `/01-lp` | `submit-lead-01lp.ts` | `food/lp` · `01-lp` | `01lp:` | `rotear01lp` (tabela abaixo) |
+| `/alphas-pizzaria` | `submit-lead-pizzaria.ts` | `food/lp` · `alphas-pizzaria` | `pizzaria:` | `/alphas-pizzaria/obrigado` |
+| `/resultado-alphas-pizzaria` | `submit-lead-resultado-pizzaria.ts` | `food/lp` · `resultado-alphas-pizzaria` | `pizzaria-resultado:` | `/alphas-pizzaria/obrigado` |
+| `/lead-magnetic-bastidores-alphas-pizzaria` | `submit-lead-bastidores-pizzaria.ts` | `food/lp` · `lead-magnetic-bastidores-alphas-pizzaria` | `pizzaria-bastidores:` | `/obrigado-lm-bastidores-alphas-pizzaria` |
+| `/nao-dependa-de-sorte` | `submit-lead-nds.ts` | `food/lp` · `nao-dependa-de-sorte` | `nao-dependa-de-sorte:` | `rotear01lp` |
+| `/lead-magnetic-vsl` | `submit-lead-magnetic-vsl.ts` | `food/lm` · `lead-magnetic-vsl` | `lead-magnetic-vsl:` | `/obrigado-lm-vsl` |
+| `/pop-producao`, `/pop-expedicao`, `/pop-delivery` | `submit-lead-pop.ts` | `food/isca` · `isca-pop-…` | `pop-producao:`, `pop-expedicao:`, `pop-delivery:` | `/raio-x-do-restaurante?isca=isca-pop-…` |
+| `/ficha-tecnica`, `/cronograma-de-limpeza`, `/cardapio-que-vende`, `/calculadora-de-cmv` | `submit-lead-pop.ts` | `food/isca` · `isca-…` | `ficha-tecnica:`, `cronograma-limpeza:`, `cardapio-que-vende:`, `calculadora-cmv:` | `/raio-x-do-restaurante?isca=…` (calculadora com `&calc=1`) |
+
+**Sem pixel da Meta:** nenhuma página carrega `fbq`, `fbevents.js` nem `connect.facebook.net`, e não há API de Conversões no servidor. O `fbclid` (e o `fbc` montado dele) é lido da URL, e `fbc`/`fbp` dos cookies `_fbc`/`_fbp` quando existem (o WordPress no mesmo domínio tem o pixel), só como dado de atribuição do lead. Testes (`tests/lead-intake.test.ts`) falham se alguma dessas referências, uma env do n8n ou a rota/chave antiga do CRM voltar ao código.
+
+**Origem no CRM:** cada página manda a sua `origem` (coluna da tabela acima), que vira o `source` do lead no CRM, e o `page_url`. As iscas são identificadas pelo slug da isca.
 
 ### /01-lp: roteamento pós-envio (`rotear01lp` em `lib/lead-01lp.ts`)
 
@@ -125,14 +129,11 @@ Visual do WP: fundo "mesh" fixo, partículas, cursor personalizado e botão magn
 
 ## Pendências (Max)
 
-- **n8n das iscas:** o e-mail com o material e o aceite do Raio-X dependem de `LEAD_WEBHOOK_URL_ISCAS` e `LEAD_WEBHOOK_URL_RAIO_X` na Vercel. Sem elas, o lead chega ao CRM mas o material não é enviado.
-- **/nao-dependa-de-sorte:** o body do n8n leva `tipo_lead` e `redirect_url` pela régua do WP (80–100 vai como "qualificado-geral" e `.../obrigado/`), mas a pessoa navega para `/obrigado-a`, como na /01-lp. A /01-lp usa o mesmo webhook "wordpress-geral" no WP e aqui não manda (só CRM).
+- **Virada pro CRM (`food/*`):** configurar `CRM_LEAD_INTAKE_FOOD_KEY` na Vercel antes do deploy (sem ela, todo form mostra "tente de novo"). Depois de testar, desligar os fluxos n8n "Alpha · Iscas", "Alpha · Raio-X" e o "wordpress-geral" (este só quando nenhuma outra origem mandar pra ele) e apagar as envs antigas (`CRM_EXTERNAL_LEADS_API_KEY`, `CRM_SDR_EMAIL`, `LEAD_WEBHOOK_URL_*`).
 - **Inconsistências do WP (mantidas):** `/calculadora-de-cmv` e `/ferramenta-calculadora-cmv` têm o mesmo título ("Calculadora Mágica de CMV · Alpha"); os chips de segmento da calculadora (12) e a lista da ferramenta (13) têm nomes e quantidades diferentes; a isca do cronograma é `isca-pop-higienizacao`.
-- **Origem POP no CRM:** o form do WP não pede empresa; o lead chega sem `company` e com `source` "alpha-home" (sem indicar qual POP). Só as UTMs ajudam a distinguir.
+- **Empresa nas iscas:** o form do WP não pede empresa; o CRM usa o nome da isca no lugar.
 
-- **E-mail com o material (Brevo):** o obrigado do WP dispara, ao carregar, o webhook que adiciona o contato à lista #13 da Brevo e manda o e-mail com o material, e a página diz "Mandamos o material pro seu e-mail". Sem webhook, **esse e-mail deixou de ser disparado**. É preciso que o CRM (ou outra integração) faça esse envio para a LP continuar entregando o que promete.
-
-- **Origem do lead no CRM:** a API da home não tem campo de página/LP e `source` é fixo em `"alpha-home"`. Para o comercial distinguir `/01-lp`, `/alphas-pizzaria` e `/resultado-alphas-pizzaria`, o CRM precisa aceitar um valor distinto em `source` (ou um campo novo, como `page_url`). Hoje só as UTMs da campanha ajudam.
+- **E-mail do material da LP de bastidores (Brevo):** o obrigado do WP dispara, ao carregar, o webhook que adiciona o contato à lista #13 da Brevo e manda o e-mail com o material, e a página diz "Mandamos o material pro seu e-mail". Aqui o lead vai a `food/lp`, que não manda e-mail; o catálogo de LMs do CRM também não tem a Brevo da bastidores. **Esse e-mail continua sem ser disparado.**
 - Faixa "80 mil até 100 mil" não está em nenhuma faixa do script do WP (cairia em `/obrigado`); a /01-lp manda para `/obrigado-a`.
 - `/agradecimento`: texto provisório ("Cadastro Concluído!" + botão). A página do WP está quebrada.
 - Textos copiados do WP que falam do envio no clique do vídeo (ex.: "Ao clicar, o time da Alpha recebe seus dados…" no obrigado da VSL e a resposta "O que acontece depois que eu envio?" do FAQ) ficaram literais, mas agora o envio é no submit.
