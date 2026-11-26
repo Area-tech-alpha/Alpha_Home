@@ -6,7 +6,7 @@ import type { RateLimitScope } from "@/lib/rate-limit";
 // /calculadora-de-cmv), migradas das páginas do WP (mesmo template). O que muda em
 // cada uma fica em lib/content-<slug>.ts. Textos literais do WP.
 
-// Slug da rota → isca do WP (vai no webhook e escolhe o texto do obrigado) e escopo
+// Slug da rota → isca do WP (vai ao CRM em food/isca e escolhe o texto do obrigado) e escopo
 // do rate limit. "calc": no WP o envio abria a /ferramenta-calculadora-cmv; aqui o
 // obrigado mostra o botão "Abrir minha calculadora".
 export const ISCA_LPS = {

@@ -36,6 +36,19 @@ function maskCNPJ(value: string): string {
   return `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5, 8)}/${d.slice(8, 12)}-${d.slice(12)}`;
 }
 
+function readCookie(name: string) {
+  const match = document.cookie.match(new RegExp(`(?:^|;\\s*)${name}=([^;]*)`));
+  return match ? decodeURIComponent(match[1]) : undefined;
+}
+
+// fbc/fbp dos cookies _fbc/_fbp (sem cookie, o fbc segue o formato do Meta a partir do
+// fbclid). Só dado de atribuição: a home não carrega pixel.
+function withMetaCookies(tracking: LeadTracking): LeadTracking {
+  const fbc = tracking.fbc || readCookie("_fbc") || (tracking.fbclid ? `fb.1.${Date.now()}.${tracking.fbclid}` : undefined);
+  const fbp = readCookie("_fbp");
+  return { ...tracking, ...(fbc && { fbc }), ...(fbp && { fbp }) };
+}
+
 // UTMs/fbclid da URL de entrada. Guardados na sessão para sobreviver à navegação
 // interna (ex.: /depoimentos e volta para a home).
 function readTracking(): LeadTracking {
@@ -48,11 +61,11 @@ function readTracking(): LeadTracking {
   try {
     if (Object.keys(tracking).length > 0) {
       sessionStorage.setItem(TRACKING_STORAGE_KEY, JSON.stringify(tracking));
-      return tracking;
+      return withMetaCookies(tracking);
     }
-    return JSON.parse(sessionStorage.getItem(TRACKING_STORAGE_KEY) ?? "{}") as LeadTracking;
+    return withMetaCookies(JSON.parse(sessionStorage.getItem(TRACKING_STORAGE_KEY) ?? "{}") as LeadTracking);
   } catch {
-    return tracking;
+    return withMetaCookies(tracking);
   }
 }
 

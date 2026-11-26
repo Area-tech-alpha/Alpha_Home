@@ -76,10 +76,12 @@ function readFirstTouch(): LeadTracking01lp {
 
   const fbcCookie = readCookie("_fbc");
   const gclCookie = readCookie("_gcl_aw");
+  const fbpCookie = readCookie("_fbp");
   return {
     ...tracking,
     ...(!tracking.fbc && fbcCookie && { fbc: fbcCookie }),
     ...(!tracking.gcl_aw && gclCookie && { gcl_aw: gclCookie }),
+    ...(fbpCookie && { fbp: fbpCookie }),
   };
 }
 

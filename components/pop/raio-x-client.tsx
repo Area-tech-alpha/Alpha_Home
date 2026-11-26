@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { submitRaioXAceite } from "@/app/actions/submit-lead-pop";
 import { Ic } from "@/components/pop/icons";
 import { contentRaioX as c, raioXVariacao } from "@/lib/content-raio-x";
-import { TZ_LEAD_KEY } from "@/lib/lead-webhook-constants";
+import { TZ_LEAD_KEY } from "@/lib/tz-lead-constants";
 
 // Partes do /raio-x-do-restaurante que dependem do navegador (a página é estática).
 
@@ -60,7 +60,7 @@ export function AbrirCalc() {
 }
 
 // "Quero meu Raio-X gratuito": mostra a confirmação e, como no WP, manda o lead
-// salvo no navegador ao n8n (LEAD_WEBHOOK_URL_RAIO_X, pela server action) uma vez.
+// salvo no navegador ao CRM (food/raio-x, pela server action) uma vez.
 // Sem lead salvo (abriu a página direto), só mostra a confirmação.
 export function RaioXOk() {
   const [on, setOn] = useState(false);

@@ -4,7 +4,6 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { submitLeadNds } from "@/app/actions/submit-lead-nds";
 import LeadForm01lp, { type LeadForm01lpConfig } from "@/components/lp01/lead-form-01lp";
 import { contentNds as c, NDS_FORM_ID } from "@/lib/content-nao-dependa-de-sorte";
-import { WP_GERAL_UTM_KEYS } from "@/lib/lead-webhook-wp-geral";
 import { NdsIc } from "@/components/nao-dependa-de-sorte/icons";
 
 // Partes interativas da /nao-dependa-de-sorte, cada uma isolada. Estados sempre em
@@ -13,28 +12,9 @@ import { NdsIc } from "@/components/nao-dependa-de-sorte/icons";
 const reduzido = () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 // ===== Form (o da /01-lp) =====
-// UTMs da sessão, como o WP: guardadas no sessionStorage ao abrir a página e
-// lidas no envio para o body do n8n (o CRM usa o first-touch da /01-lp).
-function guardarUtmsDaSessao() {
-  try {
-    const p = new URLSearchParams(window.location.search);
-    for (const k of WP_GERAL_UTM_KEYS) {
-      const v = p.get(k);
-      if (v) sessionStorage.setItem(k, v);
-    }
-  } catch {}
-}
-function lerUtmsDaSessao() {
-  const u: Record<string, string> = {};
-  try {
-    for (const k of WP_GERAL_UTM_KEYS) u[k] = sessionStorage.getItem(k) || "";
-  } catch {}
-  return u;
-}
-
+// Atribuição: o first-touch da /01-lp (UTMs, fbclid, fbc e fbp) vai com o lead ao CRM.
 const config: LeadForm01lpConfig = {
-  submit: (data, tracking) =>
-    submitLeadNds(data, tracking, { pageUrl: window.location.href, referrer: document.referrer || "", utms: lerUtmsDaSessao() }),
+  submit: (data, tracking) => submitLeadNds(data, tracking),
   labels: c.form.labels,
   placeholders: c.form.placeholders,
   labelClassName: "nds-label",
@@ -49,7 +29,6 @@ const config: LeadForm01lpConfig = {
 };
 
 export function FormNds() {
-  useEffect(guardarUtmsDaSessao, []);
   return <LeadForm01lp config={config} />;
 }
 

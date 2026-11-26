@@ -1,17 +1,23 @@
-import { buildCrmLeadPayload, sendLeadToCrm } from "@/lib/crm";
+import {
+  buildFoodLpBody,
+  buildLmBody,
+  pageUrlOf,
+  sendToLeadIntake,
+  type FoodIntakeRoute,
+  type IntakeBody,
+} from "@/lib/crm";
 import {
   checkLeadRateLimit,
   releaseLeadRateLimit,
   type Limiters,
   type RateLimitScope,
 } from "@/lib/rate-limit";
-import { parseTracking, type LeadFormData } from "@/lib/validation";
+import { parseTracking, type LeadFormData, type LeadTracking } from "@/lib/validation";
 
-// Caminho único de envio das LPs (/01-lp, /alphas-pizzaria, /resultado-alphas-pizzaria
-// e /lead-magnetic-bastidores-alphas-pizzaria): o mesmo da home. Valida, aplica o
-// rate limit (escopo da LP), manda para o CRM comercial com o MESMO payload da home
-// (lib/crm.ts) e, se o CRM não responder ok, devolve a cota do rate limit para a
-// pessoa tentar de novo. O redirect só acontece quando o envio deu certo.
+// Caminho único de envio da home e das LPs: valida, aplica o rate limit (escopo da LP),
+// manda UMA vez para a entrada de leads do CRM (lib/crm.ts, rota food/* que a LP escolher)
+// e, se o CRM não responder ok, devolve a cota do rate limit para a pessoa tentar de novo.
+// O redirect só acontece quando o envio deu certo.
 //
 // Não recebe nada de next/headers: a server action de cada LP passa o IP. Assim dá
 // para testar com limitadores e fetch falsos, sem rede.
@@ -21,6 +27,20 @@ export type IntakeErrors = { validation: string; rateLimited: string; crm: strin
 type LeadSchema = {
   safeParse(data: unknown): { success: true; data: LeadFormData } | { success: false };
 };
+
+// Para onde e com que corpo o lead vai ao CRM.
+export type CrmTarget = { route: FoodIntakeRoute; body: (lead: LeadFormData, tracking: LeadTracking) => IntakeBody };
+
+// food/lp: home e LPs de restaurante. `origem` = de qual página o lead veio; `path` = rota
+// da página (vira page_url).
+export function foodLp(origem: string, path: string): CrmTarget {
+  return { route: "lp", body: (lead, tracking) => buildFoodLpBody({ lead, tracking, origem, pageUrl: pageUrlOf(path) }) };
+}
+
+// food/lm: lead magnets. `leadMagnet` = slug da LM no catálogo do CRM.
+export function foodLm(leadMagnet: string, path: string): CrmTarget {
+  return { route: "lm", body: (lead, tracking) => buildLmBody({ lead, tracking, leadMagnet, pageUrl: pageUrlOf(path) }) };
+}
 
 export type IntakeResult =
   | { success: true; lead: LeadFormData }
@@ -33,6 +53,7 @@ export async function intakeLead(opts: {
   schema: LeadSchema;
   scope: RateLimitScope;
   errors: IntakeErrors;
+  crm: CrmTarget;
   // Só nos testes:
   limiters?: Limiters | null;
   fetchImpl?: typeof fetch;
@@ -53,9 +74,12 @@ export async function intakeLead(opts: {
     };
   }
 
-  const result = await sendLeadToCrm(buildCrmLeadPayload(lead, tracking), opts.fetchImpl);
+  const result = await sendToLeadIntake(opts.crm.route, opts.crm.body(lead, tracking), opts.fetchImpl);
   if (!result.ok) {
     await releaseLeadRateLimit({ email: lead.email, telefone: lead.telefone, scope }, opts.limiters);
+    // 400: o CRM recusou o conteúdo (ex.: link no nome). Reenviar igual não adianta: a
+    // pessoa precisa corrigir o form. Resto (5xx, rede, chave): "tente de novo".
+    if (result.rejected) return { success: false, error: errors.validation, reason: "validation" };
     return { success: false, error: errors.crm, reason: "crm" };
   }
   return { success: true, lead };
